@@ -24,6 +24,7 @@
       :class="routeName"
       :style="{ background: pageBg }"
     >
+
       <RouterView />
     </main>
     <footer v-if="footerVisible" class="frfooter">
