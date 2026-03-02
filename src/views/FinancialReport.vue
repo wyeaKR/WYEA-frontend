@@ -22,11 +22,11 @@ const arcPath = (cx: number, cy: number, r: number, start: number, end: number) 
 }
 
 const incomeitems2025 = ref<Item[]>([
-  { label: '지원금', amount: 0, color: '#1C77F2' },
+  { label: '행사 참가비 수입', amount: 350_000, color: '#1C77F2' },
 ])
 
 const incomeitems2026 = ref<Item[]>([
-  { label: '지원금', amount: 0, color: '#1C77F2' },
+
 ])
 // #1C77F2 (진한 블루)
 // #2D99FF (중간 블루)
@@ -43,7 +43,7 @@ const spendingitems2025 = ref<Item[]>([
   { label: '봉사활동 장비', amount: 29_530, color: '#6EE7B7' },
   { label: '운영비', amount: 83_228, color: '#065F46' },
   { label: '비상주 사무실 계약', amount: 396_000, color: '#15803D' },
-  { label: '행사참가비', amount: 332_397, color: '#34D399' },
+  { label: '행사참가비', amount: 716_197, color: '#34D399' },
 ])
 
 const spendingitems2026 = ref<Item[]>([
@@ -61,7 +61,7 @@ const spendingitems2026 = ref<Item[]>([
 // #BBF7D0 (연한 실버톤 그린)
 
 /**********************************수입**************************************/
-const activeIncomeYear = ref<'2025' | '2026'>('2025')
+const activeIncomeYear = ref<'2025' | '2026'>('2026')
 
 /* 선택된 연도의 수입 아이템 */
 const incomeItems = computed<Item[]>(() =>
@@ -95,7 +95,7 @@ const centerSub = computed(() => {
   return seg ? `${fmtPct(seg.item.pct)} · ${fmtKRW(seg.item.amount)}` : ''
 })
 /**********************************지출**************************************/
-const activeSpendingYear = ref<'2025' | '2026'>('2025')
+const activeSpendingYear = ref<'2025' | '2026'>('2026')
 // 선택된 연도의 지출 아이템
 const spendingItems = computed<Item[]>(() =>
   activeSpendingYear.value === '2025' ? spendingitems2025.value : spendingitems2026.value
@@ -146,11 +146,11 @@ const centerSub2 = computed(() => {
           @click="activeIncomeYear = '2025'">
           2025 수입
         </button>
-<!--        <button
+        <button
           :class="{ active: activeIncomeYear === '2026' }"
           @click="activeIncomeYear = '2026'">
           2026 수입
-        </button>-->
+        </button>
       </div>
     </header>
 
@@ -195,17 +195,29 @@ const centerSub2 = computed(() => {
           <circle cx="150" cy="150" r="75" fill="#fff" />
 
           <!-- 세그먼트 -->
-          <g v-for="(seg, idx) in segments" :key="seg.item.label">
-            <path
-              :d="arcPath(150,150,110, seg.start, seg.end)"
-              :stroke="seg.item.color ?? '#999'"
-              :stroke-width="hoverIdx === idx ? 40 : 30"
+          <template v-if="segments.length === 1">
+            <circle cx="150" cy="150" r="110"
               fill="none"
+              :stroke="segments[0]?.item.color ?? '#999'"
+              :stroke-width="hoverIdx === 0 ? 40 : 30"
               class="seg"
-              @mouseenter="hoverIdx = idx"
+              @mouseenter="hoverIdx = 0"
               @mouseleave="hoverIdx = null"
             />
-          </g>
+          </template>
+          <template v-else>
+            <g v-for="(seg, idx) in segments" :key="seg.item.label">
+              <path
+                :d="arcPath(150,150,110, seg.start, seg.end)"
+                :stroke="seg.item.color ?? '#999'"
+                :stroke-width="hoverIdx === idx ? 40 : 30"
+                fill="none"
+                class="seg"
+                @mouseenter="hoverIdx = idx"
+                @mouseleave="hoverIdx = null"
+              />
+            </g>
+          </template>
 
           <!-- 중앙 라벨 -->
           <text x="150" y="138" text-anchor="middle" class="centerTitle">
@@ -237,11 +249,11 @@ const centerSub2 = computed(() => {
           @click="activeSpendingYear = '2025'">
           2025 지출
         </button>
-<!--        <button
+        <button
           :class="{ active: activeSpendingYear === '2026' }"
           @click="activeSpendingYear = '2026'">
           2026 지출
-        </button>-->
+        </button>
       </div>
     </header>
 
@@ -292,17 +304,29 @@ const centerSub2 = computed(() => {
           <circle cx="150" cy="150" r="75" fill="#fff" />
 
           <!-- 세그먼트 -->
-          <g v-for="(seg, idx) in segments2" :key="`${seg.item.label}-${idx}`">
-            <path
-              :d="arcPath(150,150,110, seg.start, seg.end)"
-              :stroke="seg.item.color ?? '#999'"
-              :stroke-width="hoverIdx2 === idx ? 40 : 30"
+          <template v-if="segments2.length === 1">
+            <circle cx="150" cy="150" r="110"
               fill="none"
+              :stroke="segments2[0]?.item.color ?? '#999'"
+              :stroke-width="hoverIdx2 === 0 ? 40 : 30"
               class="seg"
-              @mouseenter="hoverIdx2 = idx"
+              @mouseenter="hoverIdx2 = 0"
               @mouseleave="hoverIdx2 = null"
             />
-          </g>
+          </template>
+          <template v-else>
+            <g v-for="(seg, idx) in segments2" :key="`${seg.item.label}-${idx}`">
+              <path
+                :d="arcPath(150,150,110, seg.start, seg.end)"
+                :stroke="seg.item.color ?? '#999'"
+                :stroke-width="hoverIdx2 === idx ? 40 : 30"
+                fill="none"
+                class="seg"
+                @mouseenter="hoverIdx2 = idx"
+                @mouseleave="hoverIdx2 = null"
+              />
+            </g>
+          </template>
 
           <!-- 중앙 라벨 -->
           <text x="150" y="138" text-anchor="middle" class="centerTitle">
