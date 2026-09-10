@@ -355,48 +355,48 @@ const centerSub2 = computed(() => {
 :global(html), :global(body), :global(#app) { background:#fff; }
 :root { --bg:#ffffff; --ink:#0f172a; --muted:#667085; --line:#e7eef7; }
 .frsection1 {
-  max-width: 1100px;
+  max-width: clamp(1100px, 57.15vw, 1463px);
   margin: 40px auto;
   padding: 0 20px;
 }
 
 .frsection2 {
-  max-width: 1100px;
+  max-width: clamp(1100px, 57.15vw, 1463px);
   margin: 40px auto;
   padding: 0 20px;
 }
 .pageHead h1 {
-  font-size: 36px;
-  margin: 100px 0 8px;
+  font-size: clamp(36px, 1.88vw, 48px);
+  margin: clamp(100px, 5.2vw, 133px) 0 8px;
   font-weight: 700;
 }
 
 .pageHead .sub1 {
   color: var(--muted);
-  font-size: 20px;
+  font-size: clamp(20px, 1.02vw, 26px);
   font-weight: 500;
 }
 
 .pageHead .sub2 {
   color: var(--muted);
-  font-size: 20px;
+  font-size: clamp(20px, 1.02vw, 26px);
   font-weight: 500;
-  margin-top: 80px;
+  margin-top: clamp(80px, 4.14vw, 106px);
 }
 
 .grid { display: grid; grid-template-columns: 1.1fr 1fr; gap: 24px; }
 .card { background: var(--bg); border: 1px solid var(--line); border-radius: 16px; padding: 20px; box-shadow: 0 2px 10px rgba(15,23,42,.06); }
 .card h2 {
-  margin: 0 0 16px;
-  font-size: 18px;
+  margin: 0 0 clamp(16px, .82vw, 21px);
+  font-size: clamp(18px, .94vw, 24px);
   font-weight: 500;
 }
 
 /* 음수면 색만 살짝 경고톤 */
 .neg { color: #b91c1c; }
 
-.tbl { width: 100%; border-collapse: collapse; font-size: 14px; }
-.tbl th, .tbl td { padding: 10px 12px; border-bottom: 1px solid var(--line); }
+.tbl { width: 100%; border-collapse: collapse; font-size: clamp(14px, .7vw, 18px); }
+.tbl th, .tbl td { padding: clamp(10px, .51vw, 13px) clamp(12px, .63vw, 16px); border-bottom: 1px solid var(--line); }
 .tbl thead th { background: #f8fbff; text-align: left; }
 .tbl .num { text-align: right; font-variant-numeric: tabular-nums; }
 .tbl tfoot th, .tbl tfoot td { font-weight: 700; }
@@ -407,15 +407,15 @@ const centerSub2 = computed(() => {
 
 .seg { cursor: pointer; transition: stroke-width .18s ease, opacity .18s ease; opacity: .95; }
 
-.legend { list-style: none; display:grid; grid-template-columns: 1fr 1fr; gap: 8px 12px; padding: 0; margin: 8px 0 0; width:100%; }
-.legend li { display:flex; align-items:center; justify-content:space-between; gap:10px; border-bottom:1px dashed var(--line); padding:6px 0; transition: color .15s ease; }
+.legend { list-style: none; display:grid; grid-template-columns: 1fr 1fr; gap: clamp(8px, .39vw, 10px) clamp(12px, .63vw, 16px); padding: 0; margin: clamp(8px, .43vw, 11px) 0 0; width:100%; }
+.legend li { display:flex; align-items:center; justify-content:space-between; gap:10px; border-bottom:1px dashed var(--line); padding: clamp(6px, .31vw, 8px) 0; transition: color .15s ease; }
 .legend li.active .name { color: #0f172a; font-weight: 600; }
 .legend .swatch { width:10px; height:10px; border-radius:50%; }
 .legend .name { flex:1; margin-left:8px; color: var(--muted); }
 .legend .val { font-variant-numeric: tabular-nums; }
 
-.centerTitle { font-size: 13px; font-weight: 600; fill: #64748b; }
-.centerSub { font-size: 14px; font-weight: 700; fill: #1C77F2; }
+.centerTitle { font-size: clamp(13px, .66vw, 17px); font-weight: 600; fill: #64748b; }
+.centerSub { font-size: clamp(14px, .74vw, 19px); font-weight: 700; fill: #1C77F2; }
 @media (max-width: 1024px) { .grid { grid-template-columns: 1fr; } }
 
 .year-tabs {
@@ -429,9 +429,9 @@ const centerSub2 = computed(() => {
   border: 1px solid var(--line);
   background: #fff;
   color: #334155;
-  padding: 6px 10px;
-  font-size: 13px;
-  border-radius: 10px;
+  padding: clamp(6px, .31vw, 8px) clamp(10px, .51vw, 13px);
+  font-size: clamp(13px, .66vw, 17px);
+  border-radius: clamp(10px, .51vw, 13px);
   cursor: pointer;
 }
 
@@ -440,64 +440,6 @@ const centerSub2 = computed(() => {
   color: #1C77F2;
   font-weight: 700;
   box-shadow: 0 2px 6px rgba(28,119,242,.12);
-}
-
-@media (min-width: 2560px) {
-  .frsection1,
-  .frsection2 {
-    max-width: 1463px;   /* 1100px × 1.33 */
-    margin: 53px auto;   /* 40px × 1.33 */
-    padding: 0 27px;     /* 20px × 1.33 */
-  }
-
-  .pageHead h1 {
-    font-size: 48px;     /* 36px × 1.33 */
-    margin: 133px 0 11px;/* 100px × 1.33 */
-  }
-
-  .pageHead .sub1,
-  .pageHead .sub2 {
-    font-size: 26px;     /* 20px × 1.33 */
-  }
-  .pageHead .sub2 {
-    margin-top: 106px;   /* 80px × 1.33 */
-  }
-
-  .card h2 {
-    font-size: 24px;     /* 18px × 1.33 */
-    margin-bottom: 21px; /* 16px × 1.33 */
-  }
-
-  .tbl {
-    font-size: 18px;     /* 14px × 1.33 */
-  }
-  .tbl th, .tbl td {
-    padding: 13px 16px;  /* 10×1.33 / 12×1.33 */
-  }
-
-  .legend {
-    gap: 10px 16px;      /* 8×1.33 / 12×1.33 */
-    margin-top: 11px;    /* 8px × 1.33 */
-  }
-  .legend li {
-    padding: 8px 0;      /* 6px × 1.33 */
-  }
-  .legend .name {
-    font-size: 1.2rem;   /* 글씨 조금 키움 */
-  }
-
-  .centerTitle {
-    font-size: 17px;     /* 13px × 1.33 */
-  }
-  .centerSub {
-    font-size: 19px;     /* 14px × 1.33 */
-  }
-
-  .year-tabs button {
-    padding: 8px 13px;   /* 6×1.33 / 10×1.33 */
-    font-size: 17px;     /* 13px × 1.33 */
-    border-radius: 13px; /* 10px × 1.33 */
-  }
 }
 
 </style>

@@ -32,6 +32,7 @@ const photos = [
         class="photo-swiper"
         :modules="[Pagination, Autoplay]"
         :slides-per-view="1"
+        :auto-height="true"
         :pagination="{ clickable: true }"
         :loop="true"
         :autoplay="{ delay: 3000, disableOnInteraction: false }"
@@ -165,18 +166,25 @@ const photos = [
 
 /* 개별 사진 카드 */
 .photo-item {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 280px;
+  max-height: 620px;
   background: #2d6a4f;
   box-shadow: 0 0 30px 15px #2d6a4f;
-  padding: 0.5em 1em;
+  padding: 16px;
   border-radius: 20px;
   overflow: hidden;
 }
 
 /* 사진 */
 .photo-item img {
-  width: 100%;
-  aspect-ratio: 16 / 9;
-  object-fit: contain;
+  display: block;
+  width: auto;
+  max-width: 100%;
+  max-height: 580px;
+  height: auto;
   border-radius: 12px;
 }
 

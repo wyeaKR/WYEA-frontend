@@ -24,7 +24,7 @@ export type DecorItem = {
   fromPolar?: { deg: number; dist: number; unit?: 'px' | '%' | 'vw' | 'vh' }  // 각도/거리로 시작 오프셋 지정
 
   top?: string; bottom?: string; left?: string; right?: string  // 최종 도착 지점
-  width?: number  // 이미지의 크기
+  width?: number | string  // 이미지의 크기
 
   delay?: number  // 시작 지연초
   duration?: number // 재생 시간초
@@ -67,7 +67,7 @@ const styleFor = (it: DecorItem, i: number) => {
     bottom: it.bottom,
     left: it.left,
     right: it.right,
-    width: it.width ? `${it.width}px` : undefined,
+    width: typeof it.width === 'number' ? `${it.width}px` : it.width,
 
     animationDelay: `${it.delay ?? i * 0.15 + 0.1}s`,
     animationDuration: it.duration ? `${it.duration}s` : undefined,
@@ -100,7 +100,6 @@ defineProps<{
   z-index: 0;
   pointer-events: none;
   perspective: 1000px; /* 3D 틸트 깊이감 (rotX/rotY 쓸 때 유효) */
-
   user-select: none;
   -webkit-user-drag: none;
 }

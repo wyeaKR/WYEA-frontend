@@ -57,27 +57,6 @@ const BASE_DECOR: DecorItem[] = [
   { src: sunglasses, from: 'left',  left: '1%', top: '65%',  width: 200, rotZ:-10, delay: .23 },
   { src: sticker, from: 'up',  left: '5%', top: '80%',  width: 300, rotZ:30, delay: .25 },
 ]
-
-const QHD_DECOR: DecorItem[] = [
-  { src: coin,     from: 'right',       right: '0%',   top: '30%', width: 186, rotZ: 70,  delay: .25 },
-  { src: carrier,  from: 'top-right',   right: '-12%', top: '-30%', width: 944, rotZ: 70,  delay: .25 },
-  { src: passport, from: 'right',       right: '7%',   top: '40%',  width: 266, rotZ: 20,  delay: .25 },
-  { src: charger,  from: 'right',       right: '-3%',  top: '34%',  width: 399, rotZ: 30,  delay: .30 },
-  { src: compass,  from: 'down',        right: '20%',  top: '0%',   width: 199, rotZ: 30,  delay: .25 },
-  { src: bill,     from: 'up',          right: '6%',   top: '80%',  width: 266, rotZ: 30,  delay: .25 },
-  { src: map,      from: 'bottom-right',right: '-17%', top: '40%',  width: 931, rotZ: 100, delay: .25 },
-
-  { src: coin,     from: 'left',        left: '0%',    top: '50%',  width: 133, rotZ: 170, delay: .30 },
-  { src: backpack, from: 'top-left',    left: '-6%',   top: '-5%',  width: 532, rotZ: 30,  delay: .25 },
-  { src: camera,   from: 'down',        left: '8%',    top: '0%',   width: 292, rotZ: 110, delay: .25 },
-  { src: pens,     from: 'left',        left: '6%',    top: '55%',  width: 199, rotZ: 0,   delay: .23 },
-  { src: headphones,from:'left',        left: '0%',    top: '30%',  width: 332, rotZ: -50, delay: .27 },
-  { src: mobile,   from: 'left',        left: '-4%',   top: '55%',  width: 266, rotZ: 45,  delay: .25 },
-  { src: wallet,   from: 'bottom-left', left: '0%',    top: '80%',  width: 199, rotZ: -10, delay: .27 },
-  { src: sunglasses,from:'left',        left: '1%',    top: '65%',  width: 266, rotZ: -10, delay: .23 },
-  { src: sticker,  from: 'up',          left: '5%',    top: '80%',  width: 399, rotZ: 30,  delay: .25 },
-
-]
 /**
  * 협력 대학 로고
  */
@@ -97,8 +76,6 @@ const section1Ref = ref<HTMLElement | null>(null)
 const section2Ref = ref<HTMLElement | null>(null)
 const decorHidden = ref(false)
 const footerVisible = ref(false)
-const logoHeight = ref(60)
-const marqueeGap = ref(56)
 const decorItems = ref<DecorItem[]>(BASE_DECOR)
 
 const year = new Date().getFullYear()
@@ -111,15 +88,6 @@ let section2IO: IntersectionObserver | null = null
 let section3IO: IntersectionObserver | null = null
 let prevHidden = decorHidden.value
 let initialized = false // 초기 1회 콜백 무시
-let mql: MediaQueryList
-
-const apply = () => {
-  const isQHD = mql.matches
-  decorItems.value = isQHD ? QHD_DECOR : BASE_DECOR
-  logoHeight.value = isQHD ? 100 : 60  // QHD에서 크게
-  marqueeGap.value = isQHD ? 90 : 56
-}
-
 const onScroll = () => {
   const scrollTop = window.scrollY
   const windowHeight = window.innerHeight
@@ -184,9 +152,6 @@ onMounted(async () => {
     })
     section2IO.observe(section2Ref.value)
 
-    mql = window.matchMedia('(min-width: 2560px)')
-    apply()
-    mql.addEventListener('change', apply)
   }
 
   /* ===== 타임라인 1회 등장 IO ===== */
@@ -222,7 +187,6 @@ onBeforeUnmount(() => {
   section2IO = null
   section3IO = null
   window.removeEventListener('scroll', onScroll)
-  mql?.removeEventListener('change', apply)
 })
 </script>
 
@@ -242,7 +206,9 @@ onBeforeUnmount(() => {
     </div>
     <div class="section1-div2">
       <p>연합 지부</p>
-      <LogoMarquee class="university-logo" :logos="logos" :duration="60" :gap="marqueeGap" :repeat="4" :logoHeight="logoHeight" :key="`${logoHeight}-${marqueeGap}`"
+      <LogoMarquee class="university-logo" :logos="logos" :duration="60" :repeat="4"
+                   :gap="'clamp(36px, 3vw, 90px)'"
+                   :logoHeight="'clamp(48px, 4vw, 100px)'"
                    style="max-width: 800px; width: 100%; margin: 10px auto 0;"/>
     </div>
     <div class="section1-div3">
@@ -440,6 +406,7 @@ onBeforeUnmount(() => {
   user-select: none;
   -webkit-user-drag: none;
   margin-top: 50px;
+  width: clamp(300px, 17vw, 600px);
 }
 
 /* 섹션1 World Youth Exchange Association */
@@ -448,13 +415,14 @@ onBeforeUnmount(() => {
   animation-delay: .12s;
   font-weight: 700;
   margin-bottom: 5%;
+  font-size: clamp(30px, 2.6vw, 80px);
 }
 
 /* 섹션1 세계 청년 교류회 */
 .section1-div1 p {
   animation-delay: .24s;
   font-weight: 700;
-  font-size: 1.25rem;
+  font-size: clamp(20px, 1.5vw, 42px);
 }
 
 /* 섹션1 가입하러 가기 버튼 */
@@ -469,6 +437,7 @@ onBeforeUnmount(() => {
   border:none;
   cursor:pointer;
   box-shadow:0 6px 18px rgba(0,0,0,.12);
+  font-size: clamp(14px, 1vw, 24px);
 }
 
 /* 섹션1 연합 지부 영역 전체 */
@@ -486,7 +455,7 @@ onBeforeUnmount(() => {
 .section1-div2 p {
   color:#7a7a7a;
   font-weight: 700;
-  font-size:16px;
+  font-size: clamp(15px, 1vw, 24px);
   margin-bottom: 8px;
 }
 
@@ -499,39 +468,7 @@ onBeforeUnmount(() => {
 .section1-div3 p {
   color: #afafaf;
   font-weight: 500;
-  font-size:12px;
-}
-
-/* ===== QHD 이상 (2560px 이상) ===== */
-@media (min-width: 2560px) {
-  .section1-div1 img {
-    width: 50%;
-  }
-
-  .section1-div1 h3 {
-    font-size: 500%;
-  }
-
-  .section1-div1 p {
-    font-size: 225%;
-  }
-
-  .section1-div1 button {
-    font-size: 150%;
-  }
-
-  .section1-div2 p {
-    font-size: 150%;
-  }
-
-  .university-logo {
-    width: 200% !important;
-    max-width: 1200px !important; /* max-width 때문에 안 늘어나면 제거 가능 */
-  }
-
-  .section1-div3 p {
-    font-size: 125%;
-  }
+  font-size: clamp(12px, .8vw, 20px);
 }
 
 /* ===== 모바일 (1024px 이하) ===== */
@@ -568,8 +505,8 @@ onBeforeUnmount(() => {
   display: block;
   text-align: center;
   min-height: calc(100vh - var(--header-h, 64px));
-  gap: 4rem;        /* 카드 사이 간격 */
-  padding: 4rem;    /* 화면 테두리와 카드 사이 여백 */
+  gap: clamp(4rem, 3vw, 5.32rem);        /* 카드 사이 간격 */
+  padding: clamp(4rem, 3vw, 5.32rem);    /* 화면 테두리와 카드 사이 여백 */
   font-family: 'PretendardFont', sans-serif;
   z-index: 0;
 }
@@ -577,6 +514,8 @@ onBeforeUnmount(() => {
 .section2-div1 h3 {
   font-weight: 700;
   margin-bottom: 60px;
+  margin-top: clamp(0px, 2vw, 60px);
+  font-size: clamp(28px, 2.2vw, 63px);
 }
 
 .section2-div2 {
@@ -589,7 +528,7 @@ onBeforeUnmount(() => {
 /* 카드1 이미지 */
 .section2-card1 img {
   position: absolute;
-  width: 200px;
+  width: clamp(200px, 9.24vw, 266px);
   top: -16%;
   left: -12%;
   z-index: 2;
@@ -599,13 +538,13 @@ onBeforeUnmount(() => {
 
 /* 카드1 본체 */
 .section2-card1 {
-  flex: 1 1 450px;   /* 최소 450px, 공간 있으면 늘어남 */
-  max-width: 550px;  /* 카드 최대 폭 */
-  min-height: 400px; /* 세로 최소 높이 */
+  flex: 1 1 clamp(450px, 20.76vw, 598px);   /* 최소 450px, 공간 있으면 늘어남 */
+  max-width: clamp(550px, 25.38vw, 731px);  /* 카드 최대 폭 */
+  min-height: clamp(400px, 18.47vw, 532px); /* 세로 최소 높이 */
   background: #fff;
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-  padding: 2rem;
+  padding: clamp(2rem, 1.2vw, 2.66rem);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
   position: relative;
   z-index: 1;
@@ -619,12 +558,13 @@ onBeforeUnmount(() => {
 .section2-card1 h4 {
   text-align: center;
   font-weight: 700;
+  font-size: clamp(16px, 1.56vw, 45px);
 }
 
 .section2-card1 h4::after {
   content: '';
   display: block;
-  width: 40px;
+  width: clamp(40px, 1.84vw, 53px);
   height: 4px;
   background: #0d47a1; /* 포인트 색상 */
   margin: 0.5rem auto 0;
@@ -637,14 +577,14 @@ onBeforeUnmount(() => {
   margin-left: 40px;
   margin-right: 40px;
   font-weight: 400;
-  font-size: 1.1rem;
+  font-size: clamp(1.1rem, 1.04vw, 30px);
   line-height: 1.8;
 }
 
 /* 카드2 이미지 */
 .section2-card2 img {
   position: absolute;
-  width: 200px;
+  width: clamp(200px, 9.24vw, 266px);
   top: -16%;
   left: -11%;
   user-select: none;
@@ -653,13 +593,13 @@ onBeforeUnmount(() => {
 
 /* 카드2 본체 */
 .section2-card2 {
-  flex: 1 1 450px;   /* 최소 450px, 공간 있으면 늘어남 */
-  max-width: 550px;  /* 카드 최대 폭 */
-  min-height: 400px; /* 세로 최소 높이 */
+  flex: 1 1 clamp(450px, 20.76vw, 598px);   /* 최소 450px, 공간 있으면 늘어남 */
+  max-width: clamp(550px, 25.38vw, 731px);  /* 카드 최대 폭 */
+  min-height: clamp(400px, 18.47vw, 532px); /* 세로 최소 높이 */
   background: #fff;
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-  padding: 2rem;
+  padding: clamp(2rem, 1.2vw, 2.66rem);
   text-align: left;  /* 가운데 정렬 (원하면 left로 변경) */
   transition: transform 0.2s ease, box-shadow 0.2s ease;
   position: relative;
@@ -674,12 +614,13 @@ onBeforeUnmount(() => {
 .section2-card2 h4 {
   text-align: center;
   font-weight: 700;
+  font-size: clamp(16px, 1.56vw, 45px);
 }
 
 .section2-card2 h4::after {
   content: '';
   display: block;
-  width: 40px;
+  width: clamp(40px, 1.84vw, 53px);
   height: 4px;
   background: #0d47a1; /* 포인트 색상 */
   margin: 0.5rem auto 0;
@@ -696,7 +637,7 @@ onBeforeUnmount(() => {
   color: #333;
   margin-top: 15px;
   font-weight: 400;
-  font-size: 1.1rem;
+  font-size: clamp(1.1rem, .87vw, 25px);
 }
 
 /* 클립 애니메이션 초기 상태 */
@@ -715,71 +656,6 @@ onBeforeUnmount(() => {
 .section2.clip-start .clip {
   opacity: 1;
   transform: rotate(var(--rot, 0deg)) translateY(0);
-}
-
-/* ===== QHD 이상 (2560px 이상) ===== */
-@media (min-width: 2560px) {
-
-  .section2 {
-    min-height: calc(80vh - var(--header-h, 64px));
-    gap: 5.32rem;
-    padding: 5.32rem;
-  }
-
-  .section2-div1 h3 {
-    font-size: 63px;
-    margin-bottom: 80px;
-    margin-top: 60px;
-  }
-
-  .section2-card1 img {
-    width: 266px;
-  }
-
-  .section2-card1 {
-    flex: 1 1 598px;
-    max-width: 731px;
-    min-height: 532px;
-    padding: 2.66rem;
-  }
-
-  .section2-card1 h4 {
-    font-size: 45px;
-  }
-
-  .section2-card1 h4::after {
-    width: 53px;
-    margin: 0.665rem auto 0;
-  }
-
-  .section2-card1 p {
-    font-size: 30px;
-  }
-
-  .section2-card2 img {
-    width: 266px;
-  }
-
-  .section2-card2 {
-    flex: 1 1 598px;
-    max-width: 731px;
-    min-height: 532px;
-    padding: 2.66rem;
-  }
-
-  .section2-card2 h4 {
-    font-size: 45px;
-  }
-
-  .section2-card2 h4::after {
-    width: 53px;
-    margin: 0.665rem auto 0;
-  }
-
-  .section2-card2 li {
-    margin-top: 20px;
-    font-size: 25px;
-  }
 }
 
 /* ===== 모바일 (1024px 이하) ===== */
@@ -839,7 +715,7 @@ onBeforeUnmount(() => {
 }
 
 .section3-div1 h1 {
-  font-size: 4rem;
+  font-size: clamp(4rem, 3.5vw, 5.32rem);
   font-weight: 700;
   margin-bottom: 60px;
   color: #0d47a1;
@@ -848,8 +724,8 @@ onBeforeUnmount(() => {
 .section3-divcontainer {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 40px;
-  max-width: 1200px;
+  gap: clamp(40px, 2.34vw, 60px);
+  max-width: clamp(1200px, 70vw, 1596px);
   margin: 0 auto;
   text-align: left;
 }
@@ -869,8 +745,8 @@ onBeforeUnmount(() => {
     transform .6s ease,
     filter .6s ease;
   transition-delay: var(--d, 0ms);
-  margin-bottom: 30px;
-  padding-left: 50px;
+  margin-bottom: clamp(30px, 1.56vw, 40px);
+  padding-left: clamp(50px, 2.58vw, 66px);
   position: relative;
 }
 
@@ -888,8 +764,8 @@ onBeforeUnmount(() => {
     transform .6s ease,
     filter .6s ease;
   transition-delay: calc(var(--d, 0ms) + 800ms);  /* 늦게 작동 */
-  margin-bottom: 30px;
-  padding-left: 50px;
+  margin-bottom: clamp(30px, 1.56vw, 40px);
+  padding-left: clamp(50px, 2.58vw, 66px);
   position: relative;
 }
 
@@ -961,30 +837,8 @@ onBeforeUnmount(() => {
 
 .section3 ul span {
   text-align: left;
-  font-size: 17px;
+  font-size: clamp(17px, 1.17vw, 30px);
   font-weight: 500;
-}
-
-/* ===== QHD 이상 (2560px 이상) ===== */
-@media (min-width: 2560px) {
-  .section3-div1 h1 {
-    font-size: 5.32rem;
-  }
-
-  .section3-divcontainer {
-    max-width: 1596px;
-  }
-
-
-  .section3-div2 ul li,
-  .section3-div3 ul li {
-    margin-bottom: 40px;
-    padding-left: 66px;
-  }
-
-  .section3 ul span {
-    font-size: 30px;
-  }
 }
 
 /* ===== 모바일 (1024px 이하) ===== */
@@ -1041,12 +895,13 @@ onBeforeUnmount(() => {
   color: #000;
   margin: 2px 0;
   font-weight: bold;
+  font-size: clamp(14px, calc(.72vw + .18px), 19px);
 }
 
 /* ===== middle 영역 ===== */
 .footer .footer-middle p {
   margin: 4px 0;
-  font-size: 12px;
+  font-size: clamp(12px, .625vw, 16px);
   color: #666;
   line-height: 1.6;
 }
@@ -1098,7 +953,7 @@ onBeforeUnmount(() => {
 }
 
 .footer .footer-logo {
-  height: 30px;
+  height: clamp(30px, 1.5625vw, 40px);
   filter: grayscale(100%);
   opacity: 0.9;
 }
@@ -1114,22 +969,6 @@ onBeforeUnmount(() => {
 
 .footer .footer-links a:visited {
   color: #444;
-}
-
-/* ===== QHD 이상 (2560px 이상) ===== */
-@media (min-width: 2560px) {
-
-  .footer .footer-top p {
-    font-size: 19px;
-  }
-
-  .footer .footer-middle p {
-    font-size: 16px;
-  }
-
-  .footer .footer-logo {
-    height: 40px;
-  }
 }
 
 /* ===== 모바일 (1024px 이하) ===== */

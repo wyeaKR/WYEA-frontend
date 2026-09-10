@@ -14,14 +14,15 @@
 <script setup lang="ts">
 import { ref, onMounted, onBeforeUnmount, watch } from 'vue'
 
-type Logo = { src: string; alt?: string; width?: number; height?: number }
+type CssLength = number | string
+type Logo = { src: string; alt?: string; width?: CssLength; height?: CssLength }
 
 const props = withDefaults(defineProps<{
   logos: Logo[]
   /** 전체(모든 세트) 한 바퀴 시간(초). 세트당 시간은 duration/repeat */
   duration?: number
-  gap?: number
-  logoHeight?: number
+  gap?: CssLength
+  logoHeight?: CssLength
   /** 마우스 올리면 멈춤(옵션) — RAF 방식이라 기본은 미사용 */
   pauseOnHover?: boolean
   repeat?: number
@@ -34,13 +35,13 @@ const props = withDefaults(defineProps<{
 })
 
 const rootStyle = {
-  '--gap': `${props.gap}px`,
-  '--h': `${props.logoHeight}px`,
+  '--gap': typeof props.gap === 'number' ? `${props.gap}px` : props.gap,
+  '--h': typeof props.logoHeight === 'number' ? `${props.logoHeight}px` : props.logoHeight,
 } as Record<string, string>
 
 const imgStyle = (l: Logo) => ({
-  height: l.height ? `${l.height}px` : `var(--h)`,
-  width: l.width ? `${l.width}px` : 'auto',
+  height: l.height ? (typeof l.height === 'number' ? `${l.height}px` : l.height) : 'var(--h)',
+  width: l.width ? (typeof l.width === 'number' ? `${l.width}px` : l.width) : 'auto',
 })
 
 const stripRef = ref<HTMLDivElement | null>(null)

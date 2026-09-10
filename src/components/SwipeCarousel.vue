@@ -129,8 +129,8 @@ onMounted(() => { wrap.value?.focus?.() })
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  width: 36px;
-  height: 36px;
+  width: clamp(36px, 1.88vw, 48px);
+  height: clamp(36px, 1.88vw, 48px);
   border-radius: 999px;
   border: 0;
   background: rgba(255,255,255,.95);
@@ -153,35 +153,16 @@ onMounted(() => { wrap.value?.focus?.() })
   bottom: 8px;
   transform: translateX(-50%);
   display: flex;
-  gap: .5rem;
+  gap: clamp(.5rem, .29vw, .75rem);
   justify-content: center;
 }
 .dots > button {
-  width: 8px; height: 8px;
+  width: clamp(8px, .43vw, 11px);
+  height: clamp(8px, .43vw, 11px);
   border-radius: 50%;
   border: 0;
   background: #cfd8dc;
   cursor: pointer;
 }
 .dots > button.active { background: #0d47a1; }
-@media (min-width: 2560px) {
-  /* 좌우 네비 버튼 확대 */
-  .nav {
-    width: 48px;
-    height: 48px;
-  }
-
-  /* 도트 크기 확대 */
-  .dots > button {
-    width: 11px;
-    height: 11px;
-  }
-
-  /* 도트 간격도 살짝 늘려주면 자연스러움 */
-  .dots {
-    gap: 0.75rem; /* 기본 .5rem → 약간 넓게 */
-  }
-}
-
-
 </style>

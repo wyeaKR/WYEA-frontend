@@ -70,13 +70,14 @@
 
 <style scoped>
 .privacy-policy {
-  max-width: 800px;
-  margin: 7rem auto;
+  max-width: clamp(800px, 41.56vw, 1064px);
+  margin: clamp(7rem, 4.84vw, 9.3rem) auto;
   line-height: 1.6;
+  font-size: clamp(1rem, .66vw + .48rem, 1.27rem);
 }
 .privacy-policy h1 {
-  font-size: 1.8rem;
-  margin-bottom: 1rem;
+  font-size: clamp(1.8rem, .94vw, 2.4rem);
+  margin-bottom: clamp(1rem, .51vw, 1.3rem);
   font-weight: 700;
 }
 @media (max-width: 1000px) {
@@ -86,8 +87,8 @@
   }
 }
 .privacy-policy h2 {
-  margin-top: 1.5rem;
-  font-size: 1.2rem;
+  margin-top: clamp(1.5rem, .78vw, 2rem);
+  font-size: clamp(1.2rem, .63vw, 1.6rem);
   font-weight: 500;
 }
 
@@ -113,26 +114,4 @@
   }
 }
 
-@media (min-width: 2560px) {
-  .privacy-policy {
-    max-width: 1064px;   /* 800px × 1.33 */
-    margin: 9.3rem auto; /* 7rem × 1.33 */
-    font-size: 1.27rem;  /* 본문 기본 글씨도 약간 키움 */
-  }
-
-  .privacy-policy h1 {
-    font-size: 2.4rem;      /* 1.8rem × 1.33 */
-    margin-bottom: 1.3rem;  /* 1rem × 1.33 */
-  }
-
-  .privacy-policy h2 {
-    font-size: 1.6rem;    /* 1.2rem × 1.33 */
-    margin-top: 2rem;     /* 1.5rem × 1.33 */
-  }
-
-  .privacy-policy p {
-    font-size: 1.27rem;   /* 본문 글씨 키움 */
-    line-height: 1.7;     /* 줄간격 약간 넓힘 */
-  }
-}
 </style>
