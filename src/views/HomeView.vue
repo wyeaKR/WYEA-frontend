@@ -2,21 +2,6 @@
 import { ref, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import FloatingDecor, { type DecorItem } from '@/components/FloatingDecor.vue'
 
-import backpack from '@/assets/image/backpack.png'
-import camera from '@/assets/image/camera.png'
-import carrier from '@/assets/image/carrier.png'
-import charger from '@/assets/image/charger.png'
-import coin from '@/assets/image/coin.png'
-import compass from '@/assets/image/compass.png'
-import headphones from '@/assets/image/headphones.png'
-import mobile from '@/assets/image/mobile.png'
-import passport from '@/assets/image/passport.png'
-import pens from '@/assets/image/pens.png'
-import sunglasses from '@/assets/image/sunglasses.png'
-import wallet from '@/assets/image/wallet.png'
-import sticker from '@/assets/image/sticker.png'
-import bill from '@/assets/image/bill.png'
-import map from '@/assets/image/map.png'
 import LogoMarquee from '@/components/LogoMarquee.vue'
 
 import busan from '@/assets/image/busan.svg'
@@ -31,6 +16,25 @@ import masan from '@/assets/image/masan.png'
 
 import HomeViewPhoto from '@/components/HomeViewPhoto.vue'
 import SwipeCarousel from '@/components/SwipeCarousel.vue'
+
+const decorativeImage = (name: string) => `${import.meta.env.BASE_URL}images/decorative/${name}`
+const backpack = decorativeImage('backpack.png')
+const camera = decorativeImage('camera.png')
+const carrier = decorativeImage('carrier.png')
+const charger = decorativeImage('charger.png')
+const coin = decorativeImage('coin.png')
+const compass = decorativeImage('compass.png')
+const headphones = decorativeImage('headphones.png')
+const mobile = decorativeImage('mobile.png')
+const passport = decorativeImage('passport.png')
+const pens = decorativeImage('pens.png')
+const sunglasses = decorativeImage('sunglasses.png')
+const wallet = decorativeImage('wallet.png')
+const sticker = decorativeImage('sticker.png')
+const bill = decorativeImage('bill.png')
+const map = decorativeImage('map.png')
+const clip = decorativeImage('clip.png')
+
 /**
  * 홈 메인 이미지
  */
@@ -98,6 +102,9 @@ const marqueeGap = ref(56)
 const decorItems = ref<DecorItem[]>(BASE_DECOR)
 
 const year = new Date().getFullYear()
+const handleJoinClick = () => {
+  window.alert('지금은 가입 시즌이 아닙니다.')
+}
 
 let section1IO: IntersectionObserver | null = null
 let section2IO: IntersectionObserver | null = null
@@ -226,9 +233,12 @@ onBeforeUnmount(() => {
       <img src="@/assets/image/wyea-logo.png" width="300" alt="wyea-logo">
       <h3>World Youth<br>Exchange Association</h3>
       <p>세계 청년 교류회</p>
+      <!-- 가입 시즌 재개 시 아래 Google Forms 링크를 다시 사용할 수 있습니다.
       <a href="https://docs.google.com/forms/d/1hiR6G3eOuM7Ytx6ksI5VIW_4rrTz9FG2ee5IPoU6OgQ/edit" target="_blank" rel="noopener noreferrer">
         <button>가입하러 가기</button>
       </a>
+      -->
+      <button type="button" @click="handleJoinClick">가입하러 가기</button>
     </div>
     <div class="section1-div2">
       <p>연합 지부</p>
@@ -248,7 +258,7 @@ onBeforeUnmount(() => {
     </div>
     <div class="section2-div2">
       <div class="section2-card1">
-        <img src="@/assets/image/clip.png" class="clip" alt="clip" style="--rot: 38deg;" />
+        <img :src="clip" class="clip" alt="clip" style="--rot: 38deg;" />
           <h4>설립 배경</h4>
         <SwipeCarousel>
           <template #item-0>
@@ -274,7 +284,7 @@ onBeforeUnmount(() => {
         </SwipeCarousel>
       </div>
       <div class="section2-card2">
-        <img src="@/assets/image/clip.png" class="clip" alt="clip" style="--rot: 48deg;" />
+        <img :src="clip" class="clip" alt="clip" style="--rot: 48deg;" />
         <h4>주요 활동</h4>
         <ul>
           <li>해외 봉사 프로젝트</li>
