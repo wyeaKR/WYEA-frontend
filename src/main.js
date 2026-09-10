@@ -12,6 +12,15 @@ import 'quasar/src/css/index.sass'
 
 import { useUserStore } from '@/stores/user-store.ts'
 
+const resetScrollPosition = () => {
+  window.scrollTo({ top: 0, left: 0, behavior: 'auto' })
+}
+
+resetScrollPosition()
+window.addEventListener('pageshow', () => {
+  window.setTimeout(resetScrollPosition, 0)
+})
+
 const app = createApp(App)
 
 app.use(Quasar, {

@@ -2,6 +2,10 @@ import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 import { isTokenExpired } from '@/utils/token-utils'
 
+if ('scrollRestoration' in window.history) {
+  window.history.scrollRestoration = 'manual'
+}
+
 const routerInstance = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
@@ -58,7 +62,7 @@ const routerInstance = createRouter({
   ],
   scrollBehavior() {
     // 항상 맨 위로 스크롤
-    return { top: 0 }
+    return { top: 0, left: 0 }
   }
 })
 
