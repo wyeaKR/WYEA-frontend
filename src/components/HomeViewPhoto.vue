@@ -59,12 +59,18 @@ const photos = [
 .hero > * { position: relative; z-index: 0; }
 .hero {
   position: fixed;
+  display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
   text-align: center;
   inset: var(--header-h, 64px) 0 0 0;
   z-index: -1;
   pointer-events: none;
+}
+.hero > section {
+  width: 100%;
+  flex-shrink: 0;
 }
 .hero::before {
   --cell: clamp(32px, calc(1.04vw + 12px), 42px);
