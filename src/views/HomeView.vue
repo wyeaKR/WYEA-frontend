@@ -77,10 +77,15 @@ const section2Ref = ref<HTMLElement | null>(null)
 const decorHidden = ref(false)
 const footerVisible = ref(false)
 const decorItems = ref<DecorItem[]>(BASE_DECOR)
+const contentScale = ref(1)
 
 const year = new Date().getFullYear()
 const handleJoinClick = () => {
   window.alert('지금은 가입 시즌이 아닙니다.')
+}
+
+const updateContentScale = () => {
+  contentScale.value = Math.min(1.35, Math.max(1, window.innerWidth / 1920))
 }
 
 let section1IO: IntersectionObserver | null = null
@@ -98,6 +103,8 @@ const onScroll = () => {
 }
 
 onMounted(async () => {
+  updateContentScale()
+  window.addEventListener('resize', updateContentScale, { passive: true })
   /* ===== 배경데코 토글 IO ===== */
   const rootStyles = getComputedStyle(document.documentElement)
   const headerH = parseFloat(rootStyles.getPropertyValue('--header-h')) || 64
@@ -187,6 +194,7 @@ onBeforeUnmount(() => {
   section2IO = null
   section3IO = null
   window.removeEventListener('scroll', onScroll)
+  window.removeEventListener('resize', updateContentScale)
 })
 </script>
 
@@ -266,7 +274,7 @@ onBeforeUnmount(() => {
   </section>
 
   <section class="section3">
-    <div class="section3-inner">
+    <div class="section3-inner" :style="{ '--content-scale': contentScale }">
       <div class="section3-div1">
         <h1>설립 역사</h1>
       </div>
@@ -509,35 +517,37 @@ onBeforeUnmount(() => {
   display: block;
   text-align: center;
   min-height: calc(100vh - var(--header-h, 64px));
-  gap: clamp(4rem, calc(2.19vw + 1.3rem), 5.32rem);        /* 카드 사이 간격 */
-  padding: clamp(4rem, calc(2.19vw + 1.3rem), 5.32rem);    /* 화면 테두리와 카드 사이 여백 */
+  /* One CSS pixel at FHD; every card dimension shares this scale. */
+  --section2-unit: max(0.65px, 0.0520833333vw);
+  padding: calc(64 * var(--section2-unit)) 24px;
   font-family: 'PretendardFont', sans-serif;
   z-index: 0;
 }
 
 .section2-inner {
-  width: clamp(1120px, calc(39.58vw + 360px), 1500px);
-  max-width: calc(100% - 32px);
+  width: calc(1120 * var(--section2-unit));
+  max-width: 100%;
   margin: 0 auto;
 }
 
 .section2-div1 h3 {
   font-weight: 700;
-  margin-bottom: 60px;
-  margin-top: clamp(0px, 2vw, 60px);
-  font-size: clamp(28px, 2.2vw, 63px);
+  line-height: 1.2;
+  margin-bottom: calc(60 * var(--section2-unit));
+  margin-top: 0;
+  font-size: calc(42.24 * var(--section2-unit));
 }
 
 .section2-div2 {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: clamp(20px, calc(1.04vw + 0px), 30px);
+  gap: calc(20 * var(--section2-unit));
 }
 
 /* 카드1 이미지 */
 .section2-card1 img {
   position: absolute;
-  width: clamp(200px, calc(6.88vw + 68px), 266px);
+  width: calc(200 * var(--section2-unit));
   top: -16%;
   left: -12%;
   z-index: 2;
@@ -549,11 +559,11 @@ onBeforeUnmount(() => {
 .section2-card1 {
   width: 100%;
   max-width: none;
-  min-height: clamp(400px, calc(13.75vw + 136px), 532px); /* 세로 최소 높이 */
+  min-height: calc(400 * var(--section2-unit));
   background: #fff;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-  padding: clamp(2rem, calc(1.1vw + .68rem), 2.66rem);
+  border-radius: calc(12 * var(--section2-unit));
+  box-shadow: 0 calc(4 * var(--section2-unit)) calc(12 * var(--section2-unit)) rgba(0,0,0,0.08);
+  padding: calc(32 * var(--section2-unit));
   transition: transform 0.2s ease, box-shadow 0.2s ease;
   position: relative;
   z-index: 1;
@@ -561,39 +571,41 @@ onBeforeUnmount(() => {
 
 .section2-card1:hover {
   transform: translateY(-6px);
-  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+  box-shadow: 0 8px calc(20 * var(--section2-unit)) rgba(0,0,0,0.15);
 }
 
 .section2-card1 h4 {
   text-align: center;
   font-weight: 700;
-  font-size: clamp(16px, 1.56vw, 45px);
+  line-height: 1.2;
+  font-size: calc(29.952 * var(--section2-unit));
 }
 
 .section2-card1 h4::after {
   content: '';
   display: block;
-  width: clamp(40px, 1.84vw, 53px);
-  height: 4px;
-  background: #0d47a1; /* 포인트 색상 */
-  margin: 0.5rem auto 0;
-  border-radius: 2px;
+  width: calc(40 * var(--section2-unit));
+  height: calc(4 * var(--section2-unit));
+  background: #0d47a1;
+  margin: calc(8 * var(--section2-unit)) auto 0;
+  border-radius: calc(2 * var(--section2-unit));
 }
 
 .section2-card1 p {
-  text-align: left;
-  margin-top: 25px;
-  margin-left: 40px;
-  margin-right: 40px;
+  text-align: center;
+  line-height: 1.5;
+  margin-bottom: calc(16 * var(--section2-unit));
+  margin-top: calc(25 * var(--section2-unit));
+  margin-left: calc(40 * var(--section2-unit));
+  margin-right: calc(40 * var(--section2-unit));
   font-weight: 400;
-  font-size: clamp(1.1rem, 1.04vw, 30px);
-  line-height: 1.8;
+  font-size: calc(19.968 * var(--section2-unit));
 }
 
 /* 카드2 이미지 */
 .section2-card2 img {
   position: absolute;
-  width: clamp(200px, calc(6.88vw + 68px), 266px);
+  width: calc(200 * var(--section2-unit));
   top: -16%;
   left: -11%;
   user-select: none;
@@ -604,12 +616,12 @@ onBeforeUnmount(() => {
 .section2-card2 {
   width: 100%;
   max-width: none;
-  min-height: clamp(400px, calc(13.75vw + 136px), 532px); /* 세로 최소 높이 */
+  min-height: calc(400 * var(--section2-unit));
   background: #fff;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-  padding: clamp(2rem, calc(1.1vw + .68rem), 2.66rem);
-  text-align: left;  /* 가운데 정렬 (원하면 left로 변경) */
+  border-radius: calc(12 * var(--section2-unit));
+  box-shadow: 0 calc(4 * var(--section2-unit)) calc(12 * var(--section2-unit)) rgba(0,0,0,0.08);
+  padding: calc(32 * var(--section2-unit));
+  text-align: left;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
   position: relative;
   z-index: 1;
@@ -617,36 +629,37 @@ onBeforeUnmount(() => {
 
 .section2-card2:hover {
   transform: translateY(-6px);
-  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+  box-shadow: 0 8px calc(20 * var(--section2-unit)) rgba(0,0,0,0.15);
 }
 
 .section2-card2 h4 {
   text-align: center;
   font-weight: 700;
-  font-size: clamp(16px, 1.56vw, 45px);
+  line-height: 1.2;
+  font-size: calc(29.952 * var(--section2-unit));
 }
 
 .section2-card2 h4::after {
   content: '';
   display: block;
-  width: clamp(40px, 1.84vw, 53px);
-  height: 4px;
-  background: #0d47a1; /* 포인트 색상 */
-  margin: 0.5rem auto 0;
-  border-radius: 2px;
+  width: calc(40 * var(--section2-unit));
+  height: calc(4 * var(--section2-unit));
+  background: #0d47a1;
+  margin: calc(8 * var(--section2-unit)) auto 0;
+  border-radius: calc(2 * var(--section2-unit));
 }
 
 .section2-card2 ul {
-  padding-left: 1.2rem;
+  padding-left: calc(19.2 * var(--section2-unit));
   line-height: 1.8;
 }
 
 .section2-card2 li {
   list-style: "✔ ";
   color: #333;
-  margin-top: 15px;
+  margin-top: calc(15 * var(--section2-unit));
   font-weight: 400;
-  font-size: clamp(1.1rem, .87vw, 25px);
+  font-size: calc(17.6 * var(--section2-unit));
 }
 
 /* 클립 애니메이션 초기 상태 */
@@ -656,7 +669,7 @@ onBeforeUnmount(() => {
   transform: rotate(var(--rot, 0deg)) translateY(-24px);
   transition:
     transform .7s cubic-bezier(.2,.8,.2,1),
-    opacity   .7s cubic-bezier(.2,.8,.2,1);
+    opacity .7s cubic-bezier(.2,.8,.2,1);
   transition-delay: var(--clip-d, 0ms);
   will-change: transform, opacity;
 }
@@ -668,10 +681,32 @@ onBeforeUnmount(() => {
 }
 
 /* ===== 모바일 (1024px 이하) ===== */
+.section2 :deep(.nav) {
+  width: calc(36.096 * var(--section2-unit));
+  height: calc(36.096 * var(--section2-unit));
+  font-size: calc(13.333 * var(--section2-unit));
+}
+.section2 :deep(.nav.prev) { left: calc(-10 * var(--section2-unit)); }
+.section2 :deep(.nav.next) { right: calc(-10 * var(--section2-unit)); }
+.section2 :deep(.dots) {
+  bottom: calc(8 * var(--section2-unit));
+  gap: calc(8 * var(--section2-unit));
+}
+.section2 :deep(.dots > button) {
+  width: calc(8.256 * var(--section2-unit));
+  height: calc(8.256 * var(--section2-unit));
+  padding: 0;
+}
+
 @media (max-width: 1024px) {
+  .section2 {
+    --section2-unit: 1px;
+    padding: 4rem 24px;
+  }
 
   .section2-inner {
     width: calc(100% - 32px);
+    transform: none;
   }
 
   .section2-div2 {
@@ -682,11 +717,13 @@ onBeforeUnmount(() => {
     font-size: 28px;
   }
 
-  .section2-card1 img {
+  .section2-card1 img,
+  .section2-card2 img {
     display: none;
   }
 
-  .section2-card1 {
+  .section2-card1,
+  .section2-card2 {
     min-height: 300px;
   }
 
@@ -695,28 +732,20 @@ onBeforeUnmount(() => {
     margin-right: 10px;
   }
 
-  .section2-card2 img {
-    display: none;
-  }
-
-  .section2-card2 {
-    min-height: 300px;
-  }
-
   .section2-div2 h4 {
     font-size: 28px;
   }
 
-  .section2-div2 p {
-    font-size: 14px;
-  }
-
+  .section2-div2 p,
   .section2-div2 li {
     font-size: 14px;
   }
 }
 
 /*-------------------------------section3---------------------------------*/
+:root {
+  --d: 0ms;
+}
 :root {
   --d: 0ms;
 }
@@ -732,9 +761,10 @@ onBeforeUnmount(() => {
 }
 
 .section3-inner {
-  width: clamp(1200px, calc(41.25vw + 408px), 1596px);
-  max-width: calc(100% - 32px);
+  width: 1200px;
   margin: 0 auto;
+  transform: scale(var(--content-scale, 1));
+  transform-origin: top center;
 }
 
 .section3-div1 h1 {
@@ -747,7 +777,7 @@ onBeforeUnmount(() => {
 .section3-divcontainer {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: clamp(40px, calc(1.38vw + 13.6px), 53px);
+  gap: 40px;
   width: 100%;
   max-width: none;
   margin: 0 auto;
@@ -869,6 +899,7 @@ onBeforeUnmount(() => {
 @media (max-width: 1024px) {
   .section3-inner {
     width: calc(100% - 32px);
+    transform: none;
   }
 
   .section3-div1 h1 {
