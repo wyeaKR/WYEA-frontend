@@ -89,9 +89,6 @@ const photos = [
   opacity: .9;
   mix-blend-mode: overlay;
 }
-@media (min-width: 2560px) {
-  .hero::before { --cell: 42px; }
-}
 .hero::after {
   content: "";
   position: absolute;
@@ -122,12 +119,6 @@ const photos = [
     font-size: 30px;
   }
 }
-@media (min-width: 2560px) {
-  .hvpsection1 h1 {
-    margin-top: 20px;
-    font-size: 70px;
-  }
-}
 /* ================= Swiper Section ================= */
 .hvpsection2 {
   margin-top: 0px;
@@ -151,18 +142,6 @@ const photos = [
     margin-top: 30px;
   }
 }
-@media (min-width: 2560px) {
-  .photo-swiper {
-    position: relative;
-    background: #2d6a4f;
-    box-shadow: 0 0 50px 15px #2d6a4f;
-    display: inline-block;
-    width: 1600px;
-    max-width: 90%;
-    padding-bottom: 40px;
-  }
-}
-
 /* 개별 사진 카드 */
 .photo-item {
   display: flex;
