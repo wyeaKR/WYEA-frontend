@@ -77,15 +77,10 @@ const section2Ref = ref<HTMLElement | null>(null)
 const decorHidden = ref(false)
 const footerVisible = ref(false)
 const decorItems = ref<DecorItem[]>(BASE_DECOR)
-const contentScale = ref(1)
 
 const year = new Date().getFullYear()
 const handleJoinClick = () => {
   window.alert('지금은 가입 시즌이 아닙니다.')
-}
-
-const updateContentScale = () => {
-  contentScale.value = Math.min(1.35, Math.max(1, window.innerWidth / 1920))
 }
 
 let section1IO: IntersectionObserver | null = null
@@ -103,8 +98,6 @@ const onScroll = () => {
 }
 
 onMounted(async () => {
-  updateContentScale()
-  window.addEventListener('resize', updateContentScale, { passive: true })
   /* ===== 배경데코 토글 IO ===== */
   const rootStyles = getComputedStyle(document.documentElement)
   const headerH = parseFloat(rootStyles.getPropertyValue('--header-h')) || 64
@@ -194,7 +187,6 @@ onBeforeUnmount(() => {
   section2IO = null
   section3IO = null
   window.removeEventListener('scroll', onScroll)
-  window.removeEventListener('resize', updateContentScale)
 })
 </script>
 
@@ -274,7 +266,7 @@ onBeforeUnmount(() => {
   </section>
 
   <section class="section3">
-    <div class="section3-inner" :style="{ '--content-scale': contentScale }">
+    <div class="section3-inner">
       <div class="section3-div1">
         <h1>설립 역사</h1>
       </div>
@@ -751,33 +743,35 @@ onBeforeUnmount(() => {
 }
 
 .section3 {
+  /* Scale actual layout dimensions so the background includes every item. */
+  --history-unit: max(0.65px, 0.0520833333vw);
   background: linear-gradient(180deg, #f9fcff 0%, #ffffff 30%, #f0f7ff 100%);
-  padding: 60px 20px;
+  padding: calc(60 * var(--history-unit)) calc(20 * var(--history-unit));
   text-align: center;
-  border-bottom-left-radius: 20px;   /* 왼쪽 아래만 둥글게 */
-  border-bottom-right-radius: 20px;  /* 오른쪽 아래만 둥글게 */
+  border-bottom-left-radius: calc(20 * var(--history-unit));   /* 왼쪽 아래만 둥글게 */
+  border-bottom-right-radius: calc(20 * var(--history-unit));  /* 오른쪽 아래만 둥글게 */
   box-shadow: 0 18px 32px rgba(0,0,0,.18);
   font-family: 'PretendardFont', sans-serif;
 }
 
 .section3-inner {
-  width: 1200px;
+  width: calc(1200 * var(--history-unit));
+  max-width: 100%;
   margin: 0 auto;
-  transform: scale(var(--content-scale, 1));
-  transform-origin: top center;
 }
 
 .section3-div1 h1 {
-  font-size: clamp(4rem, calc(2.19vw + 1.38rem), 5.32rem);
+  font-size: calc(64.128 * var(--history-unit));
   font-weight: 700;
-  margin-bottom: 60px;
+  line-height: 1.2;
+  margin-bottom: calc(60 * var(--history-unit));
   color: #0d47a1;
 }
 
 .section3-divcontainer {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 40px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: calc(40 * var(--history-unit));
   width: 100%;
   max-width: none;
   margin: 0 auto;
@@ -787,7 +781,7 @@ onBeforeUnmount(() => {
 .section3-div2 {
   display: flex;
   align-items: center; /* 세로 중앙 */
-  padding-right: clamp(16px, 6vw, 200px); /* 오른쪽 여백 */
+  padding-right: calc(115.2 * var(--history-unit)); /* 오른쪽 여백 */
 }
 
 .section3-div2 ul li {
@@ -799,8 +793,8 @@ onBeforeUnmount(() => {
     transform .6s ease,
     filter .6s ease;
   transition-delay: var(--d, 0ms);
-  margin-bottom: clamp(30px, calc(1.04vw + 10px), 40px);
-  padding-left: clamp(50px, calc(1.67vw + 18px), 66px);
+  margin-bottom: calc(30 * var(--history-unit));
+  padding-left: calc(50.064 * var(--history-unit));
   position: relative;
 }
 
@@ -818,8 +812,8 @@ onBeforeUnmount(() => {
     transform .6s ease,
     filter .6s ease;
   transition-delay: calc(var(--d, 0ms) + 800ms);  /* 늦게 작동 */
-  margin-bottom: clamp(30px, calc(1.04vw + 10px), 40px);
-  padding-left: clamp(50px, calc(1.67vw + 18px), 66px);
+  margin-bottom: calc(30 * var(--history-unit));
+  padding-left: calc(50.064 * var(--history-unit));
   position: relative;
 }
 
@@ -827,7 +821,7 @@ onBeforeUnmount(() => {
   list-style: none;
   margin: 0 auto;
   padding: 0;
-  max-width: 600px;
+  max-width: calc(600 * var(--history-unit));
   text-align: left;
   position: relative;
 }
@@ -835,10 +829,10 @@ onBeforeUnmount(() => {
 .section3 ul::before {
   content: '';
   position: absolute;
-  left: 19px;
+  left: calc(19 * var(--history-unit));
   top: 0;
   bottom: 0;
-  width: 2px;
+  width: calc(2 * var(--history-unit));
   background: #d0e2f7;
 }
 
@@ -852,10 +846,10 @@ onBeforeUnmount(() => {
 .section3 ul li::before {
   content: '';
   position: absolute;
-  left: 12px;
-  top: 5px;
-  width: 16px;
-  height: 16px;
+  left: calc(12 * var(--history-unit));
+  top: calc(5 * var(--history-unit));
+  width: calc(16 * var(--history-unit));
+  height: calc(16 * var(--history-unit));
   background: #0d47a1;
   border-radius: 50%;
 }
@@ -881,7 +875,7 @@ onBeforeUnmount(() => {
   display: block;
   font-weight: 600;
   color: #0d47a1;
-  margin-bottom: 4px;
+  margin-bottom: calc(4 * var(--history-unit));
 }
 
 .section3 ul .event {
@@ -891,12 +885,16 @@ onBeforeUnmount(() => {
 
 .section3 ul span {
   text-align: left;
-  font-size: clamp(17px, calc(1.35vw - 9px), 30px);
+  font-size: calc(17 * var(--history-unit));
   font-weight: 500;
 }
 
 /* ===== 모바일 (1024px 이하) ===== */
 @media (max-width: 1024px) {
+  .section3 {
+    --history-unit: 1px;
+  }
+
   .section3-inner {
     width: calc(100% - 32px);
     transform: none;
