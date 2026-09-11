@@ -505,8 +505,8 @@ onBeforeUnmount(() => {
   display: block;
   text-align: center;
   min-height: calc(100vh - var(--header-h, 64px));
-  gap: clamp(4rem, 3vw, 5.32rem);        /* 카드 사이 간격 */
-  padding: clamp(4rem, 3vw, 5.32rem);    /* 화면 테두리와 카드 사이 여백 */
+  gap: clamp(4rem, calc(2.19vw + 1.3rem), 5.32rem);        /* 카드 사이 간격 */
+  padding: clamp(4rem, calc(2.19vw + 1.3rem), 5.32rem);    /* 화면 테두리와 카드 사이 여백 */
   font-family: 'PretendardFont', sans-serif;
   z-index: 0;
 }
@@ -528,7 +528,7 @@ onBeforeUnmount(() => {
 /* 카드1 이미지 */
 .section2-card1 img {
   position: absolute;
-  width: clamp(200px, 9.24vw, 266px);
+  width: clamp(200px, calc(6.88vw + 68px), 266px);
   top: -16%;
   left: -12%;
   z-index: 2;
@@ -538,13 +538,13 @@ onBeforeUnmount(() => {
 
 /* 카드1 본체 */
 .section2-card1 {
-  flex: 1 1 clamp(450px, 20.76vw, 598px);   /* 최소 450px, 공간 있으면 늘어남 */
-  max-width: clamp(550px, 25.38vw, 731px);  /* 카드 최대 폭 */
-  min-height: clamp(400px, 18.47vw, 532px); /* 세로 최소 높이 */
+  flex: 1 1 clamp(450px, calc(15.42vw + 154px), 598px);   /* 최소 450px, 공간 있으면 늘어남 */
+  max-width: clamp(550px, calc(18.85vw + 188px), 731px);  /* 카드 최대 폭 */
+  min-height: clamp(400px, calc(13.75vw + 136px), 532px); /* 세로 최소 높이 */
   background: #fff;
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-  padding: clamp(2rem, 1.2vw, 2.66rem);
+  padding: clamp(2rem, calc(1.1vw + .68rem), 2.66rem);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
   position: relative;
   z-index: 1;
@@ -584,7 +584,7 @@ onBeforeUnmount(() => {
 /* 카드2 이미지 */
 .section2-card2 img {
   position: absolute;
-  width: clamp(200px, 9.24vw, 266px);
+  width: clamp(200px, calc(6.88vw + 68px), 266px);
   top: -16%;
   left: -11%;
   user-select: none;
@@ -593,13 +593,13 @@ onBeforeUnmount(() => {
 
 /* 카드2 본체 */
 .section2-card2 {
-  flex: 1 1 clamp(450px, 20.76vw, 598px);   /* 최소 450px, 공간 있으면 늘어남 */
-  max-width: clamp(550px, 25.38vw, 731px);  /* 카드 최대 폭 */
-  min-height: clamp(400px, 18.47vw, 532px); /* 세로 최소 높이 */
+  flex: 1 1 clamp(450px, calc(15.42vw + 154px), 598px);   /* 최소 450px, 공간 있으면 늘어남 */
+  max-width: clamp(550px, calc(18.85vw + 188px), 731px);  /* 카드 최대 폭 */
+  min-height: clamp(400px, calc(13.75vw + 136px), 532px); /* 세로 최소 높이 */
   background: #fff;
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-  padding: clamp(2rem, 1.2vw, 2.66rem);
+  padding: clamp(2rem, calc(1.1vw + .68rem), 2.66rem);
   text-align: left;  /* 가운데 정렬 (원하면 left로 변경) */
   transition: transform 0.2s ease, box-shadow 0.2s ease;
   position: relative;
@@ -715,7 +715,7 @@ onBeforeUnmount(() => {
 }
 
 .section3-div1 h1 {
-  font-size: clamp(4rem, 3.5vw, 5.32rem);
+  font-size: clamp(4rem, calc(2.19vw + 1.38rem), 5.32rem);
   font-weight: 700;
   margin-bottom: 60px;
   color: #0d47a1;
@@ -724,8 +724,8 @@ onBeforeUnmount(() => {
 .section3-divcontainer {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: clamp(40px, 2.34vw, 60px);
-  max-width: clamp(1200px, 70vw, 1596px);
+  gap: clamp(40px, calc(1.38vw + 13.6px), 53px);
+  max-width: clamp(1200px, calc(41.25vw + 408px), 1596px);
   margin: 0 auto;
   text-align: left;
 }
@@ -745,8 +745,8 @@ onBeforeUnmount(() => {
     transform .6s ease,
     filter .6s ease;
   transition-delay: var(--d, 0ms);
-  margin-bottom: clamp(30px, 1.56vw, 40px);
-  padding-left: clamp(50px, 2.58vw, 66px);
+  margin-bottom: clamp(30px, calc(1.04vw + 10px), 40px);
+  padding-left: clamp(50px, calc(1.67vw + 18px), 66px);
   position: relative;
 }
 
@@ -764,8 +764,8 @@ onBeforeUnmount(() => {
     transform .6s ease,
     filter .6s ease;
   transition-delay: calc(var(--d, 0ms) + 800ms);  /* 늦게 작동 */
-  margin-bottom: clamp(30px, 1.56vw, 40px);
-  padding-left: clamp(50px, 2.58vw, 66px);
+  margin-bottom: clamp(30px, calc(1.04vw + 10px), 40px);
+  padding-left: clamp(50px, calc(1.67vw + 18px), 66px);
   position: relative;
 }
 
@@ -837,7 +837,7 @@ onBeforeUnmount(() => {
 
 .section3 ul span {
   text-align: left;
-  font-size: clamp(17px, 1.17vw, 30px);
+  font-size: clamp(17px, calc(1.35vw - 9px), 30px);
   font-weight: 500;
 }
 
