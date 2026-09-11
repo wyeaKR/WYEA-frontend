@@ -219,10 +219,11 @@ onBeforeUnmount(() => {
   <FloatingDecor class="decor" :items="decorItems" :hidden="decorHidden"/>
 
   <section class="section2" ref="section2Ref">
-    <div class="section2-div1">
-      <h3>WYEA에서는 무엇을 하나요?</h3>
-    </div>
-    <div class="section2-div2">
+    <div class="section2-inner">
+      <div class="section2-div1">
+        <h3>WYEA에서는 무엇을 하나요?</h3>
+      </div>
+      <div class="section2-div2">
       <div class="section2-card1">
         <img :src="clip" class="clip" alt="clip" style="--rot: 38deg;" />
           <h4>설립 배경</h4>
@@ -261,13 +262,15 @@ onBeforeUnmount(() => {
         </ul>
       </div>
     </div>
+    </div>
   </section>
 
   <section class="section3">
-    <div class="section3-div1">
-      <h1>설립 역사</h1>
-    </div>
-    <div class="section3-divcontainer">
+    <div class="section3-inner">
+      <div class="section3-div1">
+        <h1>설립 역사</h1>
+      </div>
+      <div class="section3-divcontainer">
       <div class="section3-div2">
         <ul>
           <li>
@@ -327,6 +330,7 @@ onBeforeUnmount(() => {
             <span class="event">마산대학교 지부 설립</span>
           </li>
         </ul>
+      </div>
       </div>
     </div>
   </section>
@@ -511,6 +515,12 @@ onBeforeUnmount(() => {
   z-index: 0;
 }
 
+.section2-inner {
+  width: clamp(1120px, calc(39.58vw + 360px), 1500px);
+  max-width: calc(100% - 32px);
+  margin: 0 auto;
+}
+
 .section2-div1 h3 {
   font-weight: 700;
   margin-bottom: 60px;
@@ -519,10 +529,9 @@ onBeforeUnmount(() => {
 }
 
 .section2-div2 {
-  display: flex;
-  justify-content: center; /* 가운데 정렬 */
-  gap: 20px;               /* 카드 사이 간격 */
-  flex-wrap: wrap;         /* 화면이 좁으면 줄바꿈 */
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(20px, calc(1.04vw + 0px), 30px);
 }
 
 /* 카드1 이미지 */
@@ -538,8 +547,8 @@ onBeforeUnmount(() => {
 
 /* 카드1 본체 */
 .section2-card1 {
-  flex: 1 1 clamp(450px, calc(15.42vw + 154px), 598px);   /* 최소 450px, 공간 있으면 늘어남 */
-  max-width: clamp(550px, calc(18.85vw + 188px), 731px);  /* 카드 최대 폭 */
+  width: 100%;
+  max-width: none;
   min-height: clamp(400px, calc(13.75vw + 136px), 532px); /* 세로 최소 높이 */
   background: #fff;
   border-radius: 12px;
@@ -593,8 +602,8 @@ onBeforeUnmount(() => {
 
 /* 카드2 본체 */
 .section2-card2 {
-  flex: 1 1 clamp(450px, calc(15.42vw + 154px), 598px);   /* 최소 450px, 공간 있으면 늘어남 */
-  max-width: clamp(550px, calc(18.85vw + 188px), 731px);  /* 카드 최대 폭 */
+  width: 100%;
+  max-width: none;
   min-height: clamp(400px, calc(13.75vw + 136px), 532px); /* 세로 최소 높이 */
   background: #fff;
   border-radius: 12px;
@@ -661,6 +670,14 @@ onBeforeUnmount(() => {
 /* ===== 모바일 (1024px 이하) ===== */
 @media (max-width: 1024px) {
 
+  .section2-inner {
+    width: calc(100% - 32px);
+  }
+
+  .section2-div2 {
+    grid-template-columns: 1fr;
+  }
+
   .section2-div1 h3 {
     font-size: 28px;
   }
@@ -714,6 +731,12 @@ onBeforeUnmount(() => {
   font-family: 'PretendardFont', sans-serif;
 }
 
+.section3-inner {
+  width: clamp(1200px, calc(41.25vw + 408px), 1596px);
+  max-width: calc(100% - 32px);
+  margin: 0 auto;
+}
+
 .section3-div1 h1 {
   font-size: clamp(4rem, calc(2.19vw + 1.38rem), 5.32rem);
   font-weight: 700;
@@ -725,7 +748,8 @@ onBeforeUnmount(() => {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: clamp(40px, calc(1.38vw + 13.6px), 53px);
-  max-width: clamp(1200px, calc(41.25vw + 408px), 1596px);
+  width: 100%;
+  max-width: none;
   margin: 0 auto;
   text-align: left;
 }
@@ -843,6 +867,10 @@ onBeforeUnmount(() => {
 
 /* ===== 모바일 (1024px 이하) ===== */
 @media (max-width: 1024px) {
+  .section3-inner {
+    width: calc(100% - 32px);
+  }
+
   .section3-div1 h1 {
     font-size: 30px; /* 모바일에서 다른 크기 */
   }
