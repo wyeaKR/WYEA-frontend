@@ -71,6 +71,8 @@ const photos = [
 .hero > section {
   width: 100%;
   flex-shrink: 0;
+  /* Raise the content together without moving the background. */
+  top: calc(-72 * var(--photo-unit, 1px));
 }
 .hero::before {
   --cell: clamp(32px, calc(1.04vw + 12px), 42px);
