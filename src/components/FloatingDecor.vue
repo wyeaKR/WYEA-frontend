@@ -1,6 +1,5 @@
 <template>
   <section
-    ref="decorRoot"
     class="hero-decor"
     :class="hidden ? 'is-hide' : 'is-show'"
     :style="{ '--decor-scale': decorScale }"
@@ -47,28 +46,21 @@ export type DecorItem = {
   origin?: string // transform-origin (e.g. '30% 70%')
 }
 
-const decorRoot = ref<HTMLElement | null>(null)
 const decorScale = ref(1)
-let decorObserver: ResizeObserver | null = null
 
 const updateDecorScale = (width: number) => {
   decorScale.value = Math.min(1.35, Math.max(1, width / 1920))
 }
 
-onMounted(() => {
-  const root = decorRoot.value
-  if (!root) return
+const update = () => updateDecorScale(window.innerWidth)
 
-  decorObserver = new ResizeObserver(([entry]) => {
-    if (entry) updateDecorScale(entry.contentRect.width)
-  })
-  decorObserver.observe(root)
-  updateDecorScale(root.clientWidth)
+onMounted(() => {
+  update()
+  window.addEventListener('resize', update, { passive: true })
 })
 
 onBeforeUnmount(() => {
-  decorObserver?.disconnect()
-  decorObserver = null
+  window.removeEventListener('resize', update)
 })
 
 const styleFor = (it: DecorItem, i: number) => {
@@ -128,11 +120,14 @@ defineProps<{
 <style scoped>
 .hero-decor{
   position: fixed;
-  inset: var(--header-h, 64px) 0 0 0;
+  top: var(--header-h, 64px);
+  bottom: 0;
+  left: 50%;
+  width: 1920px;
   z-index: 0;
   pointer-events: none;
   perspective: 1000px; /* 3D 틸트 깊이감 (rotX/rotY 쓸 때 유효) */
-  transform: scale(var(--decor-scale, 1));
+  transform: translateX(-50%) scale(var(--decor-scale, 1));
   transform-origin: top center;
   user-select: none;
   -webkit-user-drag: none;
