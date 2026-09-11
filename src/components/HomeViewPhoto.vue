@@ -174,4 +174,47 @@ const photos = [
 .swiper-pagination-bullet-active {
   opacity: 1;
 }
+
+/* Keep the FHD composition proportional at larger desktop widths. */
+@media (min-width: 1025px) {
+  .hero {
+    --photo-unit: max(0.65px, 0.0520833333vw);
+    inset: calc(64 * var(--photo-unit)) 0 0;
+  }
+
+  .hero::before {
+    --cell: calc(32 * var(--photo-unit));
+  }
+
+  .hvpsection1 h1 {
+    margin-top: calc(-10 * var(--photo-unit));
+    font-size: calc(60 * var(--photo-unit));
+    line-height: 1.6;
+    letter-spacing: calc(-0.9375 * var(--photo-unit));
+  }
+
+  .photo-swiper {
+    width: calc(820 * var(--photo-unit));
+    margin-top: calc(-10 * var(--photo-unit));
+    padding-bottom: calc(40 * var(--photo-unit));
+    --swiper-pagination-bullet-size: calc(8 * var(--photo-unit));
+    --swiper-pagination-bullet-horizontal-gap: calc(4 * var(--photo-unit));
+    --swiper-pagination-bottom: calc(8 * var(--photo-unit));
+  }
+
+  .hvpsection1 h1,
+  .photo-swiper,
+  .photo-item {
+    box-shadow: 0 0 calc(30 * var(--photo-unit)) calc(15 * var(--photo-unit)) #2d6a4f;
+  }
+
+  .photo-item {
+    padding: calc(16 * var(--photo-unit));
+    border-radius: calc(20 * var(--photo-unit));
+  }
+
+  .photo-item img {
+    border-radius: calc(12 * var(--photo-unit));
+  }
+}
 </style>

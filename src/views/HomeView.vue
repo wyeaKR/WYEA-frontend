@@ -1034,4 +1034,36 @@ onBeforeUnmount(() => {
     clip-path: inset(0 0 0 0 round 0 0 0 0);
   }
 }
+
+/* The desktop footer uses the same FHD scale as the activity photos. */
+@media (min-width: 1501px) {
+  .footer {
+    --footer-unit: calc(100vw / 1920);
+    padding: calc(20 * var(--footer-unit));
+    bottom: calc(-200 * var(--footer-unit));
+    font-size: calc(14 * var(--footer-unit));
+    clip-path: inset(0 37% 0 37% round calc(64 * var(--footer-unit)) calc(64 * var(--footer-unit)) 0 0);
+  }
+
+  .footer.show { bottom: 0; }
+
+  .footer .footer-top p {
+    margin: calc(2 * var(--footer-unit)) 0;
+    font-size: calc(14.004 * var(--footer-unit));
+  }
+
+  .footer .footer-middle p {
+    margin: calc(4 * var(--footer-unit)) 0;
+    font-size: calc(12 * var(--footer-unit));
+  }
+
+  .footer .footer-bottom {
+    gap: calc(32 * var(--footer-unit));
+    max-width: calc(720 * var(--footer-unit));
+    margin-top: calc(16 * var(--footer-unit));
+    padding: 0 calc(20 * var(--footer-unit));
+  }
+
+  .footer .footer-logo { height: calc(30 * var(--footer-unit)); }
+}
 </style>
