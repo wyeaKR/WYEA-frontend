@@ -12,11 +12,19 @@ defineProps<{
 const photos = [
   {
     src: new URL('@/assets/picture/LINE_ALBUM_2日目_251209_16.jpg', import.meta.url).href,
-    alt: '2025년 상반기 정모'
+    alt: '2025년 상반기 정모1'
   },
   {
     src: new URL('@/assets/picture/KakaoTalk_20251210_171433166.jpg', import.meta.url).href,
-    alt: '2025년 상반기 정모'
+    alt: '2025년 상반기 정모2'
+  },
+  {
+    src: new URL('@/assets/picture/260829_1720_1_조영우.jpg', import.meta.url).href,
+    alt: '260829_제2회한일음악교류회_WYEA_1'
+  },
+  {
+    src: new URL('@/assets/picture/LINE_ALBUM_260829_260901_102.jpg', import.meta.url).href,
+    alt: '260829_제2회한일음악교류회_WYEA_2'
   },
 ]
 </script>
