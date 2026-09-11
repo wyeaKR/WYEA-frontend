@@ -1,5 +1,11 @@
 <template>
-  <section class="hero-decor" :class="hidden ? 'is-hide' : 'is-show'" aria-hidden="true">
+  <section
+    ref="decorRoot"
+    class="hero-decor"
+    :class="hidden ? 'is-hide' : 'is-show'"
+    :style="{ '--decor-scale': decorScale }"
+    aria-hidden="true"
+  >
     <img
       v-for="(it, i) in items"
       :key="i"
@@ -12,6 +18,8 @@
 </template>
 
 <script setup lang="ts">
+import { onBeforeUnmount, onMounted, ref } from 'vue'
+
 export type DecorItem = {
   src: string // 이미지 경로(필수)
   alt?: string  // 대체 텍스트
@@ -38,6 +46,30 @@ export type DecorItem = {
   rotY?: number // 3D 틸트 Y(deg)
   origin?: string // transform-origin (e.g. '30% 70%')
 }
+
+const decorRoot = ref<HTMLElement | null>(null)
+const decorScale = ref(1)
+let decorObserver: ResizeObserver | null = null
+
+const updateDecorScale = (width: number) => {
+  decorScale.value = Math.min(1.35, Math.max(1, width / 1920))
+}
+
+onMounted(() => {
+  const root = decorRoot.value
+  if (!root) return
+
+  decorObserver = new ResizeObserver(([entry]) => {
+    if (entry) updateDecorScale(entry.contentRect.width)
+  })
+  decorObserver.observe(root)
+  updateDecorScale(root.clientWidth)
+})
+
+onBeforeUnmount(() => {
+  decorObserver?.disconnect()
+  decorObserver = null
+})
 
 const styleFor = (it: DecorItem, i: number) => {
   let tx, ty
@@ -100,6 +132,8 @@ defineProps<{
   z-index: 0;
   pointer-events: none;
   perspective: 1000px; /* 3D 틸트 깊이감 (rotX/rotY 쓸 때 유효) */
+  transform: scale(var(--decor-scale, 1));
+  transform-origin: top center;
   user-select: none;
   -webkit-user-drag: none;
 }
