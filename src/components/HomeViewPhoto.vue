@@ -67,7 +67,7 @@ const photos = [
   pointer-events: none;
 }
 .hero::before {
-  --cell: 32px;
+  --cell: clamp(32px, calc(1.04vw + 12px), 42px);
   --thin: rgba(255,255,255,.08);
   --bold: rgba(255,255,255,.14);
   content: "";
@@ -133,7 +133,7 @@ const photos = [
   background: #2d6a4f;
   box-shadow: 0 0 30px 15px #2d6a4f;
   display: inline-block;
-  width: 820px;
+  width: clamp(820px, calc(29.17vw + 260px), 1200px);
   max-width: 90%;
   padding-bottom: 40px;
 }
