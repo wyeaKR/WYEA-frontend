@@ -32,7 +32,6 @@ const photos = [
         class="photo-swiper"
         :modules="[Pagination, Autoplay]"
         :slides-per-view="1"
-        :auto-height="true"
         :pagination="{ clickable: true }"
         :loop="true"
         :autoplay="{ delay: 3000, disableOnInteraction: false }"
@@ -169,8 +168,7 @@ const photos = [
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 280px;
-  max-height: 620px;
+  aspect-ratio: 16 / 9;
   background: #2d6a4f;
   box-shadow: 0 0 30px 15px #2d6a4f;
   padding: 16px;
@@ -181,10 +179,11 @@ const photos = [
 /* 사진 */
 .photo-item img {
   display: block;
-  width: auto;
+  width: 100%;
+  height: 100%;
   max-width: 100%;
-  max-height: 580px;
-  height: auto;
+  max-height: 100%;
+  object-fit: contain;
   border-radius: 12px;
 }
 
