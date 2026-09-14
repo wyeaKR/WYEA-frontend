@@ -344,6 +344,7 @@ onBeforeUnmount(() => {
       <p>
         Contact us: wyea@wyea.info · Fax: 053-289-2625
       </p>
+      <p class="registration-number">고유번호증 번호: 410-82-93357</p>
     </div>
     <div class="footer-middle">
       <p>
@@ -930,7 +931,7 @@ onBeforeUnmount(() => {
   padding: 20px;
   text-align: center;
   border-top: 1px solid #ddd;
-  font-size: 14px;
+  font-size: calc((14px) * 0.93);
   line-height: 1.6;
 
   position: fixed;
@@ -952,13 +953,17 @@ onBeforeUnmount(() => {
   color: #000;
   margin: 2px 0;
   font-weight: bold;
-  font-size: clamp(14px, calc(.72vw + .18px), 19px);
+  font-size: calc((clamp(14px, calc(.72vw + .18px), 19px)) * 0.93);
 }
 
 /* ===== middle 영역 ===== */
+.footer .footer-top .registration-number {
+  font-weight: bold;
+}
+
 .footer .footer-middle p {
   margin: 4px 0;
-  font-size: clamp(12px, .625vw, 16px);
+  font-size: calc((clamp(12px, .625vw, 16px)) * 0.93);
   color: #666;
   line-height: 1.6;
 }
@@ -1041,7 +1046,7 @@ onBeforeUnmount(() => {
     --footer-unit: calc(100vw / 1920);
     padding: calc(20 * var(--footer-unit));
     bottom: calc(-200 * var(--footer-unit));
-    font-size: calc(14 * var(--footer-unit));
+    font-size: calc((calc(14 * var(--footer-unit))) * 0.93);
     clip-path: inset(0 37% 0 37% round calc(64 * var(--footer-unit)) calc(64 * var(--footer-unit)) 0 0);
   }
 
@@ -1049,12 +1054,12 @@ onBeforeUnmount(() => {
 
   .footer .footer-top p {
     margin: calc(2 * var(--footer-unit)) 0;
-    font-size: calc(14.004 * var(--footer-unit));
+    font-size: calc((calc(14.004 * var(--footer-unit))) * 0.93);
   }
 
   .footer .footer-middle p {
     margin: calc(4 * var(--footer-unit)) 0;
-    font-size: calc(12 * var(--footer-unit));
+    font-size: calc((calc(12 * var(--footer-unit))) * 0.93);
   }
 
   .footer .footer-bottom {
