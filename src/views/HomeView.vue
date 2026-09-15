@@ -10,7 +10,6 @@ import inje from '@/assets/image/inje.svg'
 import gyeongsang from '@/assets/image/gyeongsang.svg'
 import yonsei from '@/assets/image/yonsei.svg'
 import kyunghee from '@/assets/image/kyunghee.svg'
-import woosongcollege from '@/assets/image/woosongcollege.svg'
 import seoul from '@/assets/image/seoul.webp'
 import masan from '@/assets/image/masan.png'
 
@@ -68,7 +67,6 @@ const logos = [
   { src: yonsei },
   { src: kyungnam },
   { src: busan },
-  { src: woosongcollege },
   { src: masan },
 ]
 
@@ -196,7 +194,8 @@ onBeforeUnmount(() => {
     <div class="section1-div1">
       <img src="@/assets/image/wyea-logo.png" width="300" alt="wyea-logo">
       <h3>World Youth<br>Exchange Association</h3>
-      <p>세계 청년 교류회</p>
+      <p class="organization-name">세계청년교류회</p>
+      <p class="organization-intro">청년들의 국제 교류와 협력을 위한 <strong>비영리단체</strong></p>
       <!-- 가입 시즌 재개 시 아래 Google Forms 링크를 다시 사용할 수 있습니다.
       <a href="https://docs.google.com/forms/d/1hiR6G3eOuM7Ytx6ksI5VIW_4rrTz9FG2ee5IPoU6OgQ/edit" target="_blank" rel="noopener noreferrer">
         <button>가입하러 가기</button>
@@ -290,10 +289,6 @@ onBeforeUnmount(() => {
             <span class="event">미국 유학생 네트워크와 협력 체결</span>
           </li>
           <li>
-            <span class="date">2025년 7월 3일</span>
-            <span class="event">Kent Universtiy 지부 설립</span>
-          </li>
-          <li>
             <span class="date">2025년 7월 4일</span>
             <span class="event">경희대학교 지부 설립</span>
           </li>
@@ -311,7 +306,7 @@ onBeforeUnmount(() => {
           </li>
           <li>
             <span class="date">2025년 7월 14일</span>
-            <span class="event">재일한국청년동맹과 협력 관계 체결</span>
+            <span class="event">재일본대한민국청년회와 협력 관계 체결</span>
           </li>
           <li>
             <span class="date">2025년 7월 17일</span>
@@ -320,10 +315,6 @@ onBeforeUnmount(() => {
           <li>
             <span class="date">2025년 7월 25일</span>
             <span class="event">부산대학교 지부 설립</span>
-          </li>
-          <li>
-            <span class="date">2025년 9월 2일</span>
-            <span class="event">우송정보대학교 지부 설립</span>
           </li>
           <li>
             <span class="date">2025년 9월 17일</span>
@@ -340,15 +331,13 @@ onBeforeUnmount(() => {
 
   <footer class="footer" :class="{ show: footerVisible }">
     <div class="footer-top">
-      <p>Address: 중구 명덕로 179, 2층 202-J153호</p>
-      <p>
-        Contact us: wyea@wyea.info · Fax: 053-289-2625
-      </p>
-      <p class="registration-number">고유번호증 번호: 410-82-93357</p>
+      <p>비영리단체 세계청년교류회(WYEA)</p>
+      <p><a class="footer-email" href="mailto:wyea@wyea.info">wyea@wyea.info</a> · 고유번호: 410-82-93357</p>
     </div>
     <div class="footer-middle">
       <p>
-        © {{ year }} WYEA · Icons by Freepik (flaticon.com) · <RouterLink to="/personalinformationprocessingpolicy">개인정보 처리방침</RouterLink> <br>
+        © {{ year }} WYEA · <RouterLink to="/about">단체소개</RouterLink> · <RouterLink to="/personalinformationprocessingpolicy">개인정보 처리방침</RouterLink> <br>
+        Icons by Freepik (flaticon.com)<br>
         대학 로고와 명칭은 각 대학의 자산이며, 식별 목적에 한해 사용됩니다.
       </p>
     </div>
@@ -399,6 +388,12 @@ onBeforeUnmount(() => {
 }
 
 /* 중앙 카피 애니메이션 (슬라이드 튀어나옴) */
+.section1-div1 {
+  --intro-font-size: clamp(15px, .9375vw, 24px);
+  --intro-line-height: calc(var(--intro-font-size) * 1.5);
+  max-width: 100%;
+}
+
 .section1-div1 > * {
   opacity: 0;
   transform: translateY(24px) scale(0.98);
@@ -419,7 +414,8 @@ onBeforeUnmount(() => {
   line-height: 1.5;
   animation-delay: .12s;
   font-weight: 700;
-  margin-bottom: 5%;
+  /* Use the existing title gap to make room for the introduction. */
+  margin-bottom: max(0px, calc(5% - var(--intro-line-height) - 4px));
   font-size: clamp(30px, 2.6vw, 80px);
 }
 
@@ -428,6 +424,26 @@ onBeforeUnmount(() => {
   animation-delay: .24s;
   font-weight: 700;
   font-size: clamp(20px, 1.5vw, 42px);
+}
+
+.section1-div1 .organization-name {
+  margin-bottom: 4px;
+}
+
+.section1-div1 .organization-intro {
+  margin: 0 auto 16px;
+  max-width: 100%;
+  font-size: var(--intro-font-size);
+  line-height: var(--intro-line-height);
+  font-weight: 500;
+  color: #3f4d60;
+  word-break: keep-all;
+  text-wrap: balance;
+}
+
+.section1-div1 .organization-intro strong {
+  font-weight: 700;
+  color: #2d6a4f;
 }
 
 /* 섹션1 가입하러 가기 버튼 */
@@ -492,7 +508,7 @@ onBeforeUnmount(() => {
   }
 
   .section1-div2 {
-    margin-top: 80px; /* 모바일에서 더 여백 */
+    margin-top: 48px; /* Reserve room for the introduction wrapping on mobile. */
   }
 
   .section1-div2 p {
@@ -960,6 +976,9 @@ onBeforeUnmount(() => {
 .footer .footer-top .registration-number {
   font-weight: bold;
 }
+
+.footer .footer-email { color: inherit; font-weight: inherit; text-decoration: none; }
+.footer .footer-email:hover { text-decoration: underline; }
 
 .footer .footer-middle p {
   margin: 4px 0;

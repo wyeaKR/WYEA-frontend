@@ -8,8 +8,9 @@
           </RouterLink>
         </div>
         <nav class="nav">
+          <RouterLink to="/about">단체소개</RouterLink>
+          <RouterLink to="/activities">활동소식</RouterLink>
           <RouterLink class="report-menu" to="/FinancialReport">재정보고</RouterLink>
-<!--          <RouterLink to="/about">About</RouterLink>-->
 <!--          <RouterLink to="/blog">Blog</RouterLink>-->
 <!--          <RouterLink to="/guides">Guides</RouterLink>-->
         </nav>
@@ -25,17 +26,26 @@
       :style="{ background: pageBg }"
     >
 
-      <RouterView />
+      <RouterView v-slot="{ Component, route: pageRoute }">
+        <div
+          v-if="pageRoute.name === 'about' || pageRoute.name === 'financialreport' || pageRoute.name === 'activities' || pageRoute.name === 'activity-detail'"
+          :key="pageRoute.path"
+          class="page-entrance"
+        >
+          <component :is="Component" />
+        </div>
+        <component :is="Component" v-else />
+      </RouterView>
     </main>
     <footer v-if="footerVisible" class="frfooter">
       <div class="frfooter-top">
-        <p>Address: 중구 명덕로 179, 2층 202-J153호</p>
-        <p>contact us: wyea@wyea.info · Fax: 053-289-2625</p>
-        <p class="registration-number">고유번호증 번호: 410-82-93357</p>
+        <p>비영리단체 세계청년교류회(WYEA)</p>
+        <p><a class="footer-email" href="mailto:wyea@wyea.info">wyea@wyea.info</a> · 고유번호: 410-82-93357</p>
       </div>
       <div class="frfooter-middle">
         <p>
-          © {{ year }} WYEA · Icons by Freepik (flaticon.com) · <RouterLink to="/personalinformationprocessingpolicy">개인정보 처리방침</RouterLink> <br>
+          © {{ year }} WYEA · <RouterLink to="/about">단체소개</RouterLink> · <RouterLink to="/personalinformationprocessingpolicy">개인정보 처리방침</RouterLink> <br>
+          Icons by Freepik (flaticon.com)<br>
           대학 로고와 명칭은 각 대학의 자산이며, 식별 목적에 한해 사용됩니다.
         </p>
       </div>
@@ -88,6 +98,20 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped>
+@keyframes pageEntrance {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.page-entrance {
+  display: flow-root;
+  animation: pageEntrance 480ms cubic-bezier(.22, .61, .36, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .page-entrance { animation: none; }
+}
+
 :global(:root) {
   --header-h: 64px;
 }
@@ -157,7 +181,7 @@ onBeforeUnmount(() => {
 
 .nav {
   display: flex;
-  justify-content: flex-end;
+  justify-content: flex-start;
   gap: 22px;
 }
 
@@ -186,6 +210,17 @@ onBeforeUnmount(() => {
 .nav a:hover {
   opacity: 1;
   background: rgba(13,71,161,.06);
+}
+
+@media (max-width: 600px) {
+  .inner { padding: 0 10px; gap: 4px; }
+  .nav { gap: 2px; }
+  .nav a { padding: 0 8px; font-size: 14px; white-space: nowrap; }
+}
+
+@media (max-width: 380px) {
+  .nav a { padding: 0 5px; font-size: 12px; }
+  .brand img { width: 72px; }
 }
 
 .actions {
@@ -233,6 +268,9 @@ onBeforeUnmount(() => {
 .frfooter .frfooter-top .registration-number {
   font-weight: bold;
 }
+
+.frfooter .footer-email { color: inherit; font-weight: inherit; text-decoration: none; }
+.frfooter .footer-email:hover { text-decoration: underline; }
 
 .frfooter .frfooter-middle a {
   color: inherit;
