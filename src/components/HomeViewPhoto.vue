@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 
+const paperclipSrc = `${import.meta.env.BASE_URL}images/decorative/clip.png`
+
 defineProps<{
   hidden?: boolean
 }>()
@@ -68,6 +70,44 @@ onBeforeUnmount(() => {
       </span>
     </div>
     <div class="mat-label" aria-hidden="true">WYEA · CUTTING MAT</div>
+    <div class="desk-postcard" aria-hidden="true">
+      <span class="postcard-heading">POSTCARD</span>
+      <span class="postcard-stamp">WYEA<br>↗</span>
+      <p>새로운 만남,<br>이어지는 이야기</p>
+      <span class="postcard-address">TO. OUR NEXT CHAPTER</span>
+    </div>
+    <div class="desk-top-note" aria-hidden="true">
+      <span class="note-tape"></span>
+      <span class="top-note-caption">little moments</span>
+      <p>오늘의 만남이<br>내일의 추억으로</p>
+      <svg viewBox="0 0 110 20" fill="none">
+        <path d="M5 12Q47 3 103 9M14 17Q57 9 97 13" />
+      </svg>
+    </div>
+    <svg class="desk-arrow" viewBox="0 0 150 90" fill="none" aria-hidden="true">
+      <path d="M8 72C35 82 66 65 65 43C64 26 41 28 49 45C60 67 105 57 137 21M116 26L139 18L136 42" />
+    </svg>
+    <div class="desk-ticket" aria-hidden="true">
+      <span class="ticket-kicker">WORLD YOUTH EXCHANGE</span>
+      <strong>모여서, 더 넓은 세계로</strong>
+      <span class="ticket-rule"></span>
+      <span class="ticket-bottom">WYEA <span>MEMORIES / KEEP</span></span>
+    </div>
+    <div class="desk-stamp" aria-hidden="true">
+      <span>WORLD YOUTH</span>
+      <strong>WYEA</strong>
+      <span>EXCHANGE ASSOCIATION</span>
+    </div>
+    <aside class="desk-note">
+      <span class="note-tape" aria-hidden="true"></span>
+      <p>함께 만든<br>순간들</p>
+      <span class="note-signature">with WYEA</span>
+    </aside>
+    <div class="desk-supplies" aria-hidden="true">
+      <span class="spare-tape"></span>
+      <img class="desk-clip desk-clip-one" :src="paperclipSrc" alt="" />
+      <img class="desk-clip desk-clip-two" :src="paperclipSrc" alt="" />
+    </div>
     <section class="hvpsection1">
       <h1>활동 사진</h1>
     </section>
@@ -110,6 +150,14 @@ onBeforeUnmount(() => {
 </template>
 
 <style scoped>
+@font-face {
+  font-family: 'NanumPenScript';
+  src: url('@/assets/fonts/NanumPenScript-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
 :global(.homeviewphoto.page) {
   background: #fff !important;
 }
@@ -237,22 +285,244 @@ onBeforeUnmount(() => {
   }
 }
 
+.desk-note,
+.desk-supplies,
+.desk-arrow,
+.desk-ticket,
+.desk-stamp,
+.desk-postcard,
+.desk-top-note {
+  display: none;
+  position: absolute;
+  pointer-events: none;
+}
+
+/* Keep the stationery in the outer desktop margins, away from the prints. */
+@media (min-width: 1501px) and (min-height: 700px) {
+  .desk-postcard {
+    display: block;
+    left: 5%;
+    top: 9%;
+    width: calc(250 * var(--photo-unit));
+    padding: calc(20 * var(--photo-unit));
+    background: #e7e1cf;
+    color: #586052;
+    text-align: left;
+    transform: rotate(-11deg);
+    box-shadow: 0 3px 5px rgba(12, 30, 20, .13);
+  }
+  .postcard-heading {
+    font: calc(10 * var(--photo-unit))/1.4 ui-monospace, monospace;
+    letter-spacing: .2em;
+  }
+  .postcard-stamp {
+    position: absolute;
+    right: calc(16 * var(--photo-unit));
+    top: calc(14 * var(--photo-unit));
+    padding: calc(5 * var(--photo-unit));
+    border: 1px dashed rgba(88, 96, 82, .5);
+    font: calc(10 * var(--photo-unit))/1.4 ui-monospace, monospace;
+    text-align: center;
+  }
+  .desk-postcard p {
+    margin: calc(24 * var(--photo-unit)) 0 calc(16 * var(--photo-unit));
+    font: calc(25 * var(--photo-unit))/1.25 'NanumPenScript', sans-serif;
+  }
+  .postcard-address {
+    display: block;
+    padding-top: calc(8 * var(--photo-unit));
+    border-top: 1px solid rgba(88, 96, 82, .2);
+    font: calc(8 * var(--photo-unit))/1.4 ui-monospace, monospace;
+    letter-spacing: .08em;
+  }
+  .desk-top-note {
+    display: block;
+    right: 6%;
+    top: 23%;
+    width: calc(195 * var(--photo-unit));
+    padding: calc(24 * var(--photo-unit)) calc(16 * var(--photo-unit)) calc(12 * var(--photo-unit));
+    background: #dedfc8;
+    color: #4b5c4d;
+    transform: rotate(8deg);
+    box-shadow: 0 3px 5px rgba(12, 30, 20, .13);
+  }
+  .top-note-caption {
+    font: calc(12 * var(--photo-unit))/1.4 'NanumPenScript', sans-serif;
+    opacity: .65;
+    letter-spacing: .12em;
+  }
+  .desk-top-note p {
+    margin: calc(10 * var(--photo-unit)) 0 0;
+    font: calc(25 * var(--photo-unit))/1.25 'NanumPenScript', sans-serif;
+  }
+  .desk-top-note svg {
+    width: 70%;
+    height: calc(20 * var(--photo-unit));
+    stroke: rgba(75, 92, 77, .4);
+    stroke-width: 1.5;
+    stroke-linecap: round;
+  }
+  .desk-note {
+    display: block;
+    left: 17%;
+    bottom: 29%;
+    width: calc(210 * var(--photo-unit));
+    padding: calc(30 * var(--photo-unit)) calc(20 * var(--photo-unit)) calc(18 * var(--photo-unit));
+    background: #ece5cc;
+    color: #425248;
+    font-family: 'NanumPenScript', sans-serif;
+    transform: rotate(5deg);
+    box-shadow: 0 3px 6px rgba(12, 30, 20, .16);
+  }
+  .desk-note p {
+    margin: 0;
+    font-size: calc(29 * var(--photo-unit));
+    line-height: 1.25;
+  }
+  .note-signature {
+    display: block;
+    margin-top: calc(14 * var(--photo-unit));
+    font-size: calc(18 * var(--photo-unit));
+    opacity: .65;
+  }
+  .note-tape,
+  .spare-tape {
+    position: absolute;
+    width: calc(88 * var(--photo-unit));
+    height: calc(26 * var(--photo-unit));
+    background: rgba(232, 221, 183, .65);
+    clip-path: polygon(2% 0, 99% 2%, 97% 22%, 100% 47%, 98% 72%, 100% 100%, 1% 98%, 3% 73%, 0 48%, 2% 24%);
+  }
+  .note-tape {
+    top: calc(-9 * var(--photo-unit));
+    left: 43%;
+    width: calc(102 * var(--photo-unit));
+    height: calc(23 * var(--photo-unit));
+    background: rgba(216, 194, 145, .62);
+    transform: translateX(-50%) rotate(-9deg);
+    clip-path: polygon(0 4%, 98% 0, 100% 28%, 98% 54%, 100% 96%, 2% 100%, 0 70%, 2% 43%);
+  }
+  .desk-top-note .note-tape {
+    top: calc(-13 * var(--photo-unit));
+    left: 62%;
+    width: calc(66 * var(--photo-unit));
+    height: calc(31 * var(--photo-unit));
+    background: repeating-linear-gradient(110deg, rgba(195, 209, 193, .72) 0 5px, rgba(218, 226, 203, .64) 5px 10px);
+    transform: translateX(-50%) rotate(17deg);
+    clip-path: polygon(3% 0, 97% 3%, 100% 20%, 97% 40%, 100% 67%, 98% 100%, 0 96%, 2% 72%, 0 46%, 3% 24%);
+  }
+  .desk-supplies {
+    display: block;
+    right: 10%;
+    bottom: 24%;
+    z-index: 1;
+    width: calc(190 * var(--photo-unit));
+    height: calc(155 * var(--photo-unit));
+  }
+  .spare-tape {
+    top: 0;
+    right: 0;
+    width: calc(112 * var(--photo-unit));
+    height: calc(20 * var(--photo-unit));
+    background: rgba(214, 183, 158, .58);
+    transform: rotate(28deg);
+    clip-path: polygon(4% 0, 100% 5%, 98% 28%, 100% 58%, 96% 100%, 0 93%, 2% 62%, 0 33%);
+  }
+  .desk-clip {
+    position: absolute;
+    width: calc(125 * var(--photo-unit));
+    height: auto;
+    user-select: none;
+    opacity: .85;
+  }
+  .desk-clip-one { left: 0; top: 15%; transform: rotate(24deg); }
+  .desk-clip-two { left: 34%; top: 32%; transform: rotate(-18deg); }
+  .desk-arrow {
+    display: block;
+    left: 24%;
+    bottom: 49%;
+    transform: rotate(-16deg);
+    width: calc(135 * var(--photo-unit));
+    height: auto;
+    stroke: rgba(234, 231, 203, .65);
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .desk-ticket {
+    display: block;
+    right: 17%;
+    bottom: 27%;
+    width: calc(240 * var(--photo-unit));
+    padding: calc(20 * var(--photo-unit));
+    color: #4b5a4e;
+    background: #e0d8bb;
+    transform: rotate(-12deg);
+    box-shadow: 1px 3px 5px rgba(12, 30, 20, .15);
+    /* Punched edges suggest a kept ticket, without adding a large object. */
+    clip-path: polygon(0 0, 100% 0, 100% 43%, 97% 50%, 100% 57%, 100% 100%, 0 100%, 0 57%, 3% 50%, 0 43%);
+  }
+  .ticket-kicker {
+    display: block;
+    font: calc(9 * var(--photo-unit))/1.4 ui-monospace, monospace;
+    letter-spacing: .12em;
+  }
+  .desk-ticket strong {
+    display: block;
+    margin: calc(14 * var(--photo-unit)) 0;
+    font: calc(25 * var(--photo-unit))/1.3 'NanumPenScript', sans-serif;
+  }
+  .ticket-rule { display: block; border-top: 1px dashed rgba(75, 90, 78, .35); }
+  .ticket-bottom {
+    display: flex;
+    justify-content: space-between;
+    margin-top: calc(10 * var(--photo-unit));
+    font: calc(9 * var(--photo-unit))/1.4 ui-monospace, monospace;
+  }
+  .desk-stamp {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    left: 7%;
+    bottom: 17%;
+    width: calc(130 * var(--photo-unit));
+    height: calc(130 * var(--photo-unit));
+    border: 3px double currentColor;
+    border-radius: 50%;
+    color: rgba(223, 224, 190, .4);
+    transform: rotate(-14deg);
+    font: calc(8 * var(--photo-unit))/1.8 ui-monospace, monospace;
+    letter-spacing: .08em;
+  }
+  .desk-stamp strong { font-size: calc(26 * var(--photo-unit)); font-weight: 600; }
+}
+
 .hvpsection1 {
   font-family: 'PretendardFont', sans-serif;
+  padding-bottom: calc(40 * var(--photo-unit, 1px));
 }
 .hvpsection1 h1 {
-  margin-top: -10px;
-  font-weight: 600;
-  font-size: 60px;
+  margin: 0;
+  font-family: 'NanumPenScript', 'PretendardFont', sans-serif;
+  font-weight: 400;
+  font-size: calc(44 * var(--photo-unit, 1px));
+  line-height: 1.35;
+  letter-spacing: .08em;
+  color: #354b40;
   position: relative;
-  background: #2d6a4f;
-  box-shadow: 0 0 10px 3px #2d6a4f;
-  padding: 0.5em 1em;
+  background: rgba(243, 234, 205, .78);
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  padding: calc(11.5 * var(--photo-unit, 1px)) calc(46 * var(--photo-unit, 1px));
+  transform: rotate(-1deg);
+  /* Slightly uneven torn ends, rather than a rounded card edge. */
+  clip-path: polygon(1% 0, 99% 0, 98.5% 15%, 100% 30%, 99% 48%, 100% 66%, 98.8% 82%, 99.5% 100%, 0.5% 100%, 1.2% 83%, 0% 67%, 1% 49%, 0% 31%, 1.5% 15%);
   display: inline-block;
 }
 @media (max-width: 1024px) {
   .hvpsection1 h1 {
-    font-size: 30px;
+    font-size: 29px;
   }
 }
 /* ================= Swiper Section ================= */
@@ -360,21 +630,10 @@ onBeforeUnmount(() => {
     --cell: calc(32 * var(--photo-unit));
   }
 
-  .hvpsection1 h1 {
-    margin-top: calc(-10 * var(--photo-unit));
-    font-size: calc(60 * var(--photo-unit));
-    line-height: 1.6;
-    letter-spacing: calc(-0.9375 * var(--photo-unit));
-  }
-
   .photo-swiper {
     width: calc(820 * var(--photo-unit));
     margin-top: calc(-10 * var(--photo-unit));
     padding-bottom: calc(40 * var(--photo-unit));
-  }
-
-  .hvpsection1 h1 {
-    box-shadow: 0 0 calc(10 * var(--photo-unit)) calc(3 * var(--photo-unit)) #2d6a4f;
   }
 
 }
