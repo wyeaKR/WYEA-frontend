@@ -20,7 +20,7 @@ const routerInstance = createRouter({
       path: activity.path,
       name: activity.path === seoulExchange.path ? 'activity-detail' : activity.path.split('/').pop(),
       component: () => import('../views/ActivitiesView.vue'),
-      meta: { bg: '#f9fcff', activityDetail: true, title: `${activity.title} | WYEA`, description: activity.summary },
+      meta: { bg: '#f9fcff', activityDetail: true, title: `${activity.title} | WYEA`, description: `${activity.date} · ${activity.title} | 세계청년교류연합(WYEA) 활동 기록` },
     })),
     {
       path: '/about',

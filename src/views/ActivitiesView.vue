@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
-import { activities } from '@/content/activities'
+import { activities, activityCategories } from '@/content/activities'
 
 const route = useRoute()
 const isDetail = computed(() => route.meta.activityDetail === true)
 const activity = computed(() => activities.find(item => item.path === route.path.replace(/\/$/, '')))
-const activityPhotos = computed(() => activity.value?.photos ?? (activity.value?.photo ? [activity.value.photo] : []))
+const activityPhotos = computed(() => activity.value?.photos ?? [])
 </script>
 
 <template>
@@ -20,7 +20,7 @@ const activityPhotos = computed(() => activity.value?.photos ?? (activity.value?
       <RouterLink v-for="(activity, index) in activities" :key="activity.path" :to="activity.path" class="story-card story-preview" :aria-labelledby="`story-title-${index}`">
         <div class="story-copy">
           <div class="story-topline">
-            <span class="story-badge">{{ activity.category === 'VOLUNTEERING' ? '봉사활동' : '국제교류' }}</span>
+            <span class="story-badge">{{ activityCategories[activity.category] }}</span>
             <p class="story-meta"><time :datetime="activity.startDate">{{ activity.date }}</time></p>
           </div>
           <h2 :id="`story-title-${index}`">{{ activity.title }}</h2>
@@ -32,14 +32,13 @@ const activityPhotos = computed(() => activity.value?.photos ?? (activity.value?
     <template v-else-if="activity">
       <nav class="breadcrumb" aria-label="현재 위치"><RouterLink to="/activities">활동소식</RouterLink><span aria-hidden="true"> / </span><span>활동 기록</span></nav>
       <header class="activities-heading detail-heading">
-        <p class="eyebrow">{{ activity.category ?? 'EXCHANGE' }}</p>
+        <p class="eyebrow">{{ activity.category }}</p>
         <h1>{{ activity.title }}</h1>
         <p class="story-meta"><time :datetime="activity.startDate">{{ activity.date }}</time></p>
       </header>
-      <section class="story-card" aria-labelledby="record-heading">
+      <section class="story-card" aria-label="활동 내용">
         <img v-for="(photo, index) in activityPhotos" :key="photo" class="activity-photo" :src="photo" :alt="`${activity.title} 사진 ${index + 1}`" decoding="async" />
-        <h2 id="record-heading">{{ activity.heading }}</h2>
-        <p v-for="(paragraph, index) in activity.paragraphs ?? [activity.summary]" :key="index">{{ paragraph }}</p>
+        <p v-for="(paragraph, index) in activity.paragraphs" :key="index">{{ paragraph }}</p>
         <dl class="event-facts">
           <div><dt>일정</dt><dd>{{ activity.date }}</dd></div>
           <div v-if="activity.location"><dt>지역</dt><dd>{{ activity.location }}</dd></div>

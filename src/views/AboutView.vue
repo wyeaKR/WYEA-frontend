@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import { seoulExchange } from '@/content/activities'
-
 const history: { date: string; label: string; event: string; path?: string }[] = [
   {
     "date": "2025-06-25",
@@ -48,10 +46,9 @@ const history: { date: string; label: string; event: string; path?: string }[] =
     "event": "마산대학교 지부 설립"
   },
   {
-    date: seoulExchange.startDate,
-    label: seoulExchange.date,
-    event: `${seoulExchange.title} 진행`,
-    path: seoulExchange.path,
+    date: '2026-03-04',
+    label: '2026년 3월 4일',
+    event: '삼원가정봉사원파견센터와 협력 관계 체결',
   },
 ]
 </script>

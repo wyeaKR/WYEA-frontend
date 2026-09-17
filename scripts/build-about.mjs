@@ -19,7 +19,7 @@ try {
   const pages = [
     { path: '/about', component: AboutView, title: '단체소개 | 세계청년교류연합(WYEA)', description: '세계청년교류연합(WYEA)의 설립 배경, 목적, 단체 기본정보와 문의 방법을 안내합니다.' },
     { path: '/activities', component: ActivitiesView, title: '활동소식 | 세계청년교류연합(WYEA)', description: '세계청년교류연합(WYEA)의 만남과 교류 활동을 기록합니다.' },
-    ...activities.map(activity => ({ path: activity.path, component: ActivitiesView, title: `${activity.title} | WYEA`, description: activity.summary, meta: { activityDetail: true } })),
+    ...activities.map(activity => ({ path: activity.path, component: ActivitiesView, title: `${activity.title} | WYEA`, description: `${activity.date} · ${activity.title} | 세계청년교류연합(WYEA) 활동 기록`, meta: { activityDetail: true } })),
   ]
   const shell = await readFile('dist/index.html', 'utf8')
   const styles = (await readdir('dist/assets'))
