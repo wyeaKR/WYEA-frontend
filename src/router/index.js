@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
-import { seoulExchange } from '@/content/activities'
+import { activities, seoulExchange } from '@/content/activities'
 import { isTokenExpired } from '@/utils/token-utils'
 
 if ('scrollRestoration' in window.history) {
@@ -14,22 +14,22 @@ const routerInstance = createRouter({
       path: '/activities',
       name: 'activities',
       component: () => import('../views/ActivitiesView.vue'),
-      meta: { bg: '#f9fcff', title: '활동소식 | 세계청년교류회(WYEA)', description: '세계청년교류회(WYEA)의 만남과 교류 활동을 기록합니다.' },
+      meta: { bg: '#f9fcff', title: '활동소식 | 세계청년교류연합(WYEA)', description: '세계청년교류연합(WYEA)의 만남과 교류 활동을 기록합니다.' },
     },
-    {
-      path: seoulExchange.path,
-      name: 'activity-detail',
+    ...activities.map(activity => ({
+      path: activity.path,
+      name: activity.path === seoulExchange.path ? 'activity-detail' : activity.path.split('/').pop(),
       component: () => import('../views/ActivitiesView.vue'),
-      meta: { bg: '#f9fcff', activityDetail: true, title: `${seoulExchange.title} | WYEA`, description: seoulExchange.summary },
-    },
+      meta: { bg: '#f9fcff', activityDetail: true, title: `${activity.title} | WYEA`, description: activity.summary },
+    })),
     {
       path: '/about',
       name: 'about',
       component: () => import('../views/AboutView.vue'),
       meta: {
         bg: '#f9fcff',
-        title: '단체소개 | 세계청년교류회(WYEA)',
-        description: '세계청년교류회(WYEA)의 설립 배경, 국제 교류와 협력을 위한 목적, 단체 기본정보와 문의 방법을 안내합니다.',
+        title: '단체소개 | 세계청년교류연합(WYEA)',
+        description: '세계청년교류연합(WYEA)의 설립 배경, 국제 교류와 협력을 위한 목적, 단체 기본정보와 문의 방법을 안내합니다.',
       },
     },
     {
@@ -107,7 +107,7 @@ routerInstance.beforeEach((to, from, next) => {
 })
 
 const defaultTitle = 'WYEA'
-const defaultDescription = '세계청년교류회(WYEA)는 청년들의 국제 교류와 협력을 위한 비영리단체입니다. 단체 소개와 활동, 재정보고를 안내합니다.'
+const defaultDescription = '세계청년교류연합(WYEA)는 청년들의 국제 교류와 협력을 위한 비영리단체입니다. 단체 소개와 활동, 재정보고를 안내합니다.'
 routerInstance.afterEach((to) => {
   document.title = typeof to.meta.title === 'string' ? to.meta.title : defaultTitle
   document.querySelector('meta[name="description"]')?.setAttribute(

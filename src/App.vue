@@ -28,7 +28,7 @@
 
       <RouterView v-slot="{ Component, route: pageRoute }">
         <div
-          v-if="pageRoute.name === 'about' || pageRoute.name === 'financialreport' || pageRoute.name === 'activities' || pageRoute.name === 'activity-detail'"
+          v-if="pageRoute.name === 'about' || pageRoute.name === 'financialreport' || pageRoute.name === 'activities' || pageRoute.meta.activityDetail"
           :key="pageRoute.path"
           class="page-entrance"
         >
@@ -39,7 +39,7 @@
     </main>
     <footer v-if="footerVisible" class="frfooter">
       <div class="frfooter-top">
-        <p>비영리단체 세계청년교류회(WYEA)</p>
+        <p>비영리단체 세계청년교류연합(WYEA)</p>
         <p><a class="footer-email" href="mailto:wyea@wyea.info">wyea@wyea.info</a> · 고유번호: 410-82-93357</p>
       </div>
       <div class="frfooter-middle">

@@ -83,7 +83,6 @@ const handleJoinClick = () => {
 
 let section1IO: IntersectionObserver | null = null
 let section2IO: IntersectionObserver | null = null
-let section3IO: IntersectionObserver | null = null
 let prevHidden = decorHidden.value
 let initialized = false // 초기 1회 콜백 무시
 const onScroll = () => {
@@ -152,38 +151,14 @@ onMounted(async () => {
 
   }
 
-  /* ===== 타임라인 1회 등장 IO ===== */
-  // 항목별 스태거 지연 주입
-  document.querySelectorAll<HTMLElement>('.section3-div2 li')
-    .forEach((el, i) => el.style.setProperty('--d', `${i * 80}ms`))
-  document.querySelectorAll<HTMLElement>('.section3-div3 li')
-    .forEach((el, i) => el.style.setProperty('--d', `${i * 80}ms`))
 
-  // 섹션 진입 시 한 번만 클래스 추가
-  const section3 = document.querySelector('.section3')
-  if (section3) {
-    section3IO?.disconnect()
-    section3IO = new IntersectionObserver((entries, obs) => {
-      const e = entries[0]
-      if (e?.isIntersecting) {
-        section3.classList.add('reveal-start')
-        obs.disconnect() // 한 번만 실행
-      }
-    }, {
-      threshold: 0.3,
-      rootMargin: '0px 0px -10% 0px',
-    })
-    section3IO.observe(section3)
-  }
 })
 
 onBeforeUnmount(() => {
   section1IO?.disconnect()
   section2IO?.disconnect()
-  section3IO?.disconnect()
   section1IO = null
   section2IO = null
-  section3IO = null
   window.removeEventListener('scroll', onScroll)
 })
 </script>
@@ -194,7 +169,7 @@ onBeforeUnmount(() => {
     <div class="section1-div1">
       <img src="@/assets/image/wyea-logo.png" width="300" alt="wyea-logo">
       <h3>World Youth<br>Exchange Association</h3>
-      <p class="organization-name">세계청년교류회</p>
+      <p class="organization-name">세계청년교류연합</p>
       <p class="organization-intro">청년들의 국제 교류와 협력을 위한 <strong>비영리단체</strong></p>
       <!-- 가입 시즌 재개 시 아래 Google Forms 링크를 다시 사용할 수 있습니다.
       <a href="https://docs.google.com/forms/d/1hiR6G3eOuM7Ytx6ksI5VIW_4rrTz9FG2ee5IPoU6OgQ/edit" target="_blank" rel="noopener noreferrer">
@@ -264,74 +239,12 @@ onBeforeUnmount(() => {
     </div>
   </section>
 
-  <section class="section3">
-    <div class="section3-inner">
-      <div class="section3-div1">
-        <h1>설립 역사</h1>
-      </div>
-      <div class="section3-divcontainer">
-      <div class="section3-div2">
-        <ul>
-          <li>
-            <span class="date">2025년 6월 25일</span>
-            <span class="event">세계 청년 교류회 결성</span>
-          </li>
-          <li>
-            <span class="date">2025년 6월 26일</span>
-            <span class="event">경상국립대학교 지부 설립</span>
-          </li>
-          <li>
-            <span class="date">2025년 6월 30일</span>
-            <span class="event">인제대학교 지부 설립</span>
-          </li>
-          <li>
-            <span class="date">2025년 7월 2일</span>
-            <span class="event">미국 유학생 네트워크와 협력 체결</span>
-          </li>
-          <li>
-            <span class="date">2025년 7월 4일</span>
-            <span class="event">경희대학교 지부 설립</span>
-          </li>
-          <li>
-            <span class="date">2025년 7월 5일</span>
-            <span class="event">서울대학교 지부 설립</span>
-          </li>
-        </ul>
-      </div>
-      <div class="section3-div3">
-        <ul>
-          <li>
-            <span class="date">2025년 7월 7일</span>
-            <span class="event">연세대학교 지부 설립</span>
-          </li>
-          <li>
-            <span class="date">2025년 7월 14일</span>
-            <span class="event">재일본대한민국청년회와 협력 관계 체결</span>
-          </li>
-          <li>
-            <span class="date">2025년 7월 17일</span>
-            <span class="event">경남대학교 지부 설립</span>
-          </li>
-          <li>
-            <span class="date">2025년 7월 25일</span>
-            <span class="event">부산대학교 지부 설립</span>
-          </li>
-          <li>
-            <span class="date">2025년 9월 17일</span>
-            <span class="event">마산대학교 지부 설립</span>
-          </li>
-        </ul>
-      </div>
-      </div>
-    </div>
-  </section>
-
   <section class="section4">
   </section>
 
   <footer class="footer" :class="{ show: footerVisible }">
     <div class="footer-top">
-      <p>비영리단체 세계청년교류회(WYEA)</p>
+      <p>비영리단체 세계청년교류연합(WYEA)</p>
       <p><a class="footer-email" href="mailto:wyea@wyea.info">wyea@wyea.info</a> · 고유번호: 410-82-93357</p>
     </div>
     <div class="footer-middle">
@@ -419,7 +332,7 @@ onBeforeUnmount(() => {
   font-size: clamp(30px, 2.6vw, 80px);
 }
 
-/* 섹션1 세계 청년 교류회 */
+/* 섹션1 세계청년교류연합 */
 .section1-div1 p {
   animation-delay: .24s;
   font-weight: 700;
@@ -528,6 +441,8 @@ onBeforeUnmount(() => {
   min-height: calc(100vh - var(--header-h, 64px));
   /* One CSS pixel at FHD; every card dimension shares this scale. */
   --section2-unit: max(0.65px, 0.0520833333vw);
+  border-radius: 0 0 calc(20 * var(--section2-unit)) calc(20 * var(--section2-unit));
+  box-shadow: 0 18px 32px rgba(0,0,0,.18);
   padding: calc(64 * var(--section2-unit)) 24px;
   font-family: 'PretendardFont', sans-serif;
   z-index: 0;
@@ -748,190 +663,6 @@ onBeforeUnmount(() => {
   .section2-div2 p,
   .section2-div2 li {
     font-size: 14px;
-  }
-}
-
-/*-------------------------------section3---------------------------------*/
-:root {
-  --d: 0ms;
-}
-:root {
-  --d: 0ms;
-}
-
-.section3 {
-  /* Scale actual layout dimensions so the background includes every item. */
-  --history-unit: max(0.65px, 0.0520833333vw);
-  background: linear-gradient(180deg, #f9fcff 0%, #ffffff 30%, #f0f7ff 100%);
-  padding: calc(60 * var(--history-unit)) calc(20 * var(--history-unit));
-  text-align: center;
-  border-bottom-left-radius: calc(20 * var(--history-unit));   /* 왼쪽 아래만 둥글게 */
-  border-bottom-right-radius: calc(20 * var(--history-unit));  /* 오른쪽 아래만 둥글게 */
-  box-shadow: 0 18px 32px rgba(0,0,0,.18);
-  font-family: 'PretendardFont', sans-serif;
-}
-
-.section3-inner {
-  width: calc(1200 * var(--history-unit));
-  max-width: 100%;
-  margin: 0 auto;
-}
-
-.section3-div1 h1 {
-  font-size: calc(64.128 * var(--history-unit));
-  font-weight: 700;
-  line-height: 1.2;
-  margin-bottom: calc(60 * var(--history-unit));
-  color: #0d47a1;
-}
-
-.section3-divcontainer {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: calc(40 * var(--history-unit));
-  width: 100%;
-  max-width: none;
-  margin: 0 auto;
-  text-align: left;
-}
-
-.section3-div2 {
-  display: flex;
-  align-items: center; /* 세로 중앙 */
-  padding-right: calc(115.2 * var(--history-unit)); /* 오른쪽 여백 */
-}
-
-.section3-div2 ul li {
-  opacity: 0;
-  transform: translateY(22px);
-  filter: blur(2px);
-  transition:
-    opacity .6s ease,
-    transform .6s ease,
-    filter .6s ease;
-  transition-delay: var(--d, 0ms);
-  margin-bottom: calc(30 * var(--history-unit));
-  padding-left: calc(50.064 * var(--history-unit));
-  position: relative;
-}
-
-.section3-div3 {
-  display: flex;
-  align-items: center;  /* 세로 중앙 */
-}
-
-.section3-div3 ul li {
-  opacity: 0;
-  transform: translateY(22px);
-  filter: blur(2px);
-  transition:
-    opacity .6s ease,
-    transform .6s ease,
-    filter .6s ease;
-  transition-delay: calc(var(--d, 0ms) + 800ms);  /* 늦게 작동 */
-  margin-bottom: calc(30 * var(--history-unit));
-  padding-left: calc(50.064 * var(--history-unit));
-  position: relative;
-}
-
-.section3 ul {
-  list-style: none;
-  margin: 0 auto;
-  padding: 0;
-  max-width: calc(600 * var(--history-unit));
-  text-align: left;
-  position: relative;
-}
-
-.section3 ul::before {
-  content: '';
-  position: absolute;
-  left: calc(19 * var(--history-unit));
-  top: 0;
-  bottom: 0;
-  width: calc(2 * var(--history-unit));
-  background: #d0e2f7;
-}
-
-/* 트리거 후: 자연스럽게 나타남 */
-.section3.reveal-start li {
-  opacity: 1;
-  transform: translateY(0);
-  filter: blur(0);
-}
-
-.section3 ul li::before {
-  content: '';
-  position: absolute;
-  left: calc(12 * var(--history-unit));
-  top: calc(5 * var(--history-unit));
-  width: calc(16 * var(--history-unit));
-  height: calc(16 * var(--history-unit));
-  background: #0d47a1;
-  border-radius: 50%;
-}
-
-/* 왼쪽 타임라인 점 색상 단계 */
-.section3-div2 ul li:nth-child(1)::before { background: #0d47a1; }
-.section3-div2 ul li:nth-child(2)::before { background: #1c59af; }
-.section3-div2 ul li:nth-child(3)::before { background: #2a6cbd; }
-.section3-div2 ul li:nth-child(4)::before { background: #387ecc; }
-.section3-div2 ul li:nth-child(5)::before { background: #4790da; }
-.section3-div2 ul li:nth-child(6)::before { background: #56a3e8; }
-.section3-div2 ul li:nth-child(7)::before { background: #64b5f6; }
-
-/* 오른쪽 타임라인 점 색상 단계 */
-.section3-div3 ul li:nth-child(1)::before { background: #64b5f6; }
-.section3-div3 ul li:nth-child(2)::before { background: #42a5f5; }
-.section3-div3 ul li:nth-child(3)::before { background: #2196f3; }
-.section3-div3 ul li:nth-child(4)::before { background: #1e88e5; }
-.section3-div3 ul li:nth-child(5)::before { background: #1976d2; }
-.section3-div3 ul li:nth-child(6)::before { background: #0d47a1; }
-
-.section3 ul .date {
-  display: block;
-  font-weight: 600;
-  color: #0d47a1;
-  margin-bottom: calc(4 * var(--history-unit));
-}
-
-.section3 ul .event {
-  color: #333;
-  line-height: 1.4;
-}
-
-.section3 ul span {
-  text-align: left;
-  font-size: calc(17 * var(--history-unit));
-  font-weight: 500;
-}
-
-/* ===== 모바일 (1024px 이하) ===== */
-@media (max-width: 1024px) {
-  .section3 {
-    --history-unit: 1px;
-  }
-
-  .section3-inner {
-    width: calc(100% - 32px);
-    transform: none;
-  }
-
-  .section3-div1 h1 {
-    font-size: 30px; /* 모바일에서 다른 크기 */
-  }
-
-  .section3-divcontainer {
-    grid-template-columns: 1fr;
-  }
-
-  .section3-div3 {
-    padding-right: clamp(16px, 3vw, 200px); /* 오른쪽 여백 */
-  }
-
-  .section3 ul span {
-    font-size: 15px;
-    font-weight: 500;
   }
 }
 

@@ -5,7 +5,7 @@ const history: { date: string; label: string; event: string; path?: string }[] =
   {
     "date": "2025-06-25",
     "label": "2025년 6월 25일",
-    "event": "세계청년교류회 결성"
+    "event": "세계청년교류연합 결성"
   },
   {
     "date": "2025-06-26",
@@ -16,16 +16,6 @@ const history: { date: string; label: string; event: string; path?: string }[] =
     "date": "2025-06-30",
     "label": "2025년 6월 30일",
     "event": "인제대학교 지부 설립"
-  },
-  {
-    "date": "2025-07-02",
-    "label": "2025년 7월 2일",
-    "event": "미국 유학생 네트워크와 협력 체결"
-  },
-  {
-    "date": "2025-07-04",
-    "label": "2025년 7월 4일",
-    "event": "경희대학교 지부 설립"
   },
   {
     "date": "2025-07-05",
@@ -70,7 +60,7 @@ const history: { date: string; label: string; event: string; path?: string }[] =
   <article class="about-page">
     <header class="about-heading">
       <p class="eyebrow">ABOUT WYEA</p>
-      <h1>세계청년교류회</h1>
+      <h1>세계청년교류연합</h1>
       <p class="english-name">World Youth Exchange Association</p>
       <p class="lead">청년들의 국제 교류와 협력을 위한 비영리단체입니다.</p>
     </header>
@@ -78,7 +68,7 @@ const history: { date: string; label: string; event: string; path?: string }[] =
     <section class="about-card" aria-labelledby="mission-heading">
       <span class="section-label">01 · 우리의 목적</span>
       <h2 id="mission-heading">국경을 넘어, 청년과 청년을 연결합니다</h2>
-      <p>세계청년교류회(WYEA)는 청년들이 서로 교류하고 협력할 수 있는 기회를 만들고자 합니다. 서로 다른 언어와 문화적 배경을 가진 청년들이 만나 경험을 나누고, 함께 배우며 관계를 이어가는 것을 지향합니다.</p>
+      <p>세계청년교류연합(WYEA)는 청년들이 서로 교류하고 협력할 수 있는 기회를 만들고자 합니다. 서로 다른 언어와 문화적 배경을 가진 청년들이 만나 경험을 나누고, 함께 배우며 관계를 이어가는 것을 지향합니다.</p>
       <p>국제 교류와 공동 활동을 통해 서로에 대한 이해를 넓히고, 청년들이 더 넓은 세계와 연결될 수 있도록 하는 것이 우리의 목적입니다.</p>
     </section>
 
@@ -86,12 +76,12 @@ const history: { date: string; label: string; event: string; path?: string }[] =
       <span class="section-label">02 · 설립 배경</span>
       <h2 id="background-heading">연결이 쉬워진 시대에도, 만남은 필요합니다</h2>
       <p>정보통신 기술의 발전으로 소통의 범위는 국가와 개인을 넘어 전 세계로 확대되었습니다. 언제 어디서든 연락할 수 있게 되었지만, 언어 장벽과 물리적 거리는 여전히 교류의 어려움으로 남아 있습니다.</p>
-      <p>이러한 배경에서 청년들의 국제 교류와 협력을 위한 단체의 필요성을 느껴 세계청년교류회를 결성했습니다.</p>
+      <p>이러한 배경에서 청년들의 국제 교류와 협력을 위한 단체의 필요성을 느껴 세계청년교류연합을 결성했습니다.</p>
     </section>
 
     <section id="history" class="about-card history-card" aria-labelledby="history-heading">
       <span class="section-label">03 · 연혁</span>
-      <h2 id="history-heading">세계청년교류회가 걸어온 길</h2>
+      <h2 id="history-heading">세계청년교류연합이 걸어온 길</h2>
       <ol class="history-list">
         <li v-for="entry in history" :key="entry.date" class="history-entry">
           <time :datetime="entry.date">{{ entry.label }}</time>
@@ -102,9 +92,9 @@ const history: { date: string; label: string; event: string; path?: string }[] =
 
     <section class="about-card" aria-labelledby="information-heading">
       <span class="section-label">04 · 단체 기본정보</span>
-      <h2 id="information-heading">세계청년교류회를 소개합니다</h2>
+      <h2 id="information-heading">세계청년교류연합을 소개합니다</h2>
       <dl class="organization-details">
-        <div><dt>단체명</dt><dd>세계청년교류회</dd></div>
+        <div><dt>단체명</dt><dd>세계청년교류연합</dd></div>
         <div><dt>약어</dt><dd>WYEA</dd></div>
         <div><dt>단체 성격</dt><dd>비영리단체</dd></div>
         <div><dt>고유번호</dt><dd>410-82-93357</dd></div>
@@ -115,7 +105,7 @@ const history: { date: string; label: string; event: string; path?: string }[] =
     </section>
 
     <section class="about-contact" aria-labelledby="contact-heading">
-      <h2 id="contact-heading">세계청년교류회와 이야기 나누세요</h2>
+      <h2 id="contact-heading">세계청년교류연합과 이야기 나누세요</h2>
       <p>단체 활동이나 참여, 교류·협력에 관한 문의는 공식 이메일로 보내주세요.</p>
       <div class="about-actions">
         <a class="contact-button" href="mailto:wyea@wyea.info">이메일로 문의하기 <span aria-hidden="true">↗</span></a>
@@ -134,34 +124,34 @@ const history: { date: string; label: string; event: string; path?: string }[] =
   color: #344052;
 }
 .about-heading { text-align: center; margin-bottom: 56px; }
-.eyebrow { color: #2d6a4f; letter-spacing: .18em; font-size: 13px; font-weight: 700; margin-bottom: 14px; }
+.eyebrow { color: #0d47a1; letter-spacing: .18em; font-size: 13px; font-weight: 700; margin-bottom: 14px; }
 h1 { font-size: clamp(32px, 3vw, 48px); line-height: 1.3; font-weight: 700; margin: 0 0 12px; }
 .english-name { font-size: 16px; color: #697586; margin-bottom: 22px; }
 .lead { font-size: clamp(17px, 1.3vw, 21px); line-height: 1.7; margin: 0; word-break: keep-all; }
-.about-card { background: #fff; border: 1px solid #e7edf0; border-radius: 16px; padding: 36px 40px; margin-bottom: 24px; box-shadow: 0 5px 20px rgba(35, 53, 70, .04); }
-.section-label { display: block; color: #2d6a4f; font-size: 13px; font-weight: 600; margin-bottom: 14px; }
+.about-card { background: #fff; border: 1px solid #dce7f5; border-radius: 16px; padding: 36px 40px; margin-bottom: 24px; box-shadow: 0 5px 20px rgba(35, 53, 70, .04); }
+.section-label { display: block; color: #0d47a1; font-size: 13px; font-weight: 600; margin-bottom: 14px; }
 h2 { font-size: clamp(21px, 1.6vw, 27px); line-height: 1.5; font-weight: 700; margin: 0 0 20px; word-break: keep-all; }
 .about-card p, .about-contact p { font-size: 17px; line-height: 1.9; word-break: keep-all; overflow-wrap: anywhere; }
 .about-card p:last-child { margin-bottom: 0; }
 .history-card { scroll-margin-top: 120px; }
 .history-list { list-style: none; padding: 0; margin: 28px 0 0; }
-.history-entry { position: relative; display: grid; grid-template-columns: 165px 1fr; gap: 24px; margin-left: 6px; padding: 0 0 26px 28px; border-left: 2px solid #dce9df; font-size: 16px; line-height: 1.7; }
+.history-entry { position: relative; display: grid; grid-template-columns: 165px 1fr; gap: 24px; margin-left: 6px; padding: 0 0 26px 28px; border-left: 2px solid #d0e2f7; font-size: 16px; line-height: 1.7; }
 .history-entry:last-child { padding-bottom: 0; }
-.history-entry::before { content: ''; position: absolute; left: -6px; top: 8px; width: 10px; height: 10px; border-radius: 50%; background: #2d6a4f; }
-.history-entry time { color: #2d6a4f; font-weight: 600; }
+.history-entry::before { content: ''; position: absolute; left: -6px; top: 8px; width: 10px; height: 10px; border-radius: 50%; background: #0d47a1; }
+.history-entry time { color: #0d47a1; font-weight: 600; }
 .history-link { display: block; margin-top: 6px; font-size: 14px; }
 .history-entry span { word-break: keep-all; overflow-wrap: anywhere; }
 .organization-details { margin: 0; }
-.organization-details > div { display: grid; grid-template-columns: 130px 1fr; gap: 20px; padding: 15px 0; border-bottom: 1px solid #edf0f2; font-size: 16px; line-height: 1.7; }
+.organization-details > div { display: grid; grid-template-columns: 130px 1fr; gap: 20px; padding: 15px 0; border-bottom: 1px solid #e5edf8; font-size: 16px; line-height: 1.7; }
 .organization-details > div:last-child { border-bottom: 0; }
-dt { font-weight: 600; color: #647163; }
+dt { font-weight: 600; color: #526b8a; }
 dd { margin: 0; overflow-wrap: anywhere; }
-a { color: #2d6a4f; text-underline-offset: 4px; }
-a:focus-visible { outline: 2px solid #2d6a4f; outline-offset: 5px; }
+a { color: #0d47a1; text-underline-offset: 4px; }
+a:focus-visible { outline: 2px solid #0d47a1; outline-offset: 5px; }
 .about-contact { text-align: center; padding: 40px 12px 0; }
 .about-actions { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 24px; margin-top: 24px; }
-.contact-button { background: #2d6a4f; color: #fff; padding: 13px 24px; border-radius: 999px; text-decoration: none; font-weight: 600; }
-.contact-button:hover { background: #24573f; }
+.contact-button { background: #0d47a1; color: #fff; padding: 13px 24px; border-radius: 999px; text-decoration: none; font-weight: 600; }
+.contact-button:hover { background: #093579; }
 @media (max-width: 600px) {
   .about-page { padding: 112px 18px 32px; }
   .about-heading { margin-bottom: 32px; }
