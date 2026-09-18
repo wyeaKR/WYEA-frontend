@@ -187,5 +187,5 @@ $('onboarding-form').addEventListener('submit', async (event) => {
 if (API_URL) {
   $('verify-button').disabled = false
 } else {
-  status('gate-status', '테스트 준비 중입니다. 담당자가 Apps Script 배포 URL을 설정해야 합니다.')
+  status('gate-status', '현재 온보딩을 준비 중입니다. 담당자에게 문의해 주세요.')
 }
