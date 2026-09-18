@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex,nofollow" />
+    <meta name="referrer" content="no-referrer" />
+    <title>WYEA | 실무자 온보딩</title>
+    <link rel="icon" type="image/png" href="./favicon.png" />
+    <link rel="stylesheet" href="./onboarding.css" />
+    <script src="./onboarding.js" defer></script>
+  </head>
+  <body>
+    <main>
+      <header>
+        <img src="./logo.png" alt="WYEA" width="72" height="72" />
+        <div>
+          <p class="eyebrow">세계청년교류연합</p>
+          <h1>실무자 온보딩</h1>
+        </div>
+      </header>
+      <p class="notice">테스트 페이지입니다. 실제 개인정보 대신 가상 정보를 입력해 주세요.</p>
+      <noscript>온보딩을 진행하려면 JavaScript를 활성화해 주세요.</noscript>
+      <section id="gate" class="card" aria-labelledby="gate-title">
+        <p class="eyebrow">01 · 초대 확인</p>
+        <h2 id="gate-title">함께할 준비를 시작해요</h2>
+        <p>전달받은 개인별 초대코드를 입력해 주세요. 초대코드는 한 번만 제출할 수 있습니다.</p>
+        <form id="verify-form">
+          <label for="code">초대코드 <span>(필수)</span></label>
+          <input
+            id="code"
+            name="code"
+            required
+            autocomplete="off"
+            autocapitalize="none"
+            spellcheck="false"
+          />
+          <button id="verify-button" type="submit" disabled>초대코드 확인</button>
+        </form>
+        <p id="gate-status" class="status" role="status" aria-live="polite"></p>
+      </section>
+      <section id="details" class="card" hidden aria-labelledby="details-title">
+        <p class="eyebrow">02 · 정보 입력</p>
+        <h2 id="details-title" tabindex="-1">어떤 일을 함께하고 싶나요?</h2>
+        <p>모든 항목은 필수입니다. 관심 분야는 여러 개 선택할 수 있습니다.</p>
+        <form id="onboarding-form">
+          <fieldset id="form-fields" disabled>
+            <legend>계정 발급 정보</legend>
+            <label for="name_ko">한글 성명</label
+            ><input id="name_ko" name="name_ko" required autocomplete="name" />
+            <div class="columns">
+              <div>
+                <label for="last_name_en">영문 성</label
+                ><input id="last_name_en" name="last_name_en" required autocomplete="family-name" />
+              </div>
+              <div>
+                <label for="first_name_en">영문 이름</label
+                ><input
+                  id="first_name_en"
+                  name="first_name_en"
+                  required
+                  autocomplete="given-name"
+                />
+              </div>
+            </div>
+            <p class="hint">
+              영문 이름은 계정 표시 이름 등에 사용하며, 여권 정보 수집 목적이 아닙니다.
+            </p>
+            <label for="desired_id">희망 계정 아이디</label>
+            <div class="account">
+              <input
+                id="desired_id"
+                name="desired_id"
+                required
+                autocapitalize="none"
+                spellcheck="false"
+                aria-describedby="id-hint"
+              /><span>@wyea.info</span>
+            </div>
+            <p id="id-hint" class="hint">
+              희망하는 값을 입력해 주세요. 사용 가능 여부와 최종 계정명은 대표가 확인합니다.
+            </p>
+            <label for="contact_email">계정 안내받을 이메일</label
+            ><input
+              id="contact_email"
+              name="contact_email"
+              type="email"
+              required
+              autocomplete="email"
+            />
+            <h3>활동 및 업무</h3>
+            <label for="expectations">단체에서 얻고 싶은 것</label
+            ><textarea id="expectations" name="expectations" rows="4" required></textarea>
+            <label for="desired_activities">하고 싶은 활동</label
+            ><textarea
+              id="desired_activities"
+              name="desired_activities"
+              rows="4"
+              required
+            ></textarea>
+            <fieldset class="interest-fields">
+              <legend>희망 업무·관심 분야</legend>
+              <div id="interests" class="choices"></div>
+            </fieldset>
+            <div id="other-field" hidden>
+              <label for="interest_other">기타 관심 분야</label
+              ><input id="interest_other" name="interest_other" disabled />
+            </div>
+            <div class="privacy">
+              <h3>개인정보 수집·이용 동의 · 테스트</h3>
+              <p>
+                입력한 계정 발급 정보와 활동·업무 희망 정보를 테스트용 Google Sheets에 저장하고
+                대표가 확인하는 흐름을 시험합니다. 실제 운영 동의문과 보유 기간은 아직 확정되지
+                않았습니다. 가상 정보만 입력해 주세요.
+              </p>
+              <label class="choice"
+                ><input type="checkbox" name="agree_privacy" required /><span
+                  >위 테스트 안내를 확인하고 입력 정보의 수집·이용에 동의합니다.</span
+                ></label
+              >
+            </div>
+            <button id="submit-button" type="submit">온보딩 정보 제출</button>
+          </fieldset>
+        </form>
+        <p id="form-status" class="status" role="status" aria-live="polite"></p>
+      </section>
+      <section id="complete" class="card" hidden aria-labelledby="complete-title">
+        <p class="eyebrow">03 · 제출 완료</p>
+        <h2 id="complete-title" tabindex="-1">정보가 저장되었습니다</h2>
+        <p>대표가 내용을 확인한 뒤 계정 발급과 업무 배치를 진행합니다.</p>
+        <p id="receipt" class="hint"></p>
+      </section>
+      <footer>WYEA · 실무자 전용 온보딩</footer>
+    </main>
+  </body>
+</html>

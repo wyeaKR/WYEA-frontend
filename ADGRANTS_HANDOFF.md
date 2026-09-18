@@ -103,6 +103,22 @@
 
 ## 다음 작업 보충
 
+- 2026-09-18 온보딩 탭 표시: 메인 index.html의 favicon은 src/assets/image/wyea-title-logo.png이며 온보딩에는 icon 링크가 없었다. public의 독립 HTML은 Vite 자산 변환 대상이 아니므로 기존 PNG를 public/onboarding/favicon.png로 원본 그대로 복사하고 상대 경로로 연결했다. SHA256 일치 확인. title은 `WYEA | 실무자 온보딩`으로 변경했다. API/폼/CSS는 수정하지 않았고 빌드·브라우저 확인은 별도로 수행하지 않았다.
+
+- 2026-09-18 Sheets 메뉴 구현: Code.gs에 onOpen()과 generateInviteCodeFromMenu()를 추가했다. WYEA 온보딩 → 초대코드 발급에서 기존 생성/중복 검사/잠금 함수를 그대로 호출하고, 반환 코드로 정확한 셀을 찾아 선택한 뒤 완료 안내한다. 설정된 시트 ID와 현재 문서가 다르면 발급하지 않는다. UI 선택 실패와 발급 실패를 구분해 중복 재발급을 유도하지 않는다. verify/submit/CORS/프론트/시트 구조는 변경하지 않았다. 기존 15개와 메뉴 관련 4개 총 19개 모의 테스트 통과. 실제 Sheets 메뉴 UI는 사용자 확인 대기. 기존 프로젝트에 코드 저장 후 시트 새로고침으로 적용하며 메뉴 추가만으로 웹 앱 재배포는 필요하지 않다. 과거 메뉴 미구현 기록보다 이 상태를 우선한다.
+
+- 2026-09-18 온보딩 최신 상태(사용자 실연동 보고): Spreadsheet `onboarding`의 invites/responses 구성, ONBOARDING_SPREADSHEET_ID 설정, Apps Script 웹 앱 배포 및 프론트 API_URL 연결 완료. generateInviteCode 실제 실행·invites 기록, 로컬 /onboarding/index.html 표시, 실제 코드 검증, 가상 정보 제출·responses 저장·used 처리·동일 코드 재접근 차단·새 코드 추가 제출까지 사용자 확인 완료. Codex가 원격 재검증한 결과와 구분한다. 아래 과거 기록의 '설정 대기/실연동 미검증'보다 이 상태를 우선한다. 모바일·폐기 코드·동시 제출·상세 검증·통신 오류·운영 도메인 테스트와 최종 URL/개인정보 정책 확정은 남아 있다.
+- 이번 문서 현행화: requirements에 확정된 서버 검증 및 내부 코드 발급 함수, 실제 테스트 상태를 반영하고 README를 갱신했다. Google Sheets의 `WYEA 온보딩 → 초대코드 발급`은 설계만 제안하며 미구현이다. 같은 스프레드시트에 바인딩된 기존 Apps Script에서 onOpen(메뉴 생성)과 메뉴 콜백(기존 발급 함수 호출/결과 안내)을 추가하는 방향이다. Code.gs·프론트엔드·기존 사이트 코드는 변경하지 않았으며 문서 변경만 수행해 테스트는 재실행하지 않았다.
+
+- 2026-09-18 온보딩 서버 보완: 사용자 최신 메시지의 확정 규칙을 적용해 `Code.gs`에 편집기 전용 `generateInviteCode()`와 validate_ 길이/문자/관심 분야 배타 선택 검증을 추가했다. 현재 디스크의 requirements에는 이 상세 규칙·발급 함수가 아직 미반영되어 있음을 알렸으며, 이번 요청을 우선했다. 발급 함수는 UUID 기반 32자 코드, 발급 시각, active, 빈 used_at/response_id를 한 행 기록하고 잠금 및 기존 invites/responses 코드 충돌 검사를 수행한다. doGet/doPost는 발급을 호출하지 않는다. 테스트와 README를 갱신했다. 기존 8개 포함 총 15개 서버 모의 테스트 통과. 실제 Apps Script/Sheets 실행·배포는 미검증이며 새 Code.gs를 편집기에 반영하고 기존 웹 앱 배포 버전을 갱신해야 서버 검증이 적용된다. 프론트엔드 및 기존 사이트 코드는 수정하지 않았다. 아래의 ‘발급 도구 미포함’ 기록은 이전 구현 이력이다.
+
+- 2026-09-18 온보딩 1차 구현: `onboarding-requirements.md`를 유일한 요구사항 기준으로 사용했다(사용자 메시지의 `nboarding-requirements.md`는 실제 파일명과 다름). `public/onboarding/`에 독립 정적 HTML/CSS/JS 및 기존 로고 사본, `apps-script/onboarding/`에 Code.gs·설정/배포/실연동 테스트 README·서버 모의 테스트를 추가했다. 기존 Vue 라우터·공통 레이아웃·배포 설정과 사용자의 AboutView/개인정보처리방침 변경은 수정하지 않았다.
+- 온보딩 구현 범위: 개인별 코드 verify → 필수 계정/활동/관심 정보와 테스트 동의 → submit → Sheets 한 행 기록 및 코드 used 처리 → 완료 화면. 서버 필수값 검증, 스크립트 잠금, 기존 응답 재확인, 수식 입력 이스케이프를 적용했다. 저장 후 used 갱신만 실패한 경우 재시도에서 중복 행을 생성하지 않고 상태를 정리한다. API POST 본문은 `{action:'submit', code, payload:{...}}`, Content-Type은 `text/plain;charset=utf-8`이다. 이메일·사진 업로드·자동 계정 생성·코드 발급 도구·별도 서버/DB는 추가하지 않았다.
+- 온보딩 설정 대기: Apps Script 스크립트 속성 `ONBOARDING_SPREADSHEET_ID`에 사용자 생성 테스트 시트 ID를 설정하고 웹 앱으로 배포한 뒤, `public/onboarding/onboarding.js`의 빈 `API_URL`에 `/exec` 주소를 넣어야 한다. 설정 전에는 코드 확인 버튼을 비활성화한다. `/onboarding/`은 개발 예시 경로이며 최종 URL, 실제 개인정보 동의문/보유 기간, 최종 관심 분야는 미확정이다. 현재는 가상 데이터만 사용한다.
+- 이번 온보딩 검증: 서버 모의 테스트 8개, 프론트엔드 JS 구문 검사, 신규 JS/테스트 파일의 ESLint 검사 통과. `npm run build` 종료 코드 0, 기존 정적 페이지 생성 및 `dist/onboarding` 4개 파일 포함 확인. 기존 HomeViewPhoto 정적/동적 중복 import 경고와 프리렌더 종료 시 `The build was canceled` 로그가 남았다. 실제 Apps Script/Sheets 연결, 브라우저 CORS 응답, 모바일 화면·제출, GitHub Pages 배포는 아직 검증하지 않았다. 실연동 테스트를 마치기 전 §18 전체 완료로 기록하지 않는다. 커밋·푸시·개발 서버 실행은 하지 않았다.
+
+- 2026-09-18: 사용자 요청으로 단체소개 하단의 ‘이메일로 문의하기’와 ‘재정보고 보기 →’ 링크 및 전용 스타일을 제거했다. 문의 안내 문구와 단체 기본정보의 연락처는 유지한다. 작은 템플릿/CSS 삭제로 별도 빌드·배포 확인은 하지 않았다.
+
 - 2026-09-17: 모든 활동 데이터의 필드를 `path → title → date → startDate → endDate → location → category → partnerLabel → partner → paragraphs → photos` 순서로 통일했다. 국제교류에도 partnerLabel을 명시하고, 단일 photo는 제거하여 사진 한 장도 photos 배열로 관리한다(사진 없음은 빈 배열). paragraphs도 모두 여러 줄 형식으로 통일했다. 기존 본문·사진·목록 순서는 유지했고 타입 검사 통과. 앞으로 photo/heading/summary를 사용한다는 이전 지침 대신 이 구조를 따른다. 배포/브라우저 확인은 하지 않았다.
 
 - 2026-09-17: 국제교류 4건에 EXCHANGE가 이미 지정돼 있음을 재확인했다. 사용자가 코드에서 쉽게 찾도록 모든 활동의 category 위치를 봉사활동과 동일하게 location 바로 아래로 통일했다. 값과 화면 동작은 그대로이며 별도 빌드는 하지 않았다.

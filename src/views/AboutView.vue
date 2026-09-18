@@ -104,10 +104,6 @@ const history: { date: string; label: string; event: string; path?: string }[] =
     <section class="about-contact" aria-labelledby="contact-heading">
       <h2 id="contact-heading">세계청년교류연합과 이야기 나누세요</h2>
       <p>단체 활동이나 참여, 교류·협력에 관한 문의는 공식 이메일로 보내주세요.</p>
-      <div class="about-actions">
-        <a class="contact-button" href="mailto:wyea@wyea.info">이메일로 문의하기 <span aria-hidden="true">↗</span></a>
-        <RouterLink to="/financialreport">재정보고 보기 →</RouterLink>
-      </div>
     </section>
   </article>
 </template>
@@ -146,9 +142,6 @@ dd { margin: 0; overflow-wrap: anywhere; }
 a { color: #0d47a1; text-underline-offset: 4px; }
 a:focus-visible { outline: 2px solid #0d47a1; outline-offset: 5px; }
 .about-contact { text-align: center; padding: 40px 12px 0; }
-.about-actions { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 24px; margin-top: 24px; }
-.contact-button { background: #0d47a1; color: #fff; padding: 13px 24px; border-radius: 999px; text-decoration: none; font-weight: 600; }
-.contact-button:hover { background: #093579; }
 @media (max-width: 600px) {
   .about-page { padding: 112px 18px 32px; }
   .about-heading { margin-bottom: 32px; }
