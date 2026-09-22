@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
+import { incomeitems2025, incomeitems2026, spendingitems2025, spendingitems2026, withItemColors, type Item } from '@/content/financialReports'
 
 
-type Item = { label: string; amount: number; color?: string }
+
 type ItemWithPct = Item & { pct: number }
 
 // 포맷터
@@ -21,51 +22,12 @@ const arcPath = (cx: number, cy: number, r: number, start: number, end: number) 
   return `M ${s.x} ${s.y} A ${r} ${r} 0 ${large} 0 ${e.x} ${e.y}`
 }
 
-const incomeitems2025 = ref<Item[]>([
-  { label: '행사 참가비 수입', amount: 350_000, color: '#1C77F2' },
-])
-
-const incomeitems2026 = ref<Item[]>([
-
-])
-// #1C77F2 (진한 블루)
-// #2D99FF (중간 블루)
-// #5EB1FF (밝은 블루)
-// #7DC3FF (하늘색 톤)
-// #A6C7F9 (파스텔 블루)
-// #CFE4FF (아주 연한 블루)
-// #525B61 (짙은 차콜)
-// #6B7280 (미디엄 그레이)
-// #9AA9B2 (밝은 그레이)
-// #E2E8F0 (연한 실버톤)
-
-const spendingitems2025 = ref<Item[]>([
-  { label: '봉사활동 장비', amount: 29_530, color: '#6EE7B7' },
-  { label: '운영비', amount: 83_228, color: '#065F46' },
-  { label: '비상주 사무실 계약', amount: 396_000, color: '#15803D' },
-  { label: '행사참가비', amount: 716_197, color: '#34D399' },
-])
-
-const spendingitems2026 = ref<Item[]>([
-
-])
-// #065F46 (딥 그린·짙은 초록)
-// #047857 (청록빛 중간 초록)
-// #10B981 (밝은 에메랄드)
-// #34D399 (민트 톤 밝은 초록)
-// #6EE7B7 (파스텔 민트)
-// #A7F3D0 (아주 연한 민트)
-// #064E3B (딥 포레스트·짙은 차콜 초록)
-// #15803D (리치 그린·미디엄 톤)
-// #4ADE80 (라이트 그린)
-// #BBF7D0 (연한 실버톤 그린)
-
 /**********************************수입**************************************/
-const activeIncomeYear = ref<'2025' | '2026'>('2026')
+const activeYear = ref<'2025' | '2026'>('2026')
 
 /* 선택된 연도의 수입 아이템 */
 const incomeItems = computed<Item[]>(() =>
-  activeIncomeYear.value === '2025' ? incomeitems2025.value : incomeitems2026.value
+  withItemColors(activeYear.value === '2025' ? incomeitems2025 : incomeitems2026, 'income')
 )
 
 /* === (수입) 합계/비율/세그먼트 등은 incomeItems 기준으로 재계산 === */
@@ -95,14 +57,17 @@ const centerSub = computed(() => {
   return seg ? `${fmtPct(seg.item.pct)} · ${fmtKRW(seg.item.amount)}` : ''
 })
 /**********************************지출**************************************/
-const activeSpendingYear = ref<'2025' | '2026'>('2026')
+
 // 선택된 연도의 지출 아이템
 const spendingItems = computed<Item[]>(() =>
-  activeSpendingYear.value === '2025' ? spendingitems2025.value : spendingitems2026.value
+  withItemColors(activeYear.value === '2025' ? spendingitems2025 : spendingitems2026, 'spending')
 )
-// 남은금액은 "선택된 수입 합계 - 선택된 지출 합계"
+// 잔액은 지출 탭에서 선택한 연도의 수입과 지출만 비교합니다.
 const total2 = computed(() => spendingItems.value.reduce((sum, i) => sum + i.amount, 0))
-const remaining = computed(() => total.value - total2.value)
+const remaining = computed(() => {
+  const sameYearIncome = activeYear.value === '2025' ? incomeitems2025 : incomeitems2026
+  return sameYearIncome.reduce((sum, item) => sum + item.amount, 0) - total2.value
+})
 
 const withPct2 = computed<ItemWithPct[]>(() =>
   spendingItems.value.map(i => ({ ...i, pct: total2.value ? (i.amount / total2.value) * 100 : 0 }))
@@ -142,13 +107,13 @@ const centerSub2 = computed(() => {
       <!-- 👇 연도 전환 탭 -->
       <div class="year-tabs">
         <button
-          :class="{ active: activeIncomeYear === '2025' }"
-          @click="activeIncomeYear = '2025'">
+          :class="{ active: activeYear === '2025' }"
+          @click="activeYear = '2025'">
           2025 수입
         </button>
         <button
-          :class="{ active: activeIncomeYear === '2026' }"
-          @click="activeIncomeYear = '2026'">
+          :class="{ active: activeYear === '2026' }"
+          @click="activeYear = '2026'">
           2026 수입
         </button>
       </div>
@@ -158,7 +123,7 @@ const centerSub2 = computed(() => {
       <!-- 표 -->
       <div class="card">
         <h2>수입 내역</h2>
-        <table class="tbl" :aria-label="`${activeIncomeYear} 수입 내역`">
+        <table class="tbl" :aria-label="`${activeYear} 수입 내역`">
           <thead>
           <tr>
             <th scope="col">구분</th>
@@ -180,7 +145,7 @@ const centerSub2 = computed(() => {
           <tr>
             <th scope="row">합계</th>
             <td class="num">{{ fmtKRW(total) }}</td>
-            <td class="num">100.0%</td>
+            <td class="num"></td>
           </tr>
           </tfoot>
         </table>
@@ -245,13 +210,13 @@ const centerSub2 = computed(() => {
       <p class="sub2">재원 사용 보고</p>
       <div class="year-tabs">
         <button
-          :class="{ active: activeSpendingYear === '2025' }"
-          @click="activeSpendingYear = '2025'">
+          :class="{ active: activeYear === '2025' }"
+          @click="activeYear = '2025'">
           2025 지출
         </button>
         <button
-          :class="{ active: activeSpendingYear === '2026' }"
-          @click="activeSpendingYear = '2026'">
+          :class="{ active: activeYear === '2026' }"
+          @click="activeYear = '2026'">
           2026 지출
         </button>
       </div>
@@ -261,7 +226,7 @@ const centerSub2 = computed(() => {
       <!-- 표 -->
       <div class="card">
         <h2>지출 내역</h2>
-        <table class="tbl" :aria-label="`${activeSpendingYear} 지출 내역`">
+        <table class="tbl" :aria-label="`${activeYear} 지출 내역`">
           <thead>
           <tr>
             <th scope="col">구분</th>
@@ -283,10 +248,10 @@ const centerSub2 = computed(() => {
           <tr>
             <th scope="row">합계</th>
             <td class="num">{{ fmtKRW(total2) }}</td>
-            <td class="num">100.0%</td>
+            <td class="num"></td>
           </tr>
           <tr>
-            <th scope="row">남은금액</th>
+            <th scope="row">{{ activeYear }}년 수입 − 지출</th>
             <td class="num" :class="{ neg: remaining < 0 }">
               {{ fmtKRW(remaining) }}
             </td>
