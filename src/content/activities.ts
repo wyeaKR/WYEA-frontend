@@ -1,4 +1,7 @@
-import placeholderPhoto from '@/assets/picture/251102서울교류회1.jpg'
+import seoulPhoto1 from '@/assets/picture/251102서울교류회1.jpg'
+import seoulPhoto2 from '@/assets/picture/251102서울교류회2.jpg'
+import tokyoPhoto from '@/assets/picture/260418도쿄피크닉.jpg'
+import osakaPhoto from '@/assets/picture/260421오사카교류회.jpg'
 import samwonPhoto from '@/assets/picture/260304삼원가정봉사원파견센터봉사활동.jpg'
 import musicPhoto1 from '@/assets/picture/260829제2회한일음악교류회1.jpg'
 import musicPhoto2 from '@/assets/picture/260829제2회한일음악교류회2.jpg'
@@ -8,7 +11,6 @@ export const activityCategories = {
   VOLUNTEERING: '봉사활동',
 } as const
 
-// Temporary photos selected by the user; replace per activity when confirmed.
 export const seoulExchange = {
   path: '/activities/2025-seoul-exchange',
   title: '재일본대한민국청년회와 서울 교류회',
@@ -24,7 +26,7 @@ export const seoulExchange = {
     '문화 체험뿐만 아니라 재일한국인 청년으로서 일본에서 생활하며 겪었던 경험과 여러 이슈에 대한 이야기도 직접 들어볼 수 있었습니다. 서로 다른 환경에서 살아온 청년들이 각자의 경험과 생각을 공유하면서, 평소에는 쉽게 접하기 어려웠던 재일한국인 청년들의 시각과 고민을 이해해볼 수 있는 시간이었습니다.',
     '이번 서울 교류회는 단순히 함께 활동하는 것을 넘어 서로의 문화와 경험을 직접 나누며 가까워질 수 있었던 첫 만남이었습니다. 이를 계기로 앞으로도 한국과 일본의 청년들이 지속적으로 만나 서로를 이해하고 교류할 수 있는 관계를 이어가고자 합니다.',
   ],
-  photos: [placeholderPhoto],
+  photos: [seoulPhoto1, seoulPhoto2],
 }
 
 export const tokyoPicnic = {
@@ -38,9 +40,10 @@ export const tokyoPicnic = {
   partnerLabel: '교류 단체',
   partner: '재일본대한민국청년회',
   paragraphs: [
-    '세계청년교류연합(WYEA)는 2026년 4월 18일 도쿄에서 재일본대한민국청년회와 피크닉을 함께했습니다.',
+    '세계청년교류연합(WYEA)은 2026년 4월 18일 도쿄에서 재일본대한민국청년회와 피크닉을 함께했습니다.',
+    '이번 피크닉에서는 간단한 간식을 함께 나누며 서로의 일상과 관심사에 대해 이야기하고, 자유로운 분위기 속에서 교류하는 시간을 가졌습니다. 한국과 일본에서 활동하는 청년들이 서로를 알아가고 친목을 다질 수 있는 뜻깊은 자리였습니다.',
   ],
-  photos: [placeholderPhoto],
+  photos: [tokyoPhoto],
 }
 
 export const osakaExchange = {
@@ -54,9 +57,10 @@ export const osakaExchange = {
   partnerLabel: '교류 단체',
   partner: '재일본대한민국청년회',
   paragraphs: [
-    '세계청년교류연합(WYEA)는 2026년 4월 21일 오사카에서 재일본대한민국청년회 오사카지부와 교류회를 진행했습니다.',
+    '세계청년교류연합(WYEA)은 2026년 4월 21일 오사카에서 재일본대한민국청년회 오사카지부와 교류회를 진행했습니다',
+    '이번 교류회는 양 단체 구성원들이 처음으로 함께한 자리로, 서로의 단체와 활동을 소개하고 다양한 이야기를 나누며 알아가는 시간을 가졌습니다. 편안한 분위기 속에서 서로의 활동과 관심사를 공유하며 앞으로의 교류를 위한 첫 인연을 만들었습니다.',
   ],
-  photos: [placeholderPhoto],
+  photos: [osakaPhoto],
 }
 
 export const samwonVolunteering = {
@@ -88,7 +92,8 @@ export const musicExchange = {
   partnerLabel: '교류 단체',
   partner: '재일본대한민국청년회',
   paragraphs: [
-    '2026년 8월 29일 제2회 한일음악교류회가 열렸습니다.',
+    '이번 교류회는 한국과 일본의 청년들이 음악을 매개로 함께 소통하고 교류하기 위해 마련되었습니다. 참가자들은 다양한 음악과 공연을 함께 즐기며 서로의 문화를 가까이에서 경험하고, 국경을 넘어 하나가 되는 시간을 가졌습니다',
+    '음악이라는 공통의 관심사를 통해 자연스럽게 어울리고 서로를 이해할 수 있었던 뜻깊은 교류의 자리였습니다.',
   ],
   photos: [musicPhoto1, musicPhoto2],
 }

@@ -76,8 +76,21 @@ const history: { date: string; label: string; event: string; path?: string }[] =
       <p>이러한 배경에서 청년들의 국제 교류와 협력을 위한 단체의 필요성을 느껴 세계청년교류연합을 결성했습니다.</p>
     </section>
 
+    <section class="about-card" aria-labelledby="programs-heading">
+      <span class="section-label">03 · 주요 활동</span>
+      <h2 id="programs-heading">우리가 하는 일</h2>
+      <div class="program-item">
+        <h3>국제 청년 교류</h3>
+        <p>한국과 일본의 청년들이 만나 서로의 문화와 일상, 경험을 나누는 활동을 진행합니다. 서울 교류회, 도쿄 피크닉, 오사카 교류회와 한일음악교류회 등을 통해 청년 간 만남과 교류를 이어가고 있습니다.</p>
+      </div>
+      <div class="program-item">
+        <h3>지역사회 봉사·협력</h3>
+        <p>지역 기관과 협력해 현장에서 필요한 일을 함께 돕는 봉사활동을 진행합니다. 삼원가정봉사원파견센터와 협력 관계를 맺고, 책상·의자 조립과 시설 정리 등의 활동에 참여했습니다.</p>
+      </div>
+    </section>
+
     <section id="history" class="about-card history-card" aria-labelledby="history-heading">
-      <span class="section-label">03 · 연혁</span>
+      <span class="section-label">04 · 연혁</span>
       <h2 id="history-heading">세계청년교류연합이 걸어온 길</h2>
       <ol class="history-list">
         <li v-for="entry in history" :key="entry.date" class="history-entry">
@@ -88,14 +101,14 @@ const history: { date: string; label: string; event: string; path?: string }[] =
     </section>
 
     <section class="about-card" aria-labelledby="information-heading">
-      <span class="section-label">04 · 단체 기본정보</span>
+      <span class="section-label">05 · 단체 기본정보</span>
       <h2 id="information-heading">세계청년교류연합을 소개합니다</h2>
       <dl class="organization-details">
         <div><dt>단체명</dt><dd>세계청년교류연합</dd></div>
         <div><dt>약어</dt><dd>WYEA</dd></div>
         <div><dt>단체 성격</dt><dd>비영리단체</dd></div>
         <div><dt>고유번호</dt><dd>410-82-93357</dd></div>
-        <div><dt>소재지</dt><dd>중구 명덕로 179, 2층 202-J153호</dd></div>
+        <div><dt>소재지</dt><dd>경남 창원시 성산구 용지로169번길 11-31</dd></div>
         <div><dt>이메일</dt><dd><a href="mailto:wyea@wyea.info">wyea@wyea.info</a></dd></div>
         <div><dt>팩스</dt><dd>053-289-2625</dd></div>
       </dl>
@@ -126,6 +139,8 @@ h1 { font-size: clamp(32px, 3vw, 48px); line-height: 1.3; font-weight: 700; marg
 h2 { font-size: clamp(21px, 1.6vw, 27px); line-height: 1.5; font-weight: 700; margin: 0 0 20px; word-break: keep-all; }
 .about-card p, .about-contact p { font-size: 17px; line-height: 1.9; word-break: keep-all; overflow-wrap: anywhere; }
 .about-card p:last-child { margin-bottom: 0; }
+.program-item + .program-item { margin-top: 28px; padding-top: 28px; border-top: 1px solid #e5edf8; }
+.program-item h3 { color: #0d47a1; font-size: clamp(18px, 1.4vw, 21px); font-weight: 700; line-height: 1.5; margin: 0 0 12px; }
 .history-card { scroll-margin-top: 120px; }
 .history-list { list-style: none; padding: 0; margin: 28px 0 0; }
 .history-entry { position: relative; display: grid; grid-template-columns: 165px 1fr; gap: 24px; margin-left: 6px; padding: 0 0 26px 28px; border-left: 2px solid #d0e2f7; font-size: 16px; line-height: 1.7; }
