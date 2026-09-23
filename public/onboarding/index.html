@@ -46,11 +46,12 @@
           <fieldset id="form-fields" disabled>
             <legend>계정 발급 정보</legend>
             <label for="name_ko">한글 성명</label
-            ><input id="name_ko" name="name_ko" required autocomplete="name" />
+            ><input id="name_ko" name="name_ko" required autocomplete="name" maxlength="30" aria-describedby="name-hint" />
+            <p id="name-hint" class="hint">최대 30자</p>
             <div class="columns">
               <div>
                 <label for="last_name_en">영문 성</label
-                ><input id="last_name_en" name="last_name_en" required autocomplete="family-name" />
+                ><input id="last_name_en" name="last_name_en" required autocomplete="family-name" maxlength="50" aria-describedby="english-hint" />
               </div>
               <div>
                 <label for="first_name_en">영문 이름</label
@@ -59,10 +60,13 @@
                   name="first_name_en"
                   required
                   autocomplete="given-name"
+                  maxlength="50"
+                  aria-describedby="english-hint"
                 />
               </div>
             </div>
-            <p class="hint">
+            <p id="english-hint" class="hint">
+              각각 최대 50자 · 영문, 공백, 하이픈(-), 아포스트로피(')만 사용할 수 있습니다.<br />
               영문 이름은 계정 표시 이름 등에 사용하며, 여권 정보 수집 목적이 아닙니다.
             </p>
             <label for="desired_id">희망 계정 아이디</label>
@@ -74,9 +78,11 @@
                 autocapitalize="none"
                 spellcheck="false"
                 aria-describedby="id-hint"
+                maxlength="30"
               /><span>@wyea.info</span>
             </div>
             <p id="id-hint" class="hint">
+              영문 소문자·숫자·마침표(.)로 3~30자 · 예: gildong.hong<br />
               희망하는 값을 입력해 주세요. 사용 가능 여부와 최종 계정명은 대표가 확인합니다.
             </p>
             <label for="contact_email">계정 안내받을 이메일</label
@@ -86,24 +92,32 @@
               type="email"
               required
               autocomplete="email"
+              aria-describedby="email-hint"
             />
+            <p id="email-hint" class="hint">계정 안내를 받을 수 있는 이메일 주소를 입력해 주세요. 예: name@example.com</p>
             <h3>활동 및 업무</h3>
             <label for="expectations">단체에서 얻고 싶은 것</label
-            ><textarea id="expectations" name="expectations" rows="4" required></textarea>
+            ><textarea id="expectations" name="expectations" rows="4" required maxlength="1000" aria-describedby="expectations-hint expectations-count"></textarea>
+            <div class="field-meta"><span id="expectations-hint">최대 1,000자</span><span id="expectations-count">0 / 1,000자</span></div>
             <label for="desired_activities">하고 싶은 활동</label
             ><textarea
               id="desired_activities"
               name="desired_activities"
               rows="4"
               required
+              maxlength="1000"
+              aria-describedby="desired_activities-hint desired_activities-count"
             ></textarea>
+            <div class="field-meta"><span id="desired_activities-hint">최대 1,000자</span><span id="desired_activities-count">0 / 1,000자</span></div>
             <fieldset class="interest-fields">
               <legend>희망 업무·관심 분야</legend>
-              <div id="interests" class="choices"></div>
+              <p id="interests-hint" class="hint">1개 이상 선택해 주세요. ‘아직 정하지 못함’은 다른 분야와 함께 선택할 수 없습니다.</p>
+              <div id="interests" class="choices" role="group" aria-label="희망 업무·관심 분야" aria-describedby="interests-hint"></div>
             </fieldset>
             <div id="other-field" hidden>
               <label for="interest_other">기타 관심 분야</label
-              ><input id="interest_other" name="interest_other" disabled />
+              ><input id="interest_other" name="interest_other" disabled maxlength="200" aria-describedby="interest_other-hint interest_other-count" />
+              <div class="field-meta"><span id="interest_other-hint">기타 선택 시 필수 · 최대 200자</span><span id="interest_other-count">0 / 200자</span></div>
             </div>
             <div class="privacy">
               <h3>개인정보 수집·이용 동의</h3>
@@ -113,7 +127,7 @@
                 제출한 정보는 Google Sheets에 저장되며 대표가 확인합니다.
               </p>
               <label class="choice"
-                ><input type="checkbox" name="agree_privacy" required /><span
+                ><input id="agree_privacy" type="checkbox" name="agree_privacy" required /><span
                   >위 안내를 확인하고 입력 정보의 수집·이용에 동의합니다.</span
                 ></label
               >

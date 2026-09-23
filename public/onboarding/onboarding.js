@@ -31,6 +31,7 @@ function syncOther() {
   $('other-field').hidden = !other
   $('interest_other').required = other
   $('interest_other').disabled = !other
+  if (!other) showFieldError('interest_other', '')
 }
 INTERESTS.forEach((value) => {
   const label = document.createElement('label')
@@ -39,10 +40,79 @@ INTERESTS.forEach((value) => {
   input.type = 'checkbox'
   input.name = 'interests'
   input.value = value
-  input.addEventListener('change', syncOther)
+  input.addEventListener('change', () => {
+    if (input.checked) {
+      document.querySelectorAll('[name="interests"]').forEach((choice) => {
+        if (choice !== input && (value === '아직 정하지 못함' || choice.value === '아직 정하지 못함')) {
+          choice.checked = false
+        }
+      })
+    }
+    syncOther()
+    showFieldError('interests', fieldError('interests'))
+  })
   label.append(input, document.createTextNode(value))
   $('interests').append(label)
 })
+
+// 서버 validate_와 동일한 규칙으로 전송 전에 확인합니다. 서버 검증도 유지합니다.
+const limits = { name_ko: 30, last_name_en: 50, first_name_en: 50, desired_id: 30,
+  expectations: 1000, desired_activities: 1000, interest_other: 200 }
+const validationFields = [...Object.keys(limits).filter((key) => key !== 'interest_other'),
+  'contact_email', 'interests', 'interest_other', 'agree_privacy']
+function fieldError(key) {
+  const selected = [...document.querySelectorAll('[name="interests"]:checked')].map((el) => el.value)
+  if (key === 'interests') {
+    if (!selected.length) return '관심 분야를 1개 이상 선택해 주세요.'
+    if (selected.some((value) => !INTERESTS.includes(value))) return '목록에 있는 관심 분야를 선택해 주세요.'
+    return selected.includes('아직 정하지 못함') && selected.length > 1
+      ? '아직 정하지 못함은 다른 분야와 함께 선택할 수 없습니다.' : ''
+  }
+  if (key === 'agree_privacy') return $(key).checked ? '' : '개인정보 수집·이용에 동의해 주세요.'
+  if (key === 'interest_other' && !selected.includes('기타')) return ''
+  const value = $(key).value.trim()
+  if (!value) return '이 항목을 입력해 주세요.'
+  if (limits[key] && value.length > limits[key]) return `최대 ${limits[key].toLocaleString()}자까지 입력해 주세요.`
+  if (['last_name_en', 'first_name_en'].includes(key) && !/^[A-Za-z '-]+$/.test(value)) {
+    return "영문, 공백, 하이픈(-), 아포스트로피(')만 사용할 수 있습니다."
+  }
+  if (key === 'desired_id' && !/^[a-z0-9.]{3,30}$/.test(value)) {
+    return '아이디는 영문 소문자·숫자·마침표(.)로 3~30자 입력해 주세요.'
+  }
+  if (key === 'contact_email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+    return '이메일 주소를 확인해 주세요. 예: name@example.com'
+  }
+  return ''
+}
+function showFieldError(key, message) {
+  const error = $(`${key}-error`)
+  error.textContent = message
+  error.hidden = !message
+  $(key).setAttribute('aria-invalid', String(Boolean(message)))
+}
+validationFields.forEach((key) => {
+  const element = $(key)
+  const error = document.createElement('p')
+  error.id = `${key}-error`
+  error.className = 'field-error'
+  error.hidden = true
+  error.setAttribute('aria-live', 'polite')
+  const anchor = ['desired_id', 'agree_privacy'].includes(key) ? element.parentElement : element
+  anchor.after(error)
+  element.setAttribute('aria-describedby', [element.getAttribute('aria-describedby'), error.id].filter(Boolean).join(' '))
+  if (key === 'interests') return
+  element.addEventListener('blur', () => showFieldError(key, fieldError(key)))
+  element.addEventListener('input', () => {
+    if (element.getAttribute('aria-invalid') === 'true') showFieldError(key, fieldError(key))
+  })
+})
+;['expectations', 'desired_activities', 'interest_other'].forEach((key) => {
+  const counter = $(`${key}-count`)
+  const update = () => { counter.textContent = `${$(key).value.length.toLocaleString()} / ${limits[key].toLocaleString()}자` }
+  $(key).addEventListener('input', update)
+  update()
+})
+$('onboarding-form').noValidate = true
 
 async function request(url, options = {}) {
   const controller = new AbortController()
@@ -109,6 +179,14 @@ $('verify-form').addEventListener('submit', async (event) => {
 $('onboarding-form').addEventListener('submit', async (event) => {
   event.preventDefault()
   if (busy || !verifiedCode) return
+  validationFields.forEach((key) => showFieldError(key, fieldError(key)))
+  const firstInvalid = event.currentTarget.querySelector('[aria-invalid="true"]')
+  if (firstInvalid) {
+    status('form-status', '표시된 항목을 확인해 주세요. 작성한 내용은 유지됩니다.', true)
+    const target = firstInvalid.id === 'interests' ? firstInvalid.querySelector('input') : firstInvalid
+    target.focus()
+    return
+  }
   const data = new FormData(event.currentTarget)
   const fields = [
     'name_ko',
@@ -125,16 +203,6 @@ $('onboarding-form').addEventListener('submit', async (event) => {
     ? String(data.get('interest_other') || '').trim()
     : ''
   payload.agree_privacy = data.get('agree_privacy') === 'on'
-  if (
-    fields.some((key) => !payload[key]) ||
-    !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(payload.contact_email) ||
-    !payload.interests.length ||
-    (payload.interests.includes('기타') && !payload.interest_other) ||
-    !payload.agree_privacy
-  ) {
-    status('form-status', '필수 항목, 이메일 형식과 관심 분야 선택을 확인해 주세요.', true)
-    return
-  }
   busy = true
   $('form-fields').disabled = true
   status('form-status', '저장 중입니다. 창을 닫지 말고 잠시 기다려 주세요.')

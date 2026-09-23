@@ -18,7 +18,7 @@ export const incomeitems2025: Item[] = [
 ]
 
 export const incomeitems2026: Item[] = []
-// #1C77F2 (진한 블루)
+// #1C77F2 (진한 블루)2025 수입
 // #2D99FF (중간 블루)
 // #5EB1FF (밝은 블루)
 // #7DC3FF (하늘색 톤)

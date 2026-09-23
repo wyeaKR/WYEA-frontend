@@ -90,6 +90,24 @@ label span,
 .hint {
   font-size: 0.85rem;
 }
+.field-meta {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+  margin: 8px 0;
+  color: #5c6b7e;
+  font-size: 0.85rem;
+}
+.field-error {
+  color: #a32828;
+  font-size: 0.85rem;
+  margin: 8px 0;
+}
+input[aria-invalid='true'],
+textarea[aria-invalid='true'] {
+  border-color: #a32828;
+}
 .hint {
   margin: 8px 0;
   color: #5c6b7e;
