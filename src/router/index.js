@@ -124,7 +124,7 @@ routerInstance.afterEach((to) => {
     'content', typeof to.meta.description === 'string' ? to.meta.description : defaultDescription,
   )
   const canonical = document.querySelector('link[rel="canonical"]')
-  if (canonical) canonical.setAttribute('href', `https://wyea.info${['/about', '/join'].includes(to.path) ? `${to.path}/` : to.path}`)
+  if (canonical) canonical.setAttribute('href', `https://wyea.info${['/about', '/join', '/personalinformationprocessingpolicy'].includes(to.path) ? `${to.path}/` : to.path}`)
 })
 
 export default routerInstance
