@@ -103,6 +103,10 @@
 
 ## 다음 작업 보충
 
+- 2026-09-26 A 이메일 수정 및 푸시 재개(Codex, 최신 지시): 사용자가 `254413104+lchenter@users.noreply.github.com`을 지정하고 이메일 설정→기존 커밋 amend→인계서 별도 커밋→`feature/join` 푸시까지만 진행한 뒤 대기하도록 요청했다. 로컬 Git 이메일을 변경하고 `git commit --amend --reset-author --no-edit`로 `4ffe698`을 `4f715bf`로 갱신했다. 새 커밋의 작성자·커미터 이메일을 확인했으며 `git diff --exit-code 4ffe698 HEAD --`로 커밋된 파일 내용이 동일함을 확인했다. 이 문서는 푸시 전에 별도 커밋하는 기록으로, 실제 푸시 성공을 선기록하지 않는다. main 병합·배포·B/C/D는 사용자의 다음 지시까지 대기한다.
+
+- 2026-09-26 A 최초 푸시 중단(Codex, 아래는 이메일 수정 전 이력): 사전 점검 5개를 통과한 뒤 `feature/join`에 `4ffe698`(`/join 회원 가입 신청 페이지 추가 및 조직도 개편 반영`, 지정한 10개 파일)을 커밋했다. 실제 `git push -u origin feature/join`은 `GH007: Your push would publish a private email address` / `push declined due to email privacy restrictions`로 거절됐다. dry-run과 GitHub 인증은 성공했지만 실제 커밋 이메일 공개 검사는 통과하지 못한 것이다. 당시 사용자 요청에 따라 재시도하지 않고 중단했으며, 작성자는 `lchenter` / `lch@lchenter.com`이었다. main 병합·Pages 배포·배포 후 화면 확인·B/C/D 착수는 하지 않았다.
+
 - 2026-09-26 A 마무리 사전 점검(Codex, 이번 세션): 사용자가 `NEXT_LLM_HANDOFF.md` §5부터 진행하도록 요청했고, 추가 사전 점검 5개 통과 후 커밋·푸시·main 병합·배포 확인을 진행하도록 명시했다. 이번 작업에는 아래 과거의 사용자 직접 커밋·푸시 기록 대신 이 요청을 적용한다.
   - 수정 전 `feature/join` / `01d76af`에서 인계서의 미커밋 10개(수정 5·추가 5)만 존재함을 확인했다. `git push --dry-run origin feature/join` 성공, `gh auth status`의 활성 계정 `lchenter` 확인. 로컬 Git 작성자를 `lchenter` / `lch@lchenter.com`으로 설정했다.
   - 로컬 의존성이 없어 `npm ci`를 완료한 뒤 `npx vue-tsc --noEmit`, 인계서 §2의 5개 파일 ESLint, `npm run build`, 가입 서버 모의 테스트 50개가 모두 종료 코드 0으로 통과했다. `/join` 포함 8개 정적 페이지 생성 확인. 기존 HomeViewPhoto 중복 import 경고와 프리렌더 종료 시 `The build was canceled` 로그가 남았으나 빌드 명령 종료 코드는 0이다.
