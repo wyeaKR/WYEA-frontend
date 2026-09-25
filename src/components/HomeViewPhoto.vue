@@ -54,6 +54,52 @@ function selectPhoto(index: number) {
   showPhoto(index)
   startAutoplay()
 }
+function selectRelative(direction: number) {
+  selectPhoto((activeIndex.value + direction + photos.length) % photos.length)
+}
+
+const SWIPE_THRESHOLD = 36
+let pointerId: number | null = null
+let pointerStartX = 0
+let dragged = false
+let suppressClick = false
+
+function onPhotoPointerDown(event: PointerEvent) {
+  if (event.pointerType === 'mouse' && event.button !== 0) return
+  pointerId = event.pointerId
+  pointerStartX = event.clientX
+  dragged = false
+  ;(event.currentTarget as HTMLElement).setPointerCapture(event.pointerId)
+}
+function onPhotoPointerMove(event: PointerEvent) {
+  if (event.pointerId !== pointerId) return
+  if (Math.abs(event.clientX - pointerStartX) > 8) {
+    dragged = true
+    event.preventDefault()
+  }
+}
+function onPhotoPointerUp(event: PointerEvent) {
+  if (event.pointerId !== pointerId) return
+  const delta = event.clientX - pointerStartX
+  const target = event.currentTarget as HTMLElement
+  if (target.hasPointerCapture(event.pointerId)) target.releasePointerCapture(event.pointerId)
+  pointerId = null
+  if (Math.abs(delta) >= SWIPE_THRESHOLD) selectRelative(delta < 0 ? 1 : -1)
+  suppressClick = dragged
+  window.setTimeout(() => { suppressClick = false }, 0)
+}
+function onPhotoPointerCancel() {
+  pointerId = null
+  dragged = false
+}
+function onPhotoClick(event: MouseEvent) {
+  if (suppressClick) {
+    event.preventDefault()
+    event.stopPropagation()
+    suppressClick = false
+    return
+  }
+}
 onMounted(startAutoplay)
 onBeforeUnmount(() => {
   clearInterval(autoplay)
@@ -124,6 +170,7 @@ onBeforeUnmount(() => {
             :key="photo.src"
             :src="photo.src"
             :alt="idx === activeIndex ? photo.alt : ''"
+            draggable="false"
             :aria-hidden="idx !== activeIndex"
             :style="{ '--photo-tilt': photo.tilt }"
             :class="{
@@ -132,7 +179,20 @@ onBeforeUnmount(() => {
               'is-next': idx === nextIndex && idx !== leavingIndex,
             }"
           />
+          <RouterLink
+            class="photo-link"
+            to="/activities"
+            aria-label="활동소식 보기"
+            @pointerdown="onPhotoPointerDown"
+            @pointermove="onPhotoPointerMove"
+            @pointerup="onPhotoPointerUp"
+            @pointercancel="onPhotoPointerCancel"
+            @dragstart.prevent
+            @click="onPhotoClick"
+          />
         </div>
+        <button v-if="photos.length > 1" class="photo-nav photo-prev" type="button" aria-label="이전 사진" @click="selectRelative(-1)">‹</button>
+        <button v-if="photos.length > 1" class="photo-nav photo-next" type="button" aria-label="다음 사진" @click="selectRelative(1)">›</button>
         <div v-if="photos.length > 1" class="photo-pagination">
           <button
             v-for="(photo, idx) in photos"
@@ -179,7 +239,8 @@ onBeforeUnmount(() => {
   text-align: center;
   inset: var(--header-h, 64px) 0 0 0;
   z-index: -1;
-  pointer-events: none;
+  user-select: none;
+  -webkit-user-select: none;
 }
 .hero > section {
   width: 100%;
@@ -546,12 +607,45 @@ onBeforeUnmount(() => {
   width: calc(820 * var(--frame-unit));
   max-width: 90%;
   padding-bottom: calc(40 * var(--frame-unit));
+  user-select: none;
+  -webkit-user-select: none;
 }
 .photo-item {
   position: relative;
   isolation: isolate;
   height: min(calc(461.25 * var(--frame-unit)), 45vh);
 }
+.photo-link {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  display: block;
+  cursor: pointer;
+  touch-action: pan-y;
+}
+.photo-link:focus-visible { outline: 3px solid #fff; outline-offset: -3px; }
+.photo-nav {
+  position: absolute;
+  z-index: 6;
+  top: 50%;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 1px solid rgba(28, 55, 41, .16);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, .94);
+  color: #244436;
+  box-shadow: 0 2px 10px rgba(10, 25, 18, .2);
+  font-size: 30px;
+  line-height: 1;
+  cursor: pointer;
+  transform: translateY(-50%);
+}
+.photo-prev { left: 0; }
+.photo-next { right: 0; }
+.photo-nav:focus-visible { outline: 3px solid #0d47a1; outline-offset: 2px; }
 
 /* Each print stays mounted and moves from the back to the front. */
 .photo-item img {
@@ -574,6 +668,9 @@ onBeforeUnmount(() => {
   z-index: 0;
   transform: translate(-50%, calc(-50% - 24 * var(--frame-unit))) rotate(var(--photo-tilt)) scale(.94);
   transition: transform 800ms cubic-bezier(.22,.61,.36,1), opacity 650ms ease, filter 800ms ease;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-drag: none;
 }
 .photo-item img.is-next {
   opacity: 1;
@@ -600,7 +697,7 @@ onBeforeUnmount(() => {
   display: flex;
   justify-content: center;
   gap: calc(8 * var(--frame-unit));
-  pointer-events: auto;
+  z-index: 6;
 }
 .photo-pagination button {
   width: calc(8 * var(--frame-unit));
