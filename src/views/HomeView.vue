@@ -16,6 +16,7 @@ import masan from '@/assets/image/masan.png'
 
 import HomeViewPhoto from '@/components/HomeViewPhoto.vue'
 import SwipeCarousel from '@/components/SwipeCarousel.vue'
+import SiteFooter from '@/components/SiteFooter.vue'
 
 const decorativeImage = (name: string) => `${import.meta.env.BASE_URL}images/decorative/${name}`
 const backpack = decorativeImage('backpack.png')
@@ -77,7 +78,6 @@ const decorHidden = ref(false)
 const footerVisible = ref(false)
 const decorItems = ref<DecorItem[]>(BASE_DECOR)
 
-const year = new Date().getFullYear()
 const router = useRouter()
 const handleJoinClick = () => {
   router.push('/join')
@@ -244,33 +244,7 @@ onBeforeUnmount(() => {
   <section class="section4">
   </section>
 
-  <footer class="footer" :class="{ show: footerVisible }">
-    <div class="footer-top">
-      <p>비영리단체 세계청년교류연합(WYEA)</p>
-      <p><a class="footer-email" href="mailto:wyea@wyea.info">wyea@wyea.info</a> · 고유번호: 410-82-93357</p>
-    </div>
-    <div class="footer-middle">
-      <p>
-        © {{ year }} WYEA · <RouterLink to="/about">단체소개</RouterLink> · <RouterLink to="/personalinformationprocessingpolicy">개인정보 처리방침</RouterLink> <br>
-        Icons by Freepik (flaticon.com)<br>
-        대학 로고와 명칭은 각 대학의 자산이며, 식별 목적에 한해 사용됩니다.
-      </p>
-    </div>
-    <div class="footer-bottom">
-      <a href="https://www.instagram.com/wyea_official/" target="_blank" rel="noopener noreferrer">
-        <img src="@/assets/image/instaricon.png" class="footer-logo" alt="instagram"/>
-      </a>
-      <a href="mailto:wyea@wyea.info" target="_blank" rel="noopener noreferrer">
-        <img src="@/assets/image/mailicon.png" class="footer-logo" alt="maili"/>
-      </a>
-      <a href="https://open.kakao.com/o/sFkgaWQh" target="_blank" rel="noopener noreferrer">
-        <img src="@/assets/image/kakaoicon.png" class="footer-logo" alt="kakao"/>
-      </a>
-      <a href="https://x.com/wyea_official" target="_blank" rel="noopener noreferrer">
-        <img src="@/assets/image/twitter.png" class="footer-logo" alt="kakao"/>
-      </a>
-    </div>
-  </footer>
+  <SiteFooter floating :visible="footerVisible" />
 
 </template>
 
@@ -674,153 +648,5 @@ onBeforeUnmount(() => {
   min-height: calc(100vh - var(--header-h, 64px));
   pointer-events: none;
 }
-/*-------------------------------footer---------------------------------*/
-.footer {
-  background: #fff;
-  padding: 20px;
-  text-align: center;
-  border-top: 1px solid #ddd;
-  font-size: calc((14px) * 0.93);
-  line-height: 1.6;
 
-  position: fixed;
-  bottom: -200px; /* footer 높이보다 더 아래 */
-  left: 0;
-  width: 100%;
-  transition: bottom 0.4s ease; /* 애니메이션 */
-  border-top-left-radius: 16px;
-  border-top-right-radius: 16px;
-  clip-path: inset(0 37% 0 37% round 64px 64px 0 0);
-}
-
-.footer.show {
-  bottom: 0; /* show 클래스가 붙으면 나타남 */
-}
-
-/* ===== top 영역 ===== */
-.footer .footer-top p {
-  color: #000;
-  margin: 2px 0;
-  font-weight: bold;
-  font-size: calc((clamp(14px, calc(.72vw + .18px), 19px)) * 0.93);
-}
-
-/* ===== middle 영역 ===== */
-.footer .footer-top .registration-number {
-  font-weight: bold;
-}
-
-.footer .footer-email { color: inherit; font-weight: inherit; text-decoration: none; }
-.footer .footer-email:hover { text-decoration: underline; }
-
-.footer .footer-middle p {
-  margin: 4px 0;
-  font-size: calc((clamp(12px, .625vw, 16px)) * 0.93);
-  color: #666;
-  line-height: 1.6;
-}
-
-.footer .footer-middle a {
-  color: inherit;
-  text-decoration: none;
-  position: relative;
-  padding: 0 2px;
-  transition: color 0.2s ease;
-}
-
-.footer .footer-middle a::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  bottom: -2px;
-  width: 100%;
-  height: 1px;
-  background: currentColor;
-  transform: scaleX(0);
-  transform-origin: right;
-  transition: transform 0.25s ease;
-}
-
-.footer .footer-middle a:hover {
-  color: #000;
-}
-
-.footer .footer-middle a:hover::after {
-  transform: scaleX(1);
-  transform-origin: left;
-}
-
-/* ===== bottom 영역 ===== */
-.footer .footer-bottom {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 32px;
-  user-select: none;
-  -webkit-user-drag: none;
-
-  position: relative;
-  max-width: 720px;
-  margin: 16px auto 0;
-  padding: 0 20px;
-  z-index: 1;
-}
-
-.footer .footer-logo {
-  height: clamp(30px, 1.5625vw, 40px);
-  filter: grayscale(100%);
-  opacity: 0.9;
-}
-
-.footer .footer-links a {
-  color: #444;
-  text-decoration: none;
-}
-
-.footer .footer-links a:hover {
-  text-decoration: underline;
-}
-
-.footer .footer-links a:visited {
-  color: #444;
-}
-
-/* ===== 모바일 (1024px 이하) ===== */
-@media (max-width: 1500px) {
-  .footer {
-    clip-path: inset(0 0 0 0 round 0 0 0 0);
-  }
-}
-
-/* The desktop footer uses the same FHD scale as the activity photos. */
-@media (min-width: 1501px) {
-  .footer {
-    --footer-unit: calc(100vw / 1920);
-    padding: calc(20 * var(--footer-unit));
-    bottom: calc(-200 * var(--footer-unit));
-    font-size: calc((calc(14 * var(--footer-unit))) * 0.93);
-    clip-path: inset(0 37% 0 37% round calc(64 * var(--footer-unit)) calc(64 * var(--footer-unit)) 0 0);
-  }
-
-  .footer.show { bottom: 0; }
-
-  .footer .footer-top p {
-    margin: calc(2 * var(--footer-unit)) 0;
-    font-size: calc((calc(14.004 * var(--footer-unit))) * 0.93);
-  }
-
-  .footer .footer-middle p {
-    margin: calc(4 * var(--footer-unit)) 0;
-    font-size: calc((calc(12 * var(--footer-unit))) * 0.93);
-  }
-
-  .footer .footer-bottom {
-    gap: calc(32 * var(--footer-unit));
-    max-width: calc(720 * var(--footer-unit));
-    margin-top: calc(16 * var(--footer-unit));
-    padding: 0 calc(20 * var(--footer-unit));
-  }
-
-  .footer .footer-logo { height: calc(30 * var(--footer-unit)); }
-}
 </style>
