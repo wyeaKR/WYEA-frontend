@@ -103,6 +103,8 @@
 
 ## 다음 작업 보충
 
+- 2026-09-26 A 작업 알림 추가(Codex, 이번 세션): 대표가 Google Apps Script API 활성화와 `clasp`의 wyea@wyea.info 로그인을 완료했다고 이슈 #4에 댓글을 달았고, `clasp show-authorized-user`도 wyea 계정을 확인했다. 레포 밖 임시 폴더에서 `clasp pull`한 원격 `Code.js`와 레포 `apps-script/join/Code.gs`가 수정 전 바이트 단위로 같았다. 원격 manifest를 보존하고 `notify` 코드(고정 수신처 wyea@wyea.info, 코드 비밀값 확인, 제목 200자·본문 5000자 제한, 시트 미접근)를 추가했다. 레포에는 placeholder만 두고 실제 32자 난수는 레포 밖 `D:\10_Projects\Coding\WYEA\.notify.env`에 저장했다. 배포용 임시 사본에서만 비밀값을 치환해 `clasp push`했고 기존 웹 앱 배포 ID를 버전 4로 갱신했다. 모의 테스트 56개·mock-test.cjs ESLint 통과. 실연동 `notify` 시험 POST는 `{ok:true}`였고 대표가 메일 수신을 보고했다. 별도의 이슈 URL 알림 POST는 HTTP 404로 해당 요청의 발송 여부를 확인하지 못했으며, 그 뒤 `doGet`은 HTTP 200이었다. 신청자 개인정보는 작업 알림에 넣지 않았다. 아래 기록의 '푸시 전' 상태보다 이 기록과 후속 Git 상태를 우선한다.
+
 - 2026-09-26 A 이메일 수정 및 푸시 재개(Codex, 최신 지시): 사용자가 `254413104+lchenter@users.noreply.github.com`을 지정하고 이메일 설정→기존 커밋 amend→인계서 별도 커밋→`feature/join` 푸시까지만 진행한 뒤 대기하도록 요청했다. 로컬 Git 이메일을 변경하고 `git commit --amend --reset-author --no-edit`로 `4ffe698`을 `4f715bf`로 갱신했다. 새 커밋의 작성자·커미터 이메일을 확인했으며 `git diff --exit-code 4ffe698 HEAD --`로 커밋된 파일 내용이 동일함을 확인했다. 이 문서는 푸시 전에 별도 커밋하는 기록으로, 실제 푸시 성공을 선기록하지 않는다. main 병합·배포·B/C/D는 사용자의 다음 지시까지 대기한다.
 
 - 2026-09-26 A 최초 푸시 중단(Codex, 아래는 이메일 수정 전 이력): 사전 점검 5개를 통과한 뒤 `feature/join`에 `4ffe698`(`/join 회원 가입 신청 페이지 추가 및 조직도 개편 반영`, 지정한 10개 파일)을 커밋했다. 실제 `git push -u origin feature/join`은 `GH007: Your push would publish a private email address` / `push declined due to email privacy restrictions`로 거절됐다. dry-run과 GitHub 인증은 성공했지만 실제 커밋 이메일 공개 검사는 통과하지 못한 것이다. 당시 사용자 요청에 따라 재시도하지 않고 중단했으며, 작성자는 `lchenter` / `lch@lchenter.com`이었다. main 병합·Pages 배포·배포 후 화면 확인·B/C/D 착수는 하지 않았다.

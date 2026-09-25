@@ -7,9 +7,10 @@
 
 - Apps Script 프로젝트: `WYEA 회원 가입 접수 (/join)` (wyea@wyea.info 계정, 스크립트 ID `1af7bzb66TGd7GR0puYKRwXZWigzBPWGxK78AUzBK6YcIBwjpFKIzpBCU`)
 - 신청 시트: 공유 드라이브 `WYEA_LCE`의 `WYEA 회원 가입 신청(홈페이지)` (ID `1mukE06RTlPCI4Xu3_N8u2RKBAA67QZq-hMhn0XKSO8M`), 탭 `applications`
-- 웹 앱 배포 버전 3(2026-09-26, 조직도 개편: 단 5개·회원부·집행부), 실행: wyea@wyea.info, 액세스: 모든 사용자. `/exec` 주소는 `src/content/join.ts`의 `JOIN_API_URL`
+- 웹 앱 배포 버전 4(2026-09-26, 기존 배포 ID에 작업 알림 `notify` 추가), 실행: wyea@wyea.info, 액세스: 모든 사용자. `/exec` 주소는 `src/content/join.ts`의 `JOIN_API_URL`
 - 알림 메일: `NOTIFY_EMAILS` 미설정 → 기본값 wyea@wyea.info
 - `Code.gs`를 고치면 편집기에 붙여 넣고 저장한 뒤 **배포 → 배포 관리 → 새 버전**으로 올려야 반영된다. 주소는 바뀌지 않는다.
+- v4 확인: 레포의 `Code.gs`와 v3 원격 `Code.js`가 수정 전 바이트 단위로 같았다. 격리 폴더에서 `clasp push`로 코드·기존 manifest 2개 파일을 올리고 기존 배포 ID를 `@4`로 갱신했다. `notify` 시험 POST는 `{ok:true}`였고 대표가 알림 메일 수신을 보고했다. 별도의 이슈 URL 알림 POST는 HTTP 404가 나와 해당 요청의 처리 여부는 확인되지 않았다. 그 뒤 `doGet`은 HTTP 200을 반환했다.
 
 ## 설정
 
@@ -24,6 +25,7 @@
 
 - 요청: `POST`, `Content-Type: text/plain;charset=utf-8`, 본문 `{ action: 'join', payload: {...} }`
 - 응답: `{ ok: true }` 또는 `{ ok: false, error: 'validation_failed' | 'duplicate' | 'server_error' }`
+- 작업 알림: `{ action: 'notify', secret, subject, text }` 요청은 고정 수신처 `wyea@wyea.info`로 일반 텍스트 메일을 보냅니다. `subject`는 1~200자, `text`는 1~5000자입니다. 잘못된 비밀값은 `forbidden`, 길이 위반은 `validation_failed`를 반환합니다. 이 경로는 신청 시트를 읽거나 쓰지 않습니다. 본문에는 신청자 개인정보를 넣지 않습니다.
 - 서버에서 모든 항목을 다시 검증합니다. 규칙은 `src/content/join.ts`와 같아야 합니다.
 - 같은 휴대전화 번호로 이미 신청이 있으면 `duplicate`로 거절합니다.
 - 만 14세 미만, 3개 동의 중 하나라도 없는 경우, 알 수 없는 동의문 버전은 거절합니다.
@@ -43,4 +45,10 @@
 
 ## 모의 테스트
 
-`node apps-script/join/mock-test.cjs` — 시트·메일·잠금을 가짜 객체로 바꿔 `doPost`의 검증·중복·스팸 방지·메일 알림(실패 포함)을 확인합니다. 실제 시트나 메일에는 아무것도 보내지 않습니다. `Code.gs`를 고치면 실행합니다.
+`node apps-script/join/mock-test.cjs` — 시트·메일·잠금을 가짜 객체로 바꿔 `doPost`의 검증·중복·스팸 방지·메일 알림(실패 포함)과 작업 알림의 인증·길이 제한·시트 미기록을 확인합니다. 실제 시트나 메일에는 아무것도 보내지 않습니다. `Code.gs`를 고치면 실행합니다.
+
+## 작업 알림 배포
+
+- `.clasp.json`은 기존 `/join` Apps Script 프로젝트를 가리킵니다. `clasp clone`을 실행하지 않습니다. `clasp pull`은 레포 밖 빈 폴더에서 실행해 원격 코드와 manifest를 확인합니다. `clasp push`는 원격 프로젝트 파일 전체를 교체하므로 레포의 `apps-script/join`에서 직접 실행하지 않습니다.
+- 레포의 `Code.gs`에는 `NOTIFY_SECRET_PLACEHOLDER`만 둡니다. 실제 32자 비밀값은 레포 밖 `D:\10_Projects\Coding\WYEA\.notify.env`의 `NOTIFY_SECRET`에 저장합니다. 원격에서 받은 manifest와 레포 코드를 임시 폴더에 복사해 해당 임시 코드의 placeholder만 치환하여 `clasp push`합니다. 비밀값을 콘솔·로그·Git·이슈에 출력하지 않습니다.
+- 기존 웹 앱 배포 ID에 새 버전을 적용할 때는 `clasp deploy -i AKfycbw8Td0GHKezuBM2Xdrafk0tqf8dPTfpv7UxeEA72wLnn1UzGhfGRldDqdALvBicV0n7aw -d "v4 notify 추가"`를 사용합니다. 저장만으로 기존 `/exec`에는 반영되지 않습니다.

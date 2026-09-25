@@ -159,6 +159,8 @@ function safeCell_(value) {
 // 메일에는 연락처·주소·생년월일을 넣지 않습니다. 자세한 내용은 시트에서 확인합니다.
 // 메일 발송이 실패해도 신청 접수는 성공으로 처리합니다.
 var DEFAULT_NOTIFY_EMAIL = 'wyea@wyea.info';
+// 배포할 때만 레포 밖 .notify.env의 32자 값을 임시 사본에 치환합니다.
+var NOTIFY_SECRET = 'NOTIFY_SECRET_PLACEHOLDER';
 
 function notifyRecipients_() {
   var raw = PropertiesService.getScriptProperties().getProperty('NOTIFY_EMAILS') || DEFAULT_NOTIFY_EMAIL;
@@ -238,6 +240,21 @@ function doPost(e) {
     var request;
     try { request = JSON.parse(e && e.postData && e.postData.contents || ''); }
     catch (err) { return json_({ ok: false, error: 'validation_failed' }); }
+    if (request && request.action === 'notify') {
+      if (NOTIFY_SECRET === 'NOTIFY_SECRET_PLACEHOLDER' || request.secret !== NOTIFY_SECRET) {
+        return json_({ ok: false, error: 'forbidden' });
+      }
+      var subject = str_(request.subject, 200, true);
+      var text = str_(request.text, 5000, true);
+      if (subject === null || text === null) return json_({ ok: false, error: 'validation_failed' });
+      MailApp.sendEmail({
+        to: 'wyea@wyea.info',
+        subject: '[WYEA 작업] ' + subject,
+        body: text,
+        name: 'WYEA 작업 알림',
+      });
+      return json_({ ok: true });
+    }
     if (!request || request.action !== 'join' || !request.payload) return json_({ ok: false, error: 'validation_failed' });
     var p = request.payload;
     // 사람에게 보이지 않는 칸이 채워졌으면 저장하지 않고 성공처럼 응답합니다.

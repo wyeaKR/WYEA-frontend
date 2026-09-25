@@ -125,6 +125,19 @@ check('mail-staff-has-second-and-recommend', mails.some((x) => /2지망: 기획�
 mailThrow = true
 const r2 = post(m({}))
 check('mail-failure-still-ok', r2.ok === true)
+mailThrow = false
+const notifyPost = (request) => ctx.doPost({ postData: { contents: JSON.stringify({ action: 'notify', ...request }) } })
+const rowsBeforeNotify = written.length
+const mailsBeforeNotify = mails.length
+check('notify-placeholder-forbidden', notifyPost({ secret: 'NOTIFY_SECRET_PLACEHOLDER', subject: '알림 시험', text: '본문' }).error === 'forbidden')
+ctx.NOTIFY_SECRET = '0123456789abcdef0123456789abcdef'
+check('notify-wrong-secret-forbidden', notifyPost({ secret: 'wrong', subject: '알림 시험', text: '본문' }).error === 'forbidden')
+check('notify-valid-sends-mail', notifyPost({ secret: ctx.NOTIFY_SECRET, subject: '알림 시험', text: 'Codex 알림 경로 확인' }).ok === true &&
+  mails.length === mailsBeforeNotify + 1 && mails[mails.length - 1].to === 'wyea@wyea.info' &&
+  mails[mails.length - 1].subject === '[WYEA 작업] 알림 시험' && mails[mails.length - 1].body === 'Codex 알림 경로 확인')
+check('notify-no-sheet-write', written.length === rowsBeforeNotify)
+check('notify-long-subject-rejected', notifyPost({ secret: ctx.NOTIFY_SECRET, subject: 'x'.repeat(201), text: '본문' }).error === 'validation_failed')
+check('notify-long-text-rejected', notifyPost({ secret: ctx.NOTIFY_SECRET, subject: '알림', text: 'x'.repeat(5001) }).error === 'validation_failed')
 
 console.log(`rows written ${written.length}, mails ${mails.length}, failures ${fail}`)
 process.exit(fail ? 1 : 0)
