@@ -33,6 +33,16 @@ const routerInstance = createRouter({
       },
     },
     {
+      path: '/join',
+      name: 'join',
+      component: () => import('../views/JoinView.vue'),
+      meta: {
+        bg: '#f9fcff',
+        title: '회원 가입 신청 | 세계청년교류연합(WYEA)',
+        description: '세계청년교류연합(WYEA) 회원 가입 신청 페이지입니다. 단체 소개와 활동을 확인하고 가입을 신청할 수 있습니다.',
+      },
+    },
+    {
       path: '/',
       name: 'home',
       component: HomeView,
@@ -114,7 +124,7 @@ routerInstance.afterEach((to) => {
     'content', typeof to.meta.description === 'string' ? to.meta.description : defaultDescription,
   )
   const canonical = document.querySelector('link[rel="canonical"]')
-  if (canonical) canonical.setAttribute('href', `https://wyea.info${to.path === '/about' ? '/about/' : to.path}`)
+  if (canonical) canonical.setAttribute('href', `https://wyea.info${['/about', '/join'].includes(to.path) ? `${to.path}/` : to.path}`)
 })
 
 export default routerInstance

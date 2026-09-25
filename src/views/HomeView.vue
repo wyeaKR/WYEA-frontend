@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, onBeforeUnmount, nextTick } from 'vue'
+import { useRouter } from 'vue-router'
 import FloatingDecor, { type DecorItem } from '@/components/FloatingDecor.vue'
 
 import LogoMarquee from '@/components/LogoMarquee.vue'
@@ -77,8 +78,9 @@ const footerVisible = ref(false)
 const decorItems = ref<DecorItem[]>(BASE_DECOR)
 
 const year = new Date().getFullYear()
+const router = useRouter()
 const handleJoinClick = () => {
-  window.alert('지금은 가입 시즌이 아닙니다.')
+  router.push('/join')
 }
 
 let section1IO: IntersectionObserver | null = null
