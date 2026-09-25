@@ -168,6 +168,7 @@ onBeforeUnmount(() => {
       </a>
       -->
       <button type="button" @click="handleJoinClick">가입하러 가기</button>
+      <RouterLink class="report-link" to="/report">참가 기록 제출 →</RouterLink>
     </div>
     <div class="section1-div2">
       <p>연합 지부</p>
@@ -337,6 +338,13 @@ onBeforeUnmount(() => {
   cursor:pointer;
   box-shadow:0 6px 18px rgba(0,0,0,.12);
   font-size: clamp(14px, 1vw, 24px);
+}
+.section1-div1 .report-link {
+  display: inline-block;
+  margin-left: 14px;
+  color: #245b40;
+  font-weight: 700;
+  pointer-events: auto;
 }
 
 /* 섹션1 연합 지부 영역 전체 */

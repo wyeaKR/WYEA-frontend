@@ -43,6 +43,16 @@ const routerInstance = createRouter({
       },
     },
     {
+      path: '/report',
+      name: 'report',
+      component: () => import('../views/ReportView.vue'),
+      meta: {
+        bg: '#f4f8f6',
+        title: '참가 기록서 | 세계청년교류연합(WYEA)',
+        description: '세계청년교류연합 회원의 활동 참가 기록을 제출합니다.',
+      },
+    },
+    {
       path: '/',
       name: 'home',
       component: HomeView,
