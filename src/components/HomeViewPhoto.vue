@@ -41,7 +41,8 @@ let autoplay: ReturnType<typeof setInterval> | undefined
 let transitionEnd: ReturnType<typeof setTimeout> | undefined
 
 function showPhoto(index: number) {
-  if (index === activeIndex.value || leavingIndex.value !== null) return
+  if (index === activeIndex.value) return
+  clearTimeout(transitionEnd)
   leavingIndex.value = activeIndex.value
   activeIndex.value = index
   transitionEnd = setTimeout(() => { leavingIndex.value = null }, 850)
@@ -238,7 +239,7 @@ onBeforeUnmount(() => {
   align-items: center;
   text-align: center;
   inset: var(--header-h, 64px) 0 0 0;
-  z-index: -1;
+  z-index: 0;
   user-select: none;
   -webkit-user-select: none;
 }
@@ -673,7 +674,7 @@ onBeforeUnmount(() => {
   -webkit-user-drag: none;
 }
 .photo-item img.is-next {
-  opacity: 1;
+  opacity: 0;
   z-index: 1;
   filter: brightness(.92);
   transition-delay: 180ms;

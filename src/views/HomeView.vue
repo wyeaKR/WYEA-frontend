@@ -75,7 +75,6 @@ const logos = [
 const section1Ref = ref<HTMLElement | null>(null)
 const section2Ref = ref<HTMLElement | null>(null)
 const decorHidden = ref(false)
-const footerVisible = ref(false)
 const decorItems = ref<DecorItem[]>(BASE_DECOR)
 
 const router = useRouter()
@@ -87,14 +86,6 @@ let section1IO: IntersectionObserver | null = null
 let section2IO: IntersectionObserver | null = null
 let prevHidden = decorHidden.value
 let initialized = false // 초기 1회 콜백 무시
-const onScroll = () => {
-  const scrollTop = window.scrollY
-  const windowHeight = window.innerHeight
-  const docHeight = document.documentElement.scrollHeight
-  const scrollable = docHeight - windowHeight // 전체 스크롤 가능 높이
-  const progress = scrollTop / scrollable // 스크롤 진행률 (0~1)
-  footerVisible.value = progress >= 0.95  // 95% 이상 내려오면 footer 보이기
-}
 
 onMounted(async () => {
   /* ===== 배경데코 토글 IO ===== */
@@ -130,7 +121,6 @@ onMounted(async () => {
     }
   )
   if (section1Ref.value) section1IO.observe(section1Ref.value)
-  window.addEventListener('scroll', onScroll, { passive: true })
 
   /* ===== (B) 클립1회 등장 IO ===== */
   // 스태거 지연값 주입
@@ -161,7 +151,6 @@ onBeforeUnmount(() => {
   section2IO?.disconnect()
   section1IO = null
   section2IO = null
-  window.removeEventListener('scroll', onScroll)
 })
 </script>
 
@@ -244,7 +233,7 @@ onBeforeUnmount(() => {
   <section class="section4">
   </section>
 
-  <SiteFooter floating :visible="footerVisible" />
+  <SiteFooter />
 
 </template>
 
@@ -270,7 +259,7 @@ onBeforeUnmount(() => {
   align-items: center;             /* 세로 중앙 */
   text-align: center;              /* 텍스트 가운데 정렬 */
   min-height: calc(100vh - var(--header-h, 64px));  /* 화면 높이 - 헤더 높이 */
-  pointer-events: none;            /* 버튼만 클릭 가능하게 다시 켜줘도 됨 */
+  z-index: 1;
   padding: 16px;                   /* 안쪽 여백 */
   overflow-x: clip;                /* 섹션 안에서 넘침 차단 */
   font-family: 'PretendardFont', sans-serif;
@@ -411,6 +400,8 @@ onBeforeUnmount(() => {
 
 /*-------------------------------section2---------------------------------*/
 .section2 {
+  position: relative;
+  z-index: 1;
   background: linear-gradient(180deg, #f9fcff 0%, #ffffff 30%, #f0f7ff 100%);
   display: block;
   text-align: center;
