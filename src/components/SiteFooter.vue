@@ -8,7 +8,10 @@ const year = new Date().getFullYear()
   <footer class="site-footer" :class="{ 'is-floating': floating, 'is-visible': visible }">
     <div class="site-footer-grid">
       <p class="site-footer-name">세계청년교류연합 (WYEA) · 대표 이창현</p>
-      <p>(51436) 경남 창원시 성산구 용호동 73-19 · 고유번호 410-82-93357</p>
+      <div class="site-footer-details">
+        <p>(51436) 경남 창원시 성산구 용호동 73-19</p>
+        <p>고유번호 410-82-93357</p>
+      </div>
       <div class="site-footer-contact">
         <p>
           <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="2.5" y="5" width="19" height="14" rx="2"/><path d="m3.5 7 8.5 6 8.5-6"/></svg>
@@ -20,7 +23,7 @@ const year = new Date().getFullYear()
         </p>
         <a class="site-footer-instagram" href="https://www.instagram.com/wyea_official/" target="_blank" rel="noopener noreferrer" aria-label="WYEA 인스타그램">
           <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle class="instagram-dot" cx="17.5" cy="6.5" r="1"/></svg>
-          인스타그램
+          IG @wyea_official
         </a>
       </div>
     </div>
@@ -35,6 +38,8 @@ const year = new Date().getFullYear()
 
 <style scoped>
 .site-footer {
+  position: relative;
+  z-index: 2;
   width: 100%;
   margin-top: 100px;
   padding: 24px max(20px, calc((100vw - 1280px) / 2));
@@ -46,6 +51,7 @@ const year = new Date().getFullYear()
   line-height: 1.55;
 }
 .site-footer p { margin: 0; }
+.site-footer-details { display: grid; gap: 4px; }
 .site-footer-grid {
   display: grid;
   grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.5fr) minmax(0, 1fr);
