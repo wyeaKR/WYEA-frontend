@@ -1,6 +1,6 @@
 <template>
   <div class="app">
-    <header id="site-header" class="glass-header" :class="{ scrolled: isScrolled }">
+    <header id="site-header" class="glass-header" :class="{ scrolled: isScrolled, 'home-header': routeName === 'home' }">
       <div class="inner">
         <div class="brand">
           <RouterLink to="/">
@@ -187,6 +187,7 @@ onBeforeUnmount(() => {
 }
 
 @media (max-width: 600px) {
+  .glass-header.home-header { position: absolute; }
   .inner { padding: 0 10px; gap: 4px; }
   .nav { gap: 2px; }
   .nav a { padding: 0 8px; font-size: 14px; white-space: nowrap; }
