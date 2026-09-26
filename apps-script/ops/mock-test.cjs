@@ -11,7 +11,7 @@ const eventValues = [['event_name'], ['26-2기 회원 OT']]
 const sheets = {
   applications: { getDataRange: () => ({ getValues: () => joinValues.map(row => [...row]) }) },
   events: { getDataRange: () => ({ getValues: () => eventValues.map(row => [...row]) }) },
-  records: { appendRow: row => rows.push(row) },
+  records: { getLastRow: () => rows.length + 1, getRange: () => ({ setNumberFormat() { return this }, setValues: value => rows.push(value[0]) }) },
 }
 const sandbox = {
   console,

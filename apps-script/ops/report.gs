@@ -122,7 +122,10 @@ function submitReport_(payload) {
   const lock = LockService.getScriptLock();
   lock.waitLock(30000);
   try {
-    reportSheet_('REPORT_SPREADSHEET_ID', 'records').appendRow(row);
+    const sheet = reportSheet_('REPORT_SPREADSHEET_ID', 'records');
+    const range = sheet.getRange(sheet.getLastRow() + 1, 1, 1, row.length);
+    range.setNumberFormat('@');
+    range.setValues([row]);
   } finally {
     lock.releaseLock();
   }
@@ -160,7 +163,7 @@ function deleteTestRows() {
   const phoneCol = headers.indexOf('phone') + 1;
   let joinRemoved = 0;
   for (let row = join.getLastRow(); row >= 2; row--) {
-    if (join.getRange(row, nameCol).getValue() === TEST_NAME && reportDigits_(join.getRange(row, phoneCol).getValue()) === TEST_PHONE) {
+    if (join.getRange(row, nameCol).getValue() === TEST_NAME && testPhoneMatches_(join.getRange(row, phoneCol).getValue())) {
       join.deleteRow(row);
       joinRemoved++;
     }
@@ -175,8 +178,16 @@ function prepareTestMember_() {
   const nameCol = headers.indexOf('name');
   const phoneCol = headers.indexOf('phone');
   if (nameCol < 0 || phoneCol < 0) throw new Error('join headers missing');
-  if (values.some(row => row[nameCol] === TEST_NAME && reportDigits_(row[phoneCol]) === TEST_PHONE)) return { ok: true, existing: true };
+  for (let row = join.getLastRow(); row >= 2; row--) {
+    if (join.getRange(row, nameCol + 1).getValue() === TEST_NAME && testPhoneMatches_(join.getRange(row, phoneCol + 1).getValue())) join.deleteRow(row);
+  }
   const row = headers.map(header => ({ name: TEST_NAME, phone: TEST_PHONE, university: '시험 대학교', team: '기록단', status: '시험' })[header] || '');
-  join.appendRow(row);
+  const range = join.getRange(join.getLastRow() + 1, 1, 1, row.length);
+  range.setNumberFormat('@');
+  range.setValues([row]);
   return { ok: true, existing: false };
+}
+function testPhoneMatches_(value) {
+  const digits = reportDigits_(value);
+  return digits === TEST_PHONE || digits === TEST_PHONE.slice(1);
 }
