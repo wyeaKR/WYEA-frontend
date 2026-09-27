@@ -9,7 +9,13 @@ const year = new Date().getFullYear()
 <template>
   <footer class="site-footer" :class="{ 'is-floating': floating, 'is-visible': visible }">
     <div class="site-footer-grid">
-      <p class="site-footer-name">세계청년교류연합 (WYEA) · 대표 이창현</p>
+      <div class="site-footer-identity">
+        <p class="site-footer-name">세계청년교류연합 (World Youth Exchange Association)</p>
+        <div class="site-footer-people">
+          <span>대표 이창현</span>
+          <span>개인정보책임자 조우주</span>
+        </div>
+      </div>
       <div class="site-footer-details">
         <p>(51436) 경남 창원시 성산구 용호동 73-19</p>
         <p>고유번호 410-82-93357</p>
@@ -56,11 +62,14 @@ const year = new Date().getFullYear()
 .site-footer-details { display: grid; gap: 4px; }
 .site-footer-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.5fr) minmax(0, 1fr);
+  grid-template-columns: minmax(400px, 1.4fr) minmax(280px, 1.1fr) minmax(210px, 1fr);
   gap: 24px;
   align-items: start;
 }
-.site-footer-name { font-weight: 700; color: #172a3d; }
+.site-footer-identity { min-width: 0; display: grid; gap: 4px; }
+.site-footer-name { font-weight: 700; color: #172a3d; white-space: nowrap; }
+.site-footer-people { display: flex; flex-direction: column; gap: 4px; }
+.site-footer-people span { white-space: nowrap; }
 .site-footer a { color: inherit; text-decoration: none; }
 .site-footer a:hover { color: #0d47a1; text-decoration: underline; }
 .site-footer-contact { display: grid; gap: 7px; }
@@ -103,11 +112,14 @@ const year = new Date().getFullYear()
 .site-footer.is-floating.is-visible { transform: translateY(0); }
 @media (max-width: 1023px) {
   .site-footer-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .site-footer-identity { grid-column: 1 / -1; }
   .site-footer-contact { grid-column: 1 / -1; grid-template-columns: repeat(3, max-content); gap: 18px; }
 }
 @media (max-width: 767px) {
   .site-footer { padding: 22px 18px; text-align: center; }
   .site-footer-grid { grid-template-columns: 1fr; gap: 12px; }
+  .site-footer-name { font-size: clamp(10px, 2.75vw, 13px); letter-spacing: -.025em; }
+  .site-footer-people { flex-direction: row; justify-content: center; gap: 12px; }
   .site-footer-contact { grid-column: auto; grid-template-columns: 1fr; justify-items: center; gap: 8px; }
   .site-footer-bottom { justify-content: center; }
   .site-footer.is-floating { max-height: 70vh; overflow-y: auto; }

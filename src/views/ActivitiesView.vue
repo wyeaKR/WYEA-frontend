@@ -33,7 +33,7 @@ const activityPhotos = computed(() => activity.value?.photos ?? [])
       <nav class="breadcrumb" aria-label="현재 위치"><RouterLink to="/activities">활동소식</RouterLink><span aria-hidden="true"> / </span><span>활동 기록</span></nav>
       <header class="activities-heading detail-heading">
         <p class="eyebrow">{{ activity.category }}</p>
-        <h1>{{ activity.title }}</h1>
+        <h1 id="activity-title" tabindex="-1">{{ activity.title }}</h1>
         <p class="story-meta"><time :datetime="activity.startDate">{{ activity.date }}</time></p>
       </header>
       <section class="story-card" aria-label="활동 내용">

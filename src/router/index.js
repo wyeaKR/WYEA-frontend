@@ -104,6 +104,11 @@ const routerInstance = createRouter({
     },
   ],
   scrollBehavior(to) {
+    if (to.meta.activityDetail) {
+      // Open a story at its title, below the fixed site header, including direct entry.
+      const headerBottom = document.getElementById('site-header')?.getBoundingClientRect().bottom || 64
+      return { el: '#activity-title', top: headerBottom + 24, behavior: 'instant' }
+    }
     if (to.name === 'about' && to.hash === '#history') {
       return { el: '#history', top: 120 }
     }

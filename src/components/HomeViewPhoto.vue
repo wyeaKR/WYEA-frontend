@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
+import { homeActivityPhotos } from '@/content/activities'
 
 const paperclipSrc = `${import.meta.env.BASE_URL}images/decorative/clip.png`
 
@@ -7,28 +8,7 @@ defineProps<{
   hidden?: boolean
 }>()
 
-const photos = [
-  {
-    src: new URL('@/assets/picture/251102서울교류회1.jpg', import.meta.url).href,
-    alt: '251102_서울교류회_1'
-  },
-  {
-    src: new URL('@/assets/picture/251102서울교류회2.jpg', import.meta.url).href,
-    alt: '251102_서울교류회_2'
-  },
-    {
-    src: new URL('@/assets/picture/260304삼원가정봉사원파견센터봉사활동.jpg', import.meta.url).href,
-    alt: '260304_삼원가정봉사원파견센터봉사활동'
-  },
-  {
-    src: new URL('@/assets/picture/260829제2회한일음악교류회1.jpg', import.meta.url).href,
-    alt: '260829_제2회한일음악교류회_1'
-  },
-  {
-    src: new URL('@/assets/picture/260829제2회한일음악교류회2.jpg', import.meta.url).href,
-    alt: '260829_제2회한일음악교류회_2'
-  },
-].map(photo => ({
+const photos = homeActivityPhotos.map(photo => ({
   ...photo,
   // Pick once per mount so autoplay and re-renders keep each photo steady.
   tilt: `${(Math.random() < 0.5 ? -1 : 1) * (2 + Math.random() * 2)}deg`,
@@ -36,6 +16,7 @@ const photos = [
 
 const activeIndex = ref(0)
 const leavingIndex = ref<number | null>(null)
+const currentPhoto = computed(() => photos[activeIndex.value])
 const nextIndex = computed(() => photos.length > 1 ? (activeIndex.value + 1) % photos.length : -1)
 let autoplay: ReturnType<typeof setInterval> | undefined
 let transitionEnd: ReturnType<typeof setTimeout> | undefined
@@ -46,6 +27,9 @@ function showPhoto(index: number) {
   leavingIndex.value = activeIndex.value
   activeIndex.value = index
   transitionEnd = setTimeout(() => { leavingIndex.value = null }, 850)
+}
+function stopAutoplay() {
+  clearInterval(autoplay)
 }
 function startAutoplay() {
   clearInterval(autoplay)
@@ -62,20 +46,16 @@ function selectRelative(direction: number) {
 const SWIPE_THRESHOLD = 36
 let pointerId: number | null = null
 let pointerStartX = 0
-let dragged = false
-let suppressClick = false
 
 function onPhotoPointerDown(event: PointerEvent) {
   if (event.pointerType === 'mouse' && event.button !== 0) return
   pointerId = event.pointerId
   pointerStartX = event.clientX
-  dragged = false
   ;(event.currentTarget as HTMLElement).setPointerCapture(event.pointerId)
 }
 function onPhotoPointerMove(event: PointerEvent) {
   if (event.pointerId !== pointerId) return
   if (Math.abs(event.clientX - pointerStartX) > 8) {
-    dragged = true
     event.preventDefault()
   }
 }
@@ -86,20 +66,9 @@ function onPhotoPointerUp(event: PointerEvent) {
   if (target.hasPointerCapture(event.pointerId)) target.releasePointerCapture(event.pointerId)
   pointerId = null
   if (Math.abs(delta) >= SWIPE_THRESHOLD) selectRelative(delta < 0 ? 1 : -1)
-  suppressClick = dragged
-  window.setTimeout(() => { suppressClick = false }, 0)
 }
 function onPhotoPointerCancel() {
   pointerId = null
-  dragged = false
-}
-function onPhotoClick(event: MouseEvent) {
-  if (suppressClick) {
-    event.preventDefault()
-    event.stopPropagation()
-    suppressClick = false
-    return
-  }
 }
 onMounted(startAutoplay)
 onBeforeUnmount(() => {
@@ -161,6 +130,7 @@ onBeforeUnmount(() => {
     </div>
     <section class="hvpsection1">
       <h1>활동 사진</h1>
+      <p class="photo-intro">사진 속 추억이 궁금하다면,<br class="photo-intro-break" /> 아래 버튼으로 그날의 이야기를 만나보세요.</p>
     </section>
 
     <section class="hvpsection2">
@@ -180,16 +150,14 @@ onBeforeUnmount(() => {
               'is-next': idx === nextIndex && idx !== leavingIndex,
             }"
           />
-          <RouterLink
-            class="photo-link"
-            to="/activities"
-            aria-label="활동소식 보기"
+          <div
+            class="photo-swipe-area"
+            aria-hidden="true"
             @pointerdown="onPhotoPointerDown"
             @pointermove="onPhotoPointerMove"
             @pointerup="onPhotoPointerUp"
             @pointercancel="onPhotoPointerCancel"
             @dragstart.prevent
-            @click="onPhotoClick"
           />
         </div>
         <button v-if="photos.length > 1" class="photo-nav photo-prev" type="button" aria-label="이전 사진" @click="selectRelative(-1)">‹</button>
@@ -205,6 +173,16 @@ onBeforeUnmount(() => {
             @click="selectPhoto(idx)"
           />
         </div>
+      </div>
+
+      <div v-if="currentPhoto" class="photo-story" @mouseenter="stopAutoplay" @mouseleave="startAutoplay" @focusin="stopAutoplay" @focusout="startAutoplay">
+        <p class="photo-story-title">{{ currentPhoto.title }}</p>
+        <RouterLink
+          class="photo-story-button"
+          :to="{ path: currentPhoto.path, hash: '#activity-title' }"
+          :aria-label="currentPhoto.title + ' — 이 순간의 이야기 보기'"
+          @pointerdown="stopAutoplay"
+        >이 순간의 이야기 보기 <span aria-hidden="true">↗</span></RouterLink>
       </div>
 
       <p v-if="photos.length === 0" class="empty-text">
@@ -248,7 +226,7 @@ onBeforeUnmount(() => {
   width: 100%;
   flex-shrink: 0;
   /* Raise the content together without moving the background. */
-  top: calc(-96 * var(--photo-unit, 1px));
+  top: calc(-24 * var(--photo-unit, 1px));
 }
 .hero::before {
   --thin: rgba(255,255,255,.08);
@@ -566,8 +544,33 @@ onBeforeUnmount(() => {
 
 .hvpsection1 {
   font-family: 'PretendardFont', sans-serif;
-  padding-bottom: calc(40 * var(--photo-unit, 1px));
+  padding-bottom: calc(24 * var(--photo-unit, 1px));
 }
+.photo-intro {
+  margin: 18px 20px 0;
+  color: #edf1da;
+  font-family: 'PretendardFont', sans-serif;
+  font-size: clamp(13px, 1vw, 16px);
+  line-height: 1.7;
+  word-break: keep-all;
+}
+.photo-intro-break { display: none; }
+.photo-story { position: relative; z-index: 7; margin-top: 12px; padding: 0 20px; }
+.photo-story-title { margin: 0 0 10px; color: #edf1da; font: 14px/1.5 'PretendardFont', sans-serif; word-break: keep-all; }
+.photo-story-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 20px;
+  border: 1px solid rgba(245, 241, 215, .6);
+  border-radius: 6px;
+  background: #f3eacd;
+  color: #244436;
+  text-decoration: none;
+  font: 600 15px/1.5 'PretendardFont', sans-serif;
+}
+.photo-story-button:hover { background: #fff6da; }
+.photo-story-button:focus-visible { outline: 3px solid #fff; outline-offset: 4px; }
 .hvpsection1 h1 {
   margin: 0;
   font-family: 'NanumPenScript', 'PretendardFont', sans-serif;
@@ -596,6 +599,8 @@ onBeforeUnmount(() => {
 .hvpsection2 {
   margin-top: 0px;
   display: flex;
+  flex-direction: column;
+  align-items: center;
   justify-content: center;
 }
 
@@ -617,15 +622,13 @@ onBeforeUnmount(() => {
   isolation: isolate;
   height: min(calc(461.25 * var(--frame-unit)), 45vh);
 }
-.photo-link {
+.photo-swipe-area {
   position: absolute;
   inset: 0;
   z-index: 4;
   display: block;
-  cursor: pointer;
   touch-action: pan-y;
 }
-.photo-link:focus-visible { outline: 3px solid #fff; outline-offset: -3px; }
 .photo-nav {
   position: absolute;
   z-index: 6;
@@ -722,6 +725,7 @@ onBeforeUnmount(() => {
 
 /* On phones the photos scroll above the footer, so its height cannot cover them. */
 @media (max-width: 767px) {
+  .photo-intro-break { display: initial; }
   .hero {
     position: relative;
     inset: auto;
