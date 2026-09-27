@@ -240,6 +240,7 @@ onBeforeUnmount(() => {
   text-align: center;
   inset: var(--header-h, 64px) 0 0 0;
   z-index: 0;
+  pointer-events: auto;
   user-select: none;
   -webkit-user-select: none;
 }
@@ -717,6 +718,20 @@ onBeforeUnmount(() => {
 }
 @media (max-width: 1024px) {
   .photo-swiper { margin-top: 30px; }
+}
+
+/* On phones the photos scroll above the footer, so its height cannot cover them. */
+@media (max-width: 767px) {
+  .hero {
+    position: relative;
+    inset: auto;
+    box-sizing: border-box;
+    min-height: calc(100svh - var(--header-h, 64px));
+    padding: 48px 0 40px;
+    overflow: hidden;
+    isolation: isolate;
+  }
+  .hero > section { top: 0; }
 }
 
 /* Keep the FHD composition proportional at larger desktop widths. */
