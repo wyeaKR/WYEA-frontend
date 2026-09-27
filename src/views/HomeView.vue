@@ -156,7 +156,6 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <HomeViewPhoto/>
   <section class="section1" ref="section1Ref">
     <div class="section1-div1">
       <img src="@/assets/image/wyea-logo.png" width="300" alt="wyea-logo">
@@ -233,6 +232,7 @@ onBeforeUnmount(() => {
   </section>
 
   <section class="section4">
+    <HomeViewPhoto />
   </section>
 
   <SiteFooter />
@@ -421,7 +421,6 @@ onBeforeUnmount(() => {
   box-shadow: 0 18px 32px rgba(0,0,0,.18);
   padding: calc(64 * var(--section2-unit)) 24px;
   font-family: 'PretendardFont', sans-serif;
-  z-index: 0;
 }
 
 .section2-inner {
@@ -432,6 +431,7 @@ onBeforeUnmount(() => {
 
 .section2-div1 h3 {
   font-weight: 700;
+  word-break: keep-all;
   line-height: 1.2;
   margin-bottom: calc(60 * var(--section2-unit));
   margin-top: 0;
@@ -645,8 +645,13 @@ onBeforeUnmount(() => {
 /*-------------------------------section4---------------------------------*/
 .section4 {
   position: relative;
+  z-index: 0;
   min-height: calc(100vh - var(--header-h, 64px));
   pointer-events: none;
+}
+
+@media (max-width: 767px) {
+  .section4 { min-height: 0; }
 }
 
 </style>
