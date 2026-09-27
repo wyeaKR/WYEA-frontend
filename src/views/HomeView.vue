@@ -17,6 +17,7 @@ import masan from '@/assets/image/masan.png'
 import HomeViewPhoto from '@/components/HomeViewPhoto.vue'
 import SwipeCarousel from '@/components/SwipeCarousel.vue'
 import SiteFooter from '@/components/SiteFooter.vue'
+import { SHOW_REPORT_LINKS } from '@/content/report'
 
 const decorativeImage = (name: string) => `${import.meta.env.BASE_URL}images/decorative/${name}`
 const backpack = decorativeImage('backpack.png')
@@ -168,7 +169,7 @@ onBeforeUnmount(() => {
       </a>
       -->
       <button type="button" @click="handleJoinClick">가입하러 가기</button>
-      <RouterLink class="report-link" to="/report">참가 기록 제출 →</RouterLink>
+      <RouterLink v-if="SHOW_REPORT_LINKS" class="report-link" to="/report">참가 기록 제출 →</RouterLink>
     </div>
     <div class="section1-div2">
       <p>연합 지부</p>
