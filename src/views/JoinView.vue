@@ -53,6 +53,7 @@ const quizChecked = ref(false)
 const quizError = ref('')
 const busy = ref(false)
 const submitError = ref('')
+const unconfirmedSubmission = '접수 결과를 확인하지 못했습니다. 이미 접수되었을 수 있으니 반복 제출하지 말고 wyea@wyea.info로 문의해 주세요. 입력한 내용은 유지됩니다.'
 const startedAt = ref(0)
 const openConsent = ref<ConsentKey | null>(null)
 
@@ -338,9 +339,9 @@ async function submit() {
       ? '입력 내용을 다시 확인해 주세요. 계속 안 되면 wyea@wyea.info로 문의해 주세요.'
       : data && data.error === 'duplicate'
         ? '같은 휴대전화 번호로 이미 신청이 접수되어 있습니다. 집행부 연락을 기다려 주세요.'
-        : '접수 중 문제가 생겼습니다. 잠시 후 다시 시도해 주세요.'
+        : unconfirmedSubmission
   } catch {
-    submitError.value = '네트워크 문제로 접수하지 못했습니다. 작성한 내용은 그대로 있으니 다시 시도해 주세요.'
+    submitError.value = unconfirmedSubmission
   } finally {
     busy.value = false
   }
