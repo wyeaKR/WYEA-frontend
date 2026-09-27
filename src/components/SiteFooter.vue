@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { SHOW_REPORT_LINKS } from '@/content/report'
+
 defineProps<{ floating?: boolean; visible?: boolean }>()
 
 const year = new Date().getFullYear()
@@ -30,7 +32,7 @@ const year = new Date().getFullYear()
     <div class="site-footer-bottom">
       <span>© {{ year }} WYEA</span>
       <RouterLink to="/personalinformationprocessingpolicy">개인정보 처리방침</RouterLink>
-      <RouterLink to="/report">참가 기록 제출</RouterLink>
+      <RouterLink v-if="SHOW_REPORT_LINKS" to="/report">참가 기록 제출</RouterLink>
     </div>
     <p class="site-footer-note">대학 로고와 명칭은 각 대학의 자산이며, 식별 목적에 한해 사용됩니다.</p>
   </footer>

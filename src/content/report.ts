@@ -1,3 +1,6 @@
+// 홈·푸터의 "참가 기록 제출" 진입 링크 노출 여부. /report 라우트와 기능은 그대로 둔다.
+export const SHOW_REPORT_LINKS = false
+
 export const REPORT_API_URL = 'https://script.google.com/macros/s/AKfycbxqAfHZmTqKh0ZVTW07BXDIJWawe4qMG1-Avcdy2tgTSve0tA9EsFmgtAtBMJenPDVv/exec'
 
 export const reportRoles = ['참가', '스태프', '통역', '발표', '기타'] as const
