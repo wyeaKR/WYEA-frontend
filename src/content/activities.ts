@@ -111,3 +111,13 @@ export const activities: Array<{
   paragraphs: string[];
   photos: string[];
 }> = [musicExchange, osakaExchange, tokyoPicnic, samwonVolunteering, seoulExchange]
+
+// Use the same image imports as each story, so every home photo has one known destination.
+export const homeActivityPhotos = [seoulExchange, samwonVolunteering, musicExchange].flatMap(activity =>
+  activity.photos.map((src, index) => ({
+    src,
+    alt: `${activity.title} 사진 ${index + 1}`,
+    title: activity.title,
+    path: activity.path,
+  })),
+)
