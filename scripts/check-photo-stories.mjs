@@ -20,7 +20,7 @@ try {
   async function renderPhoto(change) {
     const component = { ...Photo, setup(props, context) {
       const state = Photo.setup(props, context)
-      try { change(state) } finally { state.stopAutoplay() }
+      change(state)
       return state
     } }
     const router = createRouter({ history: createMemoryHistory(), routes: [
@@ -32,30 +32,18 @@ try {
     return renderToString(app)
   }
 
+  // The September 23 design uses pagination and autoplay, without story buttons or swipe controls.
   for (let index = 0; index < homeActivityPhotos.length; index++) {
     const html = await renderPhoto(state => {
-      for (let step = 0; step < index; step++) state.selectRelative(1)
-      assert.equal(state.currentPhoto.value.path, homeActivityPhotos[index].path)
-    })
-    const links = [...html.matchAll(/<a\b[^>]*href="([^"]+)"[^>]*>/g)]
-    assert.deepEqual(links.map(match => match[1]), [homeActivityPhotos[index].path + '#activity-title'])
-    assert.match(html, /<div[^>]*class="photo-swipe-area"/)
-    assert.match(html, /이 순간의 이야기 보기/)
+      assert.equal(state.photos.length, homeActivityPhotos.length);
+      state.activeIndex.value = index;
+      assert.equal(state.nextIndex.value, (index + 1) % homeActivityPhotos.length);
+    });
+    assert.equal([...html.matchAll(/class="[^"]*is-current[^"]*"/g)].length, 1);
+    assert.ok(html.includes('photo-pagination'));
+    assert.ok(!html.includes('photo-swipe-area'));
+    assert.ok(!html.includes('photo-story-button'));
   }
-  await renderPhoto(state => {
-    state.selectRelative(-1)
-    assert.equal(state.activeIndex.value, homeActivityPhotos.length - 1)
-    state.selectRelative(1)
-    assert.equal(state.activeIndex.value, 0)
-    const target = { setPointerCapture() {}, hasPointerCapture: () => true, releasePointerCapture() {} }
-    const event = { pointerId: 1, pointerType: 'touch', button: 0, currentTarget: target }
-    state.onPhotoPointerDown({ ...event, clientX: 200 })
-    state.onPhotoPointerUp({ ...event, clientX: 100 })
-    assert.equal(state.activeIndex.value, 1, 'Swipe changes the current story')
-    state.onPhotoPointerDown({ ...event, clientX: 100 })
-    state.onPhotoPointerUp({ ...event, clientX: 100 })
-    assert.equal(state.activeIndex.value, 1, 'Photo tap does not change selection')
-  })
 
   for (const path of new Set(homeActivityPhotos.map(photo => photo.path))) {
     const router = createRouter({ history: createMemoryHistory(), routes: [
@@ -69,7 +57,7 @@ try {
     assert.match(html, /<h1 id="activity-title" tabindex="-1"[^>]*>/)
     assert.ok(html.includes(activities.find(story => story.path === path).title))
   }
-  console.log('Photo story checks passed: image ownership, every rendered destination, wrap, swipe, tap, and detail title anchors.')
+  console.log('Photo checks passed: restored pagination, active image, wrap, and preserved detail pages.')
 } finally {
   await server.close()
 }

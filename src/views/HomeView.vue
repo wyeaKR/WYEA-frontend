@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
+import { SHOW_REPORT_LINKS } from '@/content/report'
 import FloatingDecor, { type DecorItem } from '@/components/FloatingDecor.vue'
 
 import LogoMarquee from '@/components/LogoMarquee.vue'
@@ -14,10 +15,9 @@ import kyunghee from '@/assets/image/kyunghee.svg'
 import seoul from '@/assets/image/seoul.webp'
 import masan from '@/assets/image/masan.png'
 
+import SiteFooter from '@/components/SiteFooter.vue'
 import HomeViewPhoto from '@/components/HomeViewPhoto.vue'
 import SwipeCarousel from '@/components/SwipeCarousel.vue'
-import SiteFooter from '@/components/SiteFooter.vue'
-import { SHOW_REPORT_LINKS } from '@/content/report'
 
 const decorativeImage = (name: string) => `${import.meta.env.BASE_URL}images/decorative/${name}`
 const backpack = decorativeImage('backpack.png')
@@ -76,6 +76,11 @@ const logos = [
 const section1Ref = ref<HTMLElement | null>(null)
 const section2Ref = ref<HTMLElement | null>(null)
 const decorHidden = ref(false)
+const footerVisible = ref(false)
+const updateFooterVisibility = () => {
+  const scrollable = document.documentElement.scrollHeight - window.innerHeight
+  footerVisible.value = scrollable > 0 && window.scrollY >= scrollable * 0.95
+}
 const decorItems = ref<DecorItem[]>(BASE_DECOR)
 
 const router = useRouter()
@@ -89,6 +94,9 @@ let prevHidden = decorHidden.value
 let initialized = false // 초기 1회 콜백 무시
 
 onMounted(async () => {
+  window.addEventListener('scroll', updateFooterVisibility, { passive: true })
+  window.addEventListener('resize', updateFooterVisibility)
+  updateFooterVisibility()
   /* ===== 배경데코 토글 IO ===== */
   const rootStyles = getComputedStyle(document.documentElement)
   const headerH = parseFloat(rootStyles.getPropertyValue('--header-h')) || 64
@@ -148,6 +156,8 @@ onMounted(async () => {
 })
 
 onBeforeUnmount(() => {
+  window.removeEventListener('scroll', updateFooterVisibility)
+  window.removeEventListener('resize', updateFooterVisibility)
   section1IO?.disconnect()
   section2IO?.disconnect()
   section1IO = null
@@ -156,6 +166,7 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
+  <HomeViewPhoto/>
   <section class="section1" ref="section1Ref">
     <div class="section1-div1">
       <img src="@/assets/image/wyea-logo.png" width="300" alt="wyea-logo">
@@ -231,11 +242,11 @@ onBeforeUnmount(() => {
     </div>
   </section>
 
-  <section class="section4">
-    <HomeViewPhoto />
-  </section>
-
-  <SiteFooter />
+  <div class="home-ending">
+    <section class="section4">
+    </section>
+    <SiteFooter home floating :visible="footerVisible" />
+  </div>
 
 </template>
 
@@ -261,7 +272,7 @@ onBeforeUnmount(() => {
   align-items: center;             /* 세로 중앙 */
   text-align: center;              /* 텍스트 가운데 정렬 */
   min-height: calc(100vh - var(--header-h, 64px));  /* 화면 높이 - 헤더 높이 */
-  z-index: 1;
+  pointer-events: none;            /* 버튼만 클릭 가능하게 다시 켜줘도 됨 */
   padding: 16px;                   /* 안쪽 여백 */
   overflow-x: clip;                /* 섹션 안에서 넘침 차단 */
   font-family: 'PretendardFont', sans-serif;
@@ -340,13 +351,6 @@ onBeforeUnmount(() => {
   box-shadow:0 6px 18px rgba(0,0,0,.12);
   font-size: clamp(14px, 1vw, 24px);
 }
-.section1-div1 .report-link {
-  display: inline-block;
-  margin-left: 14px;
-  color: #245b40;
-  font-weight: 700;
-  pointer-events: auto;
-}
 
 /* 섹션1 연합 지부 영역 전체 */
 .section1-div2 > * {
@@ -409,8 +413,6 @@ onBeforeUnmount(() => {
 
 /*-------------------------------section2---------------------------------*/
 .section2 {
-  position: relative;
-  z-index: 1;
   background: linear-gradient(180deg, #f9fcff 0%, #ffffff 30%, #f0f7ff 100%);
   display: block;
   text-align: center;
@@ -421,6 +423,7 @@ onBeforeUnmount(() => {
   box-shadow: 0 18px 32px rgba(0,0,0,.18);
   padding: calc(64 * var(--section2-unit)) 24px;
   font-family: 'PretendardFont', sans-serif;
+  z-index: 0;
 }
 
 .section2-inner {
@@ -431,7 +434,6 @@ onBeforeUnmount(() => {
 
 .section2-div1 h3 {
   font-weight: 700;
-  word-break: keep-all;
   line-height: 1.2;
   margin-bottom: calc(60 * var(--section2-unit));
   margin-top: 0;
@@ -643,15 +645,21 @@ onBeforeUnmount(() => {
 }
 
 /*-------------------------------section4---------------------------------*/
+.home-ending {
+  display: flex;
+  flex-direction: column;
+  min-height: calc(100vh - var(--header-h, 64px));
+}
 .section4 {
   position: relative;
-  z-index: 0;
-  min-height: calc(100vh - var(--header-h, 64px));
+  flex: 1;
   pointer-events: none;
 }
-
-@media (max-width: 767px) {
-  .section4 { min-height: 0; }
+.section1-div1 .report-link {
+  display: inline-block;
+  margin-left: 14px;
+  color: #245b40;
+  font-weight: 700;
+  pointer-events: auto;
 }
-
 </style>
