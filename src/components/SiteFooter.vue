@@ -13,7 +13,7 @@ const year = new Date().getFullYear()
         <p class="site-footer-name">세계청년교류연합 (World Youth Exchange Association)</p>
         <div class="site-footer-people">
           <span>대표 이창현</span>
-          <span>개인정보책임자 조우주</span>
+          <span>개인정보 보호책임자 이창현</span>
         </div>
       </div>
       <div class="site-footer-details">

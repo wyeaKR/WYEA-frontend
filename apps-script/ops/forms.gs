@@ -31,6 +31,16 @@ const JOIN_CONSENT_DETAILS = [
   }
 ];
 
+// 갱신 폼은 /join 보다 적게 받으므로 동의 도움말의 수집 항목만 폼이 실제로 받는 것으로 줄인다.
+// 목적·보유 기간·제3자 제공·초상권 문구와 체크박스 3개는 /join 과 같다(join.ts 동의문·동의 버전은 그대로).
+const RENEWAL_COLLECT_ITEMS = '항목: 성명, 생년월일, 성별, 휴대전화, 주소(도로명주소까지), 직업, 소속 대학·캠퍼스·학과·학번, 이메일, 소속 단, 가능 언어(통번역단 선택 시), 관심 주제(소모임 선택 시)';
+const RENEWAL_CONSENT_DETAILS = JOIN_CONSENT_DETAILS.map(consent => consent.match === '개인정보 수집'
+  ? { match: consent.match, title: consent.title, details: consent.details.map(line => line.indexOf('항목: ') === 0 ? RENEWAL_COLLECT_ITEMS : line) }
+  : consent);
+function renewalConsentHelp_() {
+  return RENEWAL_CONSENT_DETAILS.map(consent => consent.title + '\n' + consent.details.join('\n')).join('\n\n');
+}
+
 function findForm_(query, titlePart) {
   const files = DriveApp.searchFiles(query);
   const matches = [];
@@ -57,8 +67,7 @@ function setConsentHelp_(item, text) {
 function ensureConsentHelp_(form) {
   const existing = form.getItems().find(item => item.getTitle().includes('동의 항목 (모두 선택)'));
   if (!existing || existing.getType() !== FormApp.ItemType.CHECKBOX) throw new Error('Existing required consent checkbox not found');
-  const help = JOIN_CONSENT_DETAILS.map(consent => consent.title + '\n' + consent.details.join('\n')).join('\n\n');
-  setConsentHelp_(existing, help);
+  setConsentHelp_(existing, renewalConsentHelp_());
   const checkbox = existing.asCheckboxItem ? existing.asCheckboxItem() : existing;
   if (checkbox.getChoices().length !== JOIN_CONSENT_DETAILS.length) throw new Error('Consent choice count differs from /join');
   checkbox.setRequired(true);
@@ -155,6 +164,16 @@ function applyFormChanges() {
   return result;
 }
 
+// 갱신 폼 동의 도움말만 바꾼다. applyFormChanges 와 달리 응답 비고·응답 열·옛 가입 폼은 건드리지 않는다.
+// 문항 생성·삭제·순서, 필수 여부, 검증 규칙은 바꾸지 않는다(그런 정리는 applyFormChanges 의 ensureConsentHelp_ 몫).
+function applyConsentHelp() {
+  const renewal = findForm_(RENEWAL_QUERY, '기존 회원 정보 갱신');
+  const item = renewal.getItems().find(candidate => candidate.getTitle().includes('동의 항목 (모두 선택)'));
+  if (!item || item.getType() !== FormApp.ItemType.CHECKBOX) throw new Error('Existing required consent checkbox not found');
+  setConsentHelp_(item, renewalConsentHelp_());
+  return { ok: true, consentHelpMatchesRenewal: item.getHelpText() === renewalConsentHelp_() };
+}
+
 function inspectFormDetails_() {
   const renewal = findForm_(RENEWAL_QUERY, '기존 회원 정보 갱신');
   const oldJoin = findForm_(OLD_JOIN_QUERY, '26-2기 회원 가입 신청서');
@@ -173,6 +192,7 @@ function inspectFormDetails_() {
       unitChoices: multiple ? multiple.getChoices().map(choice => ({ value: choice.getValue(), navigation: String(choice.getPageNavigationType()) })) : [],
       consentChoices: consentCheckbox ? consentCheckbox.getChoices().map(choice => choice.getValue()) : [],
       consentHelpContainsAll: Boolean(consent && JOIN_CONSENT_DETAILS.every(entry => consent.getHelpText().includes(entry.details[0]))),
+      consentHelpMatchesRenewal: Boolean(consent && consent.getHelpText() === renewalConsentHelp_()),
       policyLine: renewal.getDescription().includes(POLICY_LINE),
       responseHeaders: headings,
       responseRows: Math.max(0, sheet.getLastRow() - 1),

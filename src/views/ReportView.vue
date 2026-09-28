@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref } from 'vue'
-import { REPORT_API_URL, orderedReportSections, reportRoles, reportSections } from '@/content/report'
+import {
+  REPORT_API_URL, createSubmissionAttempt, lookupMessage, orderedReportSections, reportMessages, reportRoles, reportSections, submitMessage,
+} from '@/content/report'
 
 const name = ref('')
 const phone = ref('')
@@ -17,15 +19,23 @@ const values = reactive({
   m_club_topic: '', m_companions: '', m_rejoin: '',
 })
 const confirmed = ref(false)
+// 같은 내용을 다시 보내면 같은 submission_id 를 써서 서버가 한 번만 저장한다. 내용이 바뀌면 새 제출로 본다.
+const attempt = createSubmissionAttempt()
 const sectionKeys = computed(() => orderedReportSections(team.value))
 
-async function request(payload: unknown): Promise<Record<string, unknown>> {
-  const response = await fetch(REPORT_API_URL, {
-    method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-    body: JSON.stringify(payload),
-  })
-  if (!response.ok) throw new Error('서버에 연결하지 못했습니다.')
-  return response.json()
+// 연결 실패·HTTP 오류·JSON 이 아닌 응답은 null(결과를 알 수 없음)
+async function request(payload: unknown): Promise<Record<string, unknown> | null> {
+  try {
+    const response = await fetch(REPORT_API_URL, {
+      method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify(payload),
+    })
+    if (!response.ok) return null
+    const data = await response.json()
+    return data && typeof data === 'object' ? data : null
+  } catch {
+    return null
+  }
 }
 onMounted(async () => {
   if (!REPORT_API_URL) return
@@ -39,19 +49,17 @@ onMounted(async () => {
 })
 async function lookup() {
   if (!name.value.trim() || !/^01\d{8,9}$/.test(phone.value.replace(/\D/g, ''))) {
-    message.value = '이름과 휴대전화 번호를 확인해 주세요.'
+    message.value = reportMessages.lookupInvalid
     return
   }
   busy.value = true
   message.value = ''
   try {
     const result = await request({ action: 'lookup', name: name.value.trim(), phone: phone.value })
-    verified.value = result.ok === true
-    university.value = verified.value ? String(result.university || '') : ''
-    team.value = verified.value ? String(result.team || '') : ''
-    if (!verified.value) message.value = '가입 신청 기록을 찾지 못했습니다. 먼저 회원 가입을 신청해 주세요.'
-  } catch {
-    message.value = '회원 확인에 실패했습니다. 잠시 뒤 다시 시도해 주세요.'
+    verified.value = result?.ok === true
+    university.value = verified.value ? String(result?.university || '') : ''
+    team.value = verified.value ? String(result?.team || '') : ''
+    message.value = lookupMessage(result)
   } finally {
     busy.value = false
   }
@@ -72,11 +80,14 @@ async function submit() {
   busy.value = true
   message.value = ''
   try {
-    const result = await request({ action: 'report', payload: { name: name.value.trim(), phone: phone.value, ...values, g_confirmed: true } })
-    if (result.ok) submitted.value = true
-    else message.value = result.error === 'not_found' ? '회원 확인이 만료되었습니다. 다시 확인해 주세요.' : '입력 내용을 확인하고 다시 제출해 주세요.'
-  } catch {
-    message.value = '제출하지 못했습니다. 잠시 뒤 다시 시도해 주세요.'
+    // 제출 순간의 내용을 문자열로 고정해 ID 판단과 전송에 함께 쓴다(요청 중에는 입력칸도 잠긴다).
+    const content = JSON.stringify({ name: name.value.trim(), phone: phone.value, ...values, g_confirmed: true })
+    const result = await request({ action: 'report', payload: { ...JSON.parse(content), submission_id: attempt.idFor(content) } })
+    message.value = submitMessage(result)
+    if (!message.value) {
+      attempt.reset()
+      submitted.value = true
+    }
   } finally {
     busy.value = false
   }
@@ -93,7 +104,7 @@ async function submit() {
       <template v-else>
         <section class="identity">
           <h2>회원 확인</h2>
-          <p>가입 신청 때 적은 이름과 휴대전화 번호가 모두 일치해야 합니다.</p>
+          <p>가입 신청서나 회원 정보 갱신 폼에 적은 이름과 휴대전화 번호가 모두 일치해야 합니다.</p>
           <div class="identity-grid">
             <label>이름<input v-model="name" autocomplete="name" :disabled="verified" maxlength="100" /></label>
             <label>휴대전화<input v-model="phone" autocomplete="tel" inputmode="tel" :disabled="verified" placeholder="01012345678" /></label>
@@ -103,6 +114,7 @@ async function submit() {
           <RouterLink v-if="!verified" to="/join">회원 가입 신청하기 →</RouterLink>
         </section>
         <form v-if="verified" @submit.prevent="submit">
+          <fieldset class="report-fields" :disabled="busy">
           <section>
             <h2>① 참가 사실 · 총무부</h2>
             <p>모두 입력해 주세요.</p>
@@ -124,6 +136,7 @@ async function submit() {
           </section>
           <p class="photo-notice">타인이 식별되는 사진은 당사자의 동의를 받은 뒤 링크를 제출해 주세요.</p>
           <button type="submit" :disabled="busy">{{ busy ? '제출 중…' : '참가 기록 제출' }}</button>
+          </fieldset>
         </form>
         <p v-if="message" class="error" role="alert">{{ message }}</p>
       </template>
@@ -152,5 +165,6 @@ button:disabled { opacity: .55; cursor: wait; }
 .member-summary, .success { padding: 12px 16px; border-radius: 10px; background: #e8f4ea; color: #23583a; font-weight: 700; }
 .error { margin-top: 20px; color: #a42b2b; }
 .photo-notice { margin: 28px 0 8px; color: #5d6f64; font-size: 14px; }
+.report-fields { min-width: 0; margin: 0; padding: 0; border: 0; }
 @media (max-width: 600px) { .identity-grid { grid-template-columns: 1fr; gap: 0; } .identity a { display: block; margin: 14px 0 0; } }
 </style>
