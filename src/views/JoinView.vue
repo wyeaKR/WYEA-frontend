@@ -50,6 +50,7 @@ const prevStep: Partial<Record<Step, Step>> = {
 const step = ref<Step>('intro')
 const quizAnswers = ref<(number | null)[]>(quiz.map(() => null))
 const quizChecked = ref(false)
+const gradedAnswers = ref<(number | null)[]>(quiz.map(() => null))
 const quizError = ref('')
 const busy = ref(false)
 const submitError = ref('')
@@ -249,12 +250,11 @@ function back() {
   go(prevStep[step.value] ?? 'intro')
 }
 
-const quizWrong = computed(() => quiz.map((q, i) => quizAnswers.value[i] !== q.answer))
+const quizWrong = computed(() => quiz.map((q, i) => gradedAnswers.value[i] !== q.answer))
 const quizPassed = computed(() => quizChecked.value && quizWrong.value.every((wrong) => !wrong))
 
 function pickAnswer(index: number, option: number) {
   quizAnswers.value[index] = option
-  quizChecked.value = false
   quizError.value = ''
 }
 
@@ -264,17 +264,14 @@ function checkQuiz() {
     return
   }
   quizError.value = ''
+  gradedAnswers.value = [...quizAnswers.value]
   quizChecked.value = true
-}
-
-function retryQuiz() {
-  quizAnswers.value = quizAnswers.value.map((a, i) => (quizWrong.value[i] ? null : a))
-  quizChecked.value = false
 }
 
 function startQuiz() {
   if (!quizPassed.value) {
     quizAnswers.value = quiz.map(() => null)
+    gradedAnswers.value = quiz.map(() => null)
     quizChecked.value = false
   }
   go('quiz')
@@ -433,11 +430,11 @@ async function submit() {
         <h2 id="record-heading">지금까지의 활동</h2>
         <ul class="activity-list">
           <li v-for="activity in sortedActivities" :key="activity.path">
-            <RouterLink :to="activity.path">
+            <div class="activity-item">
               <span class="badge">{{ activityCategories[activity.category] }}</span>
               <span class="activity-title">{{ activity.title }}</span>
               <span class="activity-date">{{ activity.date }}</span>
-            </RouterLink>
+            </div>
           </li>
         </ul>
       </section>
@@ -473,8 +470,8 @@ async function submit() {
           </label>
         </div>
         <p v-if="quizChecked" class="quiz-feedback" role="status">
-          <strong>{{ quizWrong[i] ? '다시 생각해 보세요.' : '정답입니다.' }}</strong>
-          <template v-if="!quizWrong[i]"> {{ q.explain }}</template>
+          <strong>{{ quizWrong[i] ? `정답은 ‘${q.options[q.answer]}’입니다.` : '정답입니다.' }}</strong>
+          {{ q.explain }}
         </p>
       </fieldset>
       <p v-if="quizError" class="error" role="alert">{{ quizError }}</p>
@@ -483,13 +480,12 @@ async function submit() {
         <strong>모두 맞혔습니다!</strong> 이제 신청서를 작성해 주세요.
       </div>
       <p v-else-if="quizChecked" class="notice">
-        틀린 문제만 다시 풀 수 있습니다. 헷갈린다면 <button type="button" class="more inline" @click="go('about')">WYEA 소개</button>를 먼저 읽어 보세요.
+        정답과 설명을 보고 답을 수정한 뒤 ‘정답 확인’을 다시 눌러 주세요. 아래 안내는 마지막 채점 결과입니다.
       </p>
 
       <div class="actions">
         <button type="button" class="btn ghost" @click="back">이전</button>
         <button v-if="quizPassed" type="button" class="btn primary" @click="go('application')">신청서 작성하기</button>
-        <button v-else-if="quizChecked" type="button" class="btn primary" @click="retryQuiz">다시 풀기</button>
         <button v-else type="button" class="btn primary" @click="checkQuiz">정답 확인</button>
       </div>
     </section>
@@ -791,8 +787,7 @@ p { word-break: keep-all; overflow-wrap: anywhere; }
 .program.value p { margin-top: 8px; }
 .activity-list { list-style: none; padding: 0; margin: 0; }
 .activity-list li + li { border-top: 1px solid #e5edf8; }
-.activity-list a { display: grid; grid-template-columns: auto 1fr auto; gap: 12px; align-items: center; padding: 14px 4px; color: inherit; text-decoration: none; }
-.activity-list a:hover .activity-title, .activity-list a:focus-visible .activity-title { color: #0d47a1; text-decoration: underline; text-underline-offset: 4px; }
+.activity-item { display: grid; grid-template-columns: auto 1fr auto; gap: 12px; align-items: center; padding: 14px 4px; color: inherit; }
 .badge { background: #e3eefb; color: #0d47a1; font-size: 12px; font-weight: 700; border-radius: 999px; padding: 3px 10px; white-space: nowrap; }
 .activity-title { font-size: 15px; font-weight: 600; }
 .activity-date { font-size: 13px; color: #697586; white-space: nowrap; }
@@ -907,7 +902,7 @@ a { color: #0d47a1; text-underline-offset: 4px; }
   .join-card { padding: 24px 20px; }
   .program-grid, .field-row { grid-template-columns: 1fr; gap: 0; }
   .program + .program { margin-top: 12px; }
-  .activity-list a { grid-template-columns: auto 1fr; }
+  .activity-item { grid-template-columns: auto 1fr; }
   .activity-date { grid-column: 2; }
   .actions .btn { flex: 1; padding: 14px 16px; }
   .consent-row { align-items: flex-start; }
