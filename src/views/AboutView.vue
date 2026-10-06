@@ -63,34 +63,34 @@ const history: { date: string; label: string; event: string; path?: string }[] =
     </header>
 
     <section class="about-card" aria-labelledby="mission-heading">
-      <span class="section-label">01 · 우리의 목적</span>
+      <span class="section-label">01 우리의 목적</span>
       <h2 id="mission-heading">국경을 넘어, 청년과 청년을 연결합니다</h2>
       <p>세계청년교류연합(WYEA)는 청년들이 서로 교류하고 협력할 수 있는 기회를 만들고자 합니다. 서로 다른 언어와 문화적 배경을 가진 청년들이 만나 경험을 나누고, 함께 배우며 관계를 이어가는 것을 지향합니다.</p>
       <p>국제 교류와 공동 활동을 통해 서로에 대한 이해를 넓히고, 청년들이 더 넓은 세계와 연결될 수 있도록 하는 것이 우리의 목적입니다.</p>
     </section>
 
     <section class="about-card" aria-labelledby="background-heading">
-      <span class="section-label">02 · 설립 배경</span>
+      <span class="section-label">02 설립 배경</span>
       <h2 id="background-heading">연결이 쉬워진 시대에도, 만남은 필요합니다</h2>
       <p>정보통신 기술의 발전으로 소통의 범위는 국가와 개인을 넘어 전 세계로 확대되었습니다. 언제 어디서든 연락할 수 있게 되었지만, 언어 장벽과 물리적 거리는 여전히 교류의 어려움으로 남아 있습니다.</p>
       <p>이러한 배경에서 청년들의 국제 교류와 협력을 위한 단체의 필요성을 느껴 세계청년교류연합을 결성했습니다.</p>
     </section>
 
     <section class="about-card" aria-labelledby="programs-heading">
-      <span class="section-label">03 · 주요 활동</span>
+      <span class="section-label">03 주요 활동</span>
       <h2 id="programs-heading">우리가 하는 일</h2>
       <div class="program-item">
         <h3>국제 청년 교류</h3>
         <p>한국과 일본의 청년들이 만나 서로의 문화와 일상, 경험을 나누는 활동을 진행합니다. 서울 교류회, 도쿄 피크닉, 오사카 교류회와 한일음악교류회 등을 통해 청년 간 만남과 교류를 이어가고 있습니다.</p>
       </div>
       <div class="program-item">
-        <h3>지역사회 봉사·협력</h3>
-        <p>지역 기관과 협력해 현장에서 필요한 일을 함께 돕는 봉사활동을 진행합니다. 삼원가정봉사원파견센터와 협력 관계를 맺고, 책상·의자 조립과 시설 정리 등의 활동에 참여했습니다.</p>
+        <h3>지역사회 봉사와 협력</h3>
+        <p>지역 기관과 협력해 현장에서 필요한 일을 함께 돕는 봉사활동을 진행합니다. 삼원가정봉사원파견센터와 협력 관계를 맺고, 책상과 의자 조립, 시설 정리 등의 활동에 참여했습니다.</p>
       </div>
     </section>
 
     <section id="history" class="about-card history-card" aria-labelledby="history-heading">
-      <span class="section-label">04 · 연혁</span>
+      <span class="section-label">04 연혁</span>
       <h2 id="history-heading">세계청년교류연합이 걸어온 길</h2>
       <ol class="history-list">
         <li v-for="entry in history" :key="entry.date" class="history-entry">
@@ -101,7 +101,7 @@ const history: { date: string; label: string; event: string; path?: string }[] =
     </section>
 
     <section class="about-card" aria-labelledby="information-heading">
-      <span class="section-label">05 · 단체 기본정보</span>
+      <span class="section-label">05 단체 기본정보</span>
       <h2 id="information-heading">세계청년교류연합을 소개합니다</h2>
       <dl class="organization-details">
         <div><dt>단체명</dt><dd>세계청년교류연합</dd></div>
@@ -116,7 +116,7 @@ const history: { date: string; label: string; event: string; path?: string }[] =
 
     <section class="about-contact" aria-labelledby="contact-heading">
       <h2 id="contact-heading">세계청년교류연합과 이야기 나누세요</h2>
-      <p>단체 활동이나 참여, 교류·협력에 관한 문의는 공식 이메일로 보내주세요.</p>
+      <p>단체 활동이나 참여, 교류와 협력에 관한 문의는 공식 이메일로 보내주세요.</p>
     </section>
   </article>
 </template>

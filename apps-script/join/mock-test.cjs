@@ -55,8 +55,74 @@ const staffBase = {
 const post = (p) => ctx.doPost({ postData: { contents: JSON.stringify({ action: 'join', payload: p }) } })
 const m = (over) => ({ ...base, phone: nextPhone(), ...over })
 const st = (over) => ({ ...staffBase, phone: nextPhone(), ...over })
+const minimalBase = {
+  track: 'member', name: '간편가입', birth: '2000-01-01', phone: nextPhone(), email: '', campus: '본캠퍼스', department: '시험학과',
+  university: '경상국립대학교', university_other: false, team: '기록단',
+  consent: { collect: true, version: '2026-10-06-v2' },
+  website: '', elapsed_ms: 60000,
+}
+const simple = (over) => ({ ...minimalBase, phone: nextPhone(), ...over })
 
+const simpleStaffBase = {
+  ...staffBase, consent: { collect: true, version: '2026-10-06-v3' },
+  interests: [], hopes: 'さ'.repeat(20),
+}
+const ss = (over) => ({ ...simpleStaffBase, phone: nextPhone(), ...over })
+
+const ss4 = (over) => ({ ...ss({}), consent: { collect: true, version: '2026-10-06-v4' }, ...over })
 const cases = [
+  ['optional-staff-empty-answer-no-student-id', ss4({ hopes: '', student_id: undefined }), true],
+  ['optional-staff-answer-omitted', ss4({ hopes: undefined }), true],
+  ['optional-staff-one-character', ss4({ hopes: '가' }), true],
+  ['optional-staff-100-characters', ss4({ hopes: '가'.repeat(100) }), true],
+  ['optional-staff-101-characters', ss4({ hopes: '가'.repeat(101) }), 'validation_failed'],
+  ['optional-staff-invalid-answer', ss4({ hopes: 123 }), 'validation_failed'],
+  ['optional-staff-student-id-ignored', ss4({ student_id: '수집하지 않음' }), true],
+  ['optional-staff-other-occupation', ss4({ occupation: '직장인' }), true],
+  ['optional-staff-empty-occupation', ss4({ occupation: '' }), 'validation_failed'],
+  ['simple-staff', ss({}), true],
+  ['simple-staff-short-answer', ss({ hopes: '가'.repeat(19) }), 'validation_failed'],
+  ['simple-staff-no-answer', ss({ hopes: undefined }), 'validation_failed'],
+  ['simple-staff-trim-answer', ss({ hopes: '  ' + '가'.repeat(19) + ' ' }), 'validation_failed'],
+  ['simple-staff-long-answer', ss({ hopes: '가'.repeat(1001) }), 'validation_failed'],
+  ['simple-staff-no-interests', ss({ interests: undefined }), true],
+  ['simple-staff-multiple-interests', ss({ interests: ['재무·회계', '디자인·홍보물 제작'] }), true],
+  ['simple-staff-unknown-interest', ss({ interests: ['알 수 없음'] }), 'validation_failed'],
+  ['simple-staff-invalid-interests', ss({ interests: '재무·회계' }), 'validation_failed'],
+  ['simple-staff-no-team', ss({ team: '' }), 'validation_failed'],
+  ['simple-staff-removed-ignored', ss({ team_second: '홍보부', motivation: '이전 지원서', competencies: '이전', experience: '이전', capabilities: '이전', referral: '이전' }), true],
+  ['member-v3', simple({ consent: simpleStaffBase.consent }), true],
+  ['minimal-member', minimalBase, true],
+  ['minimal-duplicate', minimalBase, 'duplicate'],
+  ...['name', 'birth', 'phone', 'campus', 'department'].map((key) => [`minimal-empty-${key}`, simple({ [key]: '' }), 'validation_failed']),
+  ['minimal-no-email', simple({ email: '' }), true],
+  ['minimal-email-omitted', simple({ email: undefined }), true],
+  ['minimal-valid-email', simple({ email: 'member@example.com' }), true],
+  ['minimal-core-omitted', simple({ name: undefined, birth: undefined, phone: undefined }), 'validation_failed'],
+  ['minimal-no-team', simple({ team: '' }), 'validation_failed'],
+  ['minimal-unknown-team', simple({ team: '홍보부' }), 'validation_failed'],
+  ['minimal-no-university', simple({ university: '' }), 'validation_failed'],
+  ['minimal-translator-no-extra', simple({ team: '통번역단' }), true],
+  ['minimal-club-no-extra', simple({ team: '소모임' }), true],
+  ['minimal-invalid-birth', simple({ birth: '2000-02-31' }), 'validation_failed'],
+  ['minimal-minor', simple({ birth: '2020-01-01' }), 'validation_failed'],
+  ['minimal-invalid-email', simple({ email: 'invalid' }), 'validation_failed'],
+  ['minimal-invalid-phone', simple({ phone: '123' }), 'validation_failed'],
+  ['minimal-known-university', simple({ university: '경상국립대학교' }), true],
+  ['minimal-other-university', simple({ university: '다른 대학교', university_other: true }), true],
+  ['minimal-empty-other-university', simple({ university: '', university_other: true }), 'validation_failed'],
+  ['minimal-unknown-university', simple({ university: '다른 대학교' }), 'validation_failed'],
+  ['minimal-removed-fields-ignored', simple({ address: '수집하지 않는 주소', gender: '남', student_id: '123', motivation: '이전 지원서', team: '기록단', interests: ['재무·회계'] }), true],
+  ['minimal-consent-required', simple({ consent: { ...minimalBase.consent, collect: false } }), 'validation_failed'],
+  ['minimal-removed-consents-false', simple({ consent: { ...minimalBase.consent, third_party: false, portrait: false } }), true],
+  ['minimal-removed-consents-true-ignored', simple({ consent: { ...minimalBase.consent, third_party: true, portrait: true } }), true],
+  ['minimal-legacy-v1-all-consents', simple({ consent: { collect: true, third_party: true, portrait: true, version: '2026-10-06' } }), true],
+  ['minimal-legacy-v1-missing-consents', simple({ consent: { collect: true, version: '2026-10-06' } }), 'validation_failed'],
+  ['minimal-unknown-consent-version', simple({ consent: { ...minimalBase.consent, version: 'unknown' } }), 'validation_failed'],
+  ['minimal-spam-delay', simple({ elapsed_ms: 1 }), 'validation_failed'],
+  ['staff-new-version-no-address', st({ address: undefined, consent: minimalBase.consent }), true],
+  ['staff-new-version-no-email', st({ email: '', consent: minimalBase.consent }), true],
+  ['staff-new-version-missing-application', { ...simple({}), track: 'staff' }, 'validation_failed'],
   // 공통
   ['ok', base, true],
   ['dup', base, 'duplicate'],
@@ -104,7 +170,26 @@ for (const [name, p, expected] of cases) {
 }
 
 const check = (name, cond) => { console.log(cond ? 'PASS' : 'FAIL', name); if (!cond) fail++ }
-const rowOf = (teamName, extra) => written.find((r) => r[col('team')] === teamName && (!extra || extra(r)))
+const rowOf = (teamName, extra) => written.find((r) => r[col('consent_version')] === '2026-09-25' && r[col('team')] === teamName && (!extra || extra(r)))
+check('address-never-saved', written.every((r) => r[col('address')] === ''))
+const minimalRows = written.filter((r) => r[col('track')] === 'member' && r[col('consent_version')] === '2026-10-06-v2')
+const currentRows = written.filter((r) => ['2026-10-06-v2', '2026-10-06-v3', '2026-10-06-v4'].includes(r[col('consent_version')]))
+check('new-only-collect-consent-saved', currentRows.length > 0 && currentRows.every((r) =>
+  r[col('consent_collect')] === true && r[col('consent_third_party')] === false && r[col('consent_portrait')] === false))
+check('legacy-consents-still-saved', written.filter((r) => !['2026-10-06-v2', '2026-10-06-v3', '2026-10-06-v4'].includes(r[col('consent_version')])).every((r) =>
+  r[col('consent_collect')] === true && r[col('consent_third_party')] === true && r[col('consent_portrait')] === true))
+check('minimal-only-collects-new-fields', minimalRows.length > 0 && minimalRows.every((r) =>
+  ['team_second', 'languages', 'club_topic', 'gender', 'occupation', 'student_id', 'interests', 'motivation', 'hopes', 'referral', 'competencies', 'experience', 'capabilities', 'recommended_dept'].every((key) => r[col(key)] === '') && ['name', 'birth', 'phone', 'team', 'university', 'campus', 'department'].every((key) => r[col(key)])))
+check('minimal-team-saved', minimalRows.some((r) => r[col('team')] === '통번역단'))
+check('minimal-email-optional-saved-blank', minimalRows.some((r) => r[col('email')] === ''))
+check('minimal-mail-no-empty-application', mails.some((x) => x.subject === '[WYEA] 새 회원 가입 신청: 간편가입 (일반 · 기록단)' && !/지원 동기|undefined/.test(x.body)))
+const simpleStaffRows = written.filter((r) => r[col('track')] === 'staff' && r[col('consent_version')] === '2026-10-06-v3')
+check('simple-staff-only-one-answer', simpleStaffRows.length > 0 && simpleStaffRows.every((r) =>
+  r[col('hopes')].length >= 20 && ['team_second', 'motivation', 'competencies', 'experience', 'capabilities', 'referral'].every((key) => r[col(key)] === '')))
+const optionalStaffRows = written.filter((r) => r[col('track')] === 'staff' && r[col('consent_version')] === '2026-10-06-v4')
+check('optional-staff-student-id-never-saved', optionalStaffRows.length > 0 && optionalStaffRows.every((r) => r[col('student_id')] === '' && r[col('hopes')].length <= 100))
+check('optional-staff-blank-answer-saved', optionalStaffRows.some((r) => r[col('hopes')] === ''))
+check('simple-staff-mail-answer-label', mails.some((m) => /활동에서 얻어가고 싶은 것/.test(m.body) && !/지원 동기|나의 역량|할 수 있는 것/.test(m.body)))
 check('row-length-matches-headers', written.every((r) => r.length === HEADERS_.length))
 check('translator-languages-saved', rowOf('통번역단')[col('languages')] === '일본어(회화), 영어')
 check('club-topic-saved', rowOf('소모임')[col('club_topic')] === '음악')

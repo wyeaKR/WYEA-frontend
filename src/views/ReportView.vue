@@ -23,7 +23,7 @@ const confirmed = ref(false)
 const attempt = createSubmissionAttempt()
 const sectionKeys = computed(() => orderedReportSections(team.value))
 
-// 연결 실패·HTTP 오류·JSON 이 아닌 응답은 null(결과를 알 수 없음)
+// 연결 실패, HTTP 오류, JSON 이 아닌 응답은 null(결과를 알 수 없음)
 async function request(payload: unknown): Promise<Record<string, unknown> | null> {
   try {
     const response = await fetch(REPORT_API_URL, {
@@ -74,7 +74,7 @@ async function submit() {
     return
   }
   if (sectionKeys.value.some(key => !sectionFilled(key))) {
-    message.value = '후기·사진, 의견·제안, 소속·재참여에서 각각 한 항목 이상 입력해 주세요.'
+    message.value = '후기와 사진, 의견과 제안, 소속과 재참여에서 각각 한 항목 이상 입력해 주세요.'
     return
   }
   busy.value = true
@@ -110,13 +110,13 @@ async function submit() {
             <label>휴대전화<input v-model="phone" autocomplete="tel" inputmode="tel" :disabled="verified" placeholder="01012345678" /></label>
           </div>
           <button v-if="!verified" type="button" :disabled="busy || !REPORT_API_URL" @click="lookup">회원 확인</button>
-          <p v-else class="member-summary">확인됨 · {{ university }} · {{ team }}</p>
+          <p v-else class="member-summary">확인됨, {{ university }}, {{ team }}</p>
           <RouterLink v-if="!verified" to="/join">회원 가입 신청하기 →</RouterLink>
         </section>
         <form v-if="verified" @submit.prevent="submit">
           <fieldset class="report-fields" :disabled="busy">
           <section>
-            <h2>① 참가 사실 · 총무부</h2>
+            <h2>① 참가 사실, 총무부</h2>
             <p>모두 입력해 주세요.</p>
             <label>행사명<select v-model="values.g_event" required><option value="">행사를 선택해 주세요</option><option v-for="event in events" :key="event" :value="event">{{ event }}</option></select></label>
             <label>일시<input v-model="values.g_when" type="datetime-local" required /></label>

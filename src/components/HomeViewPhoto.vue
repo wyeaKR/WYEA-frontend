@@ -73,7 +73,7 @@ onBeforeUnmount(() => {
         <span v-if="(mark - 1) % 5 === 0">{{ mark - 1 }}</span>
       </span>
     </div>
-    <div class="mat-label" aria-hidden="true">WYEA · CUTTING MAT</div>
+    <div class="mat-label" aria-hidden="true">WYEA CUTTING MAT</div>
     <div class="desk-postcard" aria-hidden="true">
       <span class="postcard-heading">POSTCARD</span>
       <span class="postcard-stamp">WYEA<br>↗</span>

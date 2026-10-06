@@ -1,15 +1,15 @@
 // Apps Script 웹 앱 배포의 /exec URL을 입력하세요. 시트 ID나 초대코드 목록은 넣지 않습니다.
 const API_URL = 'https://script.google.com/macros/s/AKfycbz_pWompOeKDBz6DCKNNMu_BwLzQaSveaw29OJ8ECRGMthuEdgDr8JF6nfGApzM2w2fUA/exec'
 const INTERESTS = [
-  '행정·문서',
-  'SNS·콘텐츠',
+  '행정, 문서',
+  'SNS, 콘텐츠',
   '행사 기획',
   '대외협력',
-  '지부 운영·모집',
+  '지부 운영, 모집',
   '디자인',
   '번역',
-  '사진·영상',
-  '웹·개발',
+  '사진, 영상',
+  '웹, 개발',
   '아직 정하지 못함',
   '기타',
 ]
@@ -68,7 +68,7 @@ function fieldError(key) {
     return selected.includes('아직 정하지 못함') && selected.length > 1
       ? '아직 정하지 못함은 다른 분야와 함께 선택할 수 없습니다.' : ''
   }
-  if (key === 'agree_privacy') return $(key).checked ? '' : '개인정보 수집·이용에 동의해 주세요.'
+  if (key === 'agree_privacy') return $(key).checked ? '' : '개인정보 수집 및 이용에 동의해 주세요.'
   if (key === 'interest_other' && !selected.includes('기타')) return ''
   const value = $(key).value.trim()
   if (!value) return '이 항목을 입력해 주세요.'
@@ -77,7 +77,7 @@ function fieldError(key) {
     return "영문, 공백, 하이픈(-), 아포스트로피(')만 사용할 수 있습니다."
   }
   if (key === 'desired_id' && !/^[a-z0-9.]{3,30}$/.test(value)) {
-    return '아이디는 영문 소문자·숫자·마침표(.)로 3~30자 입력해 주세요.'
+    return '아이디는 영문 소문자, 숫자, 마침표(.)로 3~30자 입력해 주세요.'
   }
   if (key === 'contact_email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
     return '이메일 주소를 확인해 주세요. 예: name@example.com'

@@ -118,7 +118,6 @@ const year = new Date().getFullYear()
   border-top: 1px solid #e7ebef;
   color: #52606e;
 }
-.site-footer-bottom > * + *::before { content: '·'; margin-right: 10px; }
 .site-footer-note { max-width: 1280px; margin: 5px auto 0 !important; color: #667583; font-size: 12px; }
 @media (max-width: 1023px) {
   .site-footer-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -141,4 +140,3 @@ const year = new Date().getFullYear()
   .site-footer-bottom > * + *::before { margin-right: 8px; }
 }
 </style>
-

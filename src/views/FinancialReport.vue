@@ -54,7 +54,7 @@ const centerTitle = computed(() =>
 const centerSub = computed(() => {
   if (hoverIdx.value == null) return fmtKRW(total.value)
   const seg = segments.value[hoverIdx.value]
-  return seg ? `${fmtPct(seg.item.pct)} · ${fmtKRW(seg.item.amount)}` : ''
+  return seg ? `${fmtPct(seg.item.pct)}, ${fmtKRW(seg.item.amount)}` : ''
 })
 /**********************************지출**************************************/
 
@@ -94,7 +94,7 @@ const centerTitle2 = computed(() =>
 const centerSub2 = computed(() => {
   if (hoverIdx2.value == null) return fmtKRW(total2.value)
   const seg = segments2.value[hoverIdx2.value]
-  return seg ? `${fmtPct(seg.item.pct)} · ${fmtKRW(seg.item.amount)}` : ''
+  return seg ? `${fmtPct(seg.item.pct)}, ${fmtKRW(seg.item.amount)}` : ''
 })
 
 </script>

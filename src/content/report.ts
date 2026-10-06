@@ -1,4 +1,4 @@
-// 홈·푸터의 "참가 기록 제출" 진입 링크 노출 여부. /report 라우트와 기능은 그대로 둔다.
+// 홈과 푸터의 "참가 기록 제출" 진입 링크 노출 여부. /report 라우트와 기능은 그대로 둔다.
 export const SHOW_REPORT_LINKS = false
 
 export const REPORT_API_URL = 'https://script.google.com/macros/s/AKfycbxqAfHZmTqKh0ZVTW07BXDIJWawe4qMG1-Avcdy2tgTSve0tA9EsFmgtAtBMJenPDVv/exec'
@@ -6,15 +6,15 @@ export const REPORT_API_URL = 'https://script.google.com/macros/s/AKfycbxqAfHZmT
 export const reportRoles = ['참가', '스태프', '통역', '발표', '기타'] as const
 export const reportSections = {
   publicity: {
-    title: '② 후기·사진 · 홍보부',
+    title: '② 후기와 사진, 홍보부',
     fields: [
       { key: 'p_scene', label: '인상 깊었던 장면', type: 'textarea' },
       { key: 'p_comment', label: '한 줄 소감', type: 'text' },
-      { key: 'p_photo_link', label: '사진 링크 (드라이브·인스타그램)', type: 'url' },
+      { key: 'p_photo_link', label: '사진 링크 (드라이브, 인스타그램)', type: 'url' },
     ],
   },
   planning: {
-    title: '③ 의견·제안 · 기획부',
+    title: '③ 의견과 제안, 기획부',
     fields: [
       { key: 'k_issue', label: '불편했던 점', type: 'textarea' },
       { key: 'k_improvement', label: '개선 의견', type: 'textarea' },
@@ -23,7 +23,7 @@ export const reportSections = {
     ],
   },
   membership: {
-    title: '④ 소속·재참여 · 회원부',
+    title: '④ 소속과 재참여, 회원부',
     fields: [
       { key: 'm_club_topic', label: '소모임 희망 주제', type: 'text' },
       { key: 'm_companions', label: '함께 활동한 사람', type: 'text' },
@@ -39,7 +39,7 @@ export function orderedReportSections(team: string): ReportSectionKey[] {
   return [first, ...reportSectionOrder.filter(section => section !== first)]
 }
 
-// 서버 응답(없으면 null = 연결 실패·JSON 아님)을 화면 문구로 바꾼다. 회원 없음과 서버 오류를 섞지 않는다.
+// 서버 응답(없으면 null = 연결 실패 또는 JSON 아님)을 화면 문구로 바꾼다. 회원 없음과 서버 오류를 섞지 않는다.
 export const reportMessages = {
   lookupNotFound: '회원 기록을 찾지 못했습니다. 처음이면 회원 가입을 신청해 주세요. 기존 회원이면 회원 정보 갱신 폼을 소속 단과 동의 항목까지 모두 채워 다시 제출해 주세요.',
   lookupInvalid: '이름과 휴대전화 번호를 확인해 주세요.',
@@ -81,7 +81,7 @@ export function newSubmissionId(cryptoApi: Crypto | undefined = globalThis.crypt
 }
 
 // 제출 ID. 직전 시도와 같은 내용(제출 순간 고정한 JSON)으로 다시 보내면 같은 ID, 내용이 바뀌었으면 새 ID.
-// 메모리에만 두므로 새로고침·창 닫기 뒤에는 이어지지 않는다. 성공하면 reset 한다.
+// 메모리에만 두므로 새로고침이나 창 닫기 뒤에는 이어지지 않는다. 성공하면 reset 한다.
 export function createSubmissionAttempt(generate: () => string = () => newSubmissionId()) {
   let id: string | null = null
   let lastContent: string | null = null

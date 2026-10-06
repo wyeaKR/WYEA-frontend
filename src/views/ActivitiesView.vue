@@ -49,7 +49,7 @@ const activityPhotos = computed(() => activity.value?.photos ?? [])
         <RouterLink to="/activities">← 활동소식 목록</RouterLink>
       </div>
     </template>
-    <p class="contact-note">교류·협력 문의 <a href="mailto:wyea@wyea.info">wyea@wyea.info</a></p>
+    <p class="contact-note">교류와 협력 문의 <a href="mailto:wyea@wyea.info">wyea@wyea.info</a></p>
   </article>
 </template>
 

@@ -23,7 +23,7 @@ const props = withDefaults(defineProps<{
   duration?: number
   gap?: CssLength
   logoHeight?: CssLength
-  /** 마우스 올리면 멈춤(옵션) — RAF 방식이라 기본은 미사용 */
+  /** 마우스 올리면 멈춤(옵션), RAF 방식이라 기본은 미사용 */
   pauseOnHover?: boolean
   repeat?: number
 }>(), {
