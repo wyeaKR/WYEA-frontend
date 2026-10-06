@@ -10,9 +10,9 @@
 
 ### Sheets 메뉴 사용
 
-1. `onboarding` 시트의 확장 프로그램 → Apps Script에서 기존 웹 앱과 동일한 프로젝트를 열고 최신 Code.gs를 저장합니다. 별도 프로젝트로 복제하지 않습니다.
+1. `onboarding` 시트의 확장 프로그램 메뉴에 있는 Apps Script에서 기존 웹 앱과 동일한 프로젝트를 열고 최신 Code.gs를 저장합니다. 별도 프로젝트로 복제하지 않습니다.
 2. PC 브라우저에서 시트를 새로고침합니다. onOpen은 메뉴만 만들며 코드를 발급하지 않습니다. 설치형 트리거 등록이나 메뉴 추가만을 위한 웹 앱 재배포는 필요하지 않습니다.
-3. `WYEA 온보딩 → 초대코드 발급`을 클릭하고, 최초 권한 요청이 있으면 승인합니다.
+3. `WYEA 온보딩` 메뉴의 `초대코드 발급`을 클릭하고, 최초 권한 요청이 있으면 승인합니다.
 4. 코드가 기록된 invites의 A열 셀이 자동 선택되고 완료 안내가 표시됩니다. 확인을 누른 후 선택된 셀을 복사합니다.
 
 generateInviteCodeFromMenu는 기존 generateInviteCode를 재사용합니다. 생성·중복 확인·잠금 및 웹 API는 유지합니다. 현재 문서와 설정된 시트 ID가 다르면 발급을 중단합니다. 저장 후 셀 선택만 실패하면 이미 발급되었다고 안내하므로 다시 발급하기 전에 invites를 확인합니다. 메뉴는 신뢰하는 시트 편집자가 사용하는 관리 기능입니다.
@@ -37,9 +37,9 @@ response_id | submitted_at | invite_code | name_ko | last_name_en | first_name_e
 
 ## 2. Apps Script 설정
 
-1. 테스트 Sheets에서 **확장 프로그램 → Apps Script**를 엽니다.
+1. 테스트 Sheets의 확장 프로그램 메뉴에서 Apps Script를 엽니다.
 2. 기본 `Code.gs`를 이 폴더의 `Code.gs` 내용으로 교체합니다.
-3. **프로젝트 설정 → 스크립트 속성**에 다음 값을 추가합니다.
+3. 프로젝트 설정의 스크립트 속성에 다음 값을 추가합니다.
    - 이름: `ONBOARDING_SPREADSHEET_ID`
    - 값: 테스트 Sheets URL의 `/d/`와 `/edit` 사이 ID
 4. 함수 선택에서 `checkSetup`을 골라 실행하고 필요한 스프레드시트 접근 권한을 승인합니다. 실행 로그에 연결 및 헤더 확인 완료가 표시되는지 확인합니다. 이 함수는 데이터를 변경하지 않습니다.
@@ -47,7 +47,7 @@ response_id | submitted_at | invite_code | name_ko | last_name_en | first_name_e
 
 ## 3. 웹 앱 배포와 프론트엔드 연결
 
-1. Apps Script의 **배포 → 새 배포 → 유형: 웹 앱**을 선택합니다.
+1. Apps Script의 배포 메뉴에서 새 배포를 열고 유형은 웹 앱을 선택합니다.
 2. 실행 사용자는 **나(배포 계정)**, 액세스 대상은 로그인하지 않은 사용자도 접근할 수 있는 **모든 사용자**로 설정합니다. 배포 계정에 테스트 시트 편집 권한이 있어야 합니다.
 3. 조직 정책 때문에 익명 접근 옵션을 사용할 수 없다면 여기서 운영 관리자에게 확인합니다. 다른 인증 방식이나 CORS 우회로 임의 변경하지 않습니다.
 4. 배포한 웹 앱 URL 중 `/exec`로 끝나는 주소를 복사합니다. 편집자용 `/dev` 주소는 사용하지 않습니다.
@@ -55,7 +55,7 @@ response_id | submitted_at | invite_code | name_ko | last_name_en | first_name_e
 6. 사용자가 기존 방식대로 빌드·커밋·푸시해 GitHub Pages에 배포합니다. Vite가 `public/onboarding`을 `dist/onboarding`으로 복사합니다. Vue 라우터, 메뉴, 공통 헤더/푸터는 변경하지 않습니다.
 7. 테스트 주소는 **`https://wyea.info/onboarding/`**입니다. 끝의 `/`를 포함한 주소로 공유합니다. 이는 개발 예시 경로이며 최종 운영 경로는 별도로 정해야 합니다.
 
-Apps Script 코드를 수정한 뒤에는 **배포 관리 → 기존 배포 수정 → 새 버전**으로 갱신해야 `/exec`에 반영됩니다. 기존 배포를 갱신하면 연결 URL을 유지할 수 있습니다.
+Apps Script 코드를 수정한 뒤에는 배포 관리에서 기존 배포를 수정해 새 버전으로 갱신해야 `/exec`에 반영됩니다. 기존 배포를 갱신하면 연결 URL을 유지할 수 있습니다.
 
 공식 문서: [Apps Script 웹 앱](https://developers.google.com/apps-script/guides/web), [Content Service](https://developers.google.com/apps-script/guides/content), [Lock](https://developers.google.com/apps-script/reference/lock/lock).
 

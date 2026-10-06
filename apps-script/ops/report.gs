@@ -13,7 +13,8 @@ const REPORT_REJOIN = ['예', '아니오', '미정'];
 const REPORT_JOIN_ID = '1mukE06RTlPCI4Xu3_N8u2RKBAA67QZq-hMhn0XKSO8M';
 const REPORT_RENEWAL_RESPONSE_ID = '1rnuGqL2QwYUlDYV3EXdkWrjrrjOEExr0qu3C4V4KUa0';
 // 가입 시트에서 참가 기록서를 쓸 수 있는 상태. '시험'은 관리자 시험 회원(prepareTestMember_)용이다.
-const REPORT_MEMBER_STATUSES = ['검토 대기', '승인', '시험'];
+// '초대 완료'·'입장 완료'는 가입 스크립트의 상태 목록(회원 명부 자동 반영)과 같다. '반려'만 제외한다.
+const REPORT_MEMBER_STATUSES = ['검토 대기', '승인', '초대 완료', '입장 완료', '시험'];
 const REPORT_UNITS = ['기록단', '행사지원단', '통번역단', '정책제안단', '소모임'];
 const REPORT_RENEWAL_CONSENTS = [
   '개인정보 수집·이용에 동의합니다',
@@ -71,7 +72,7 @@ function reportLookupJoin_(cleanName, cleanPhone) {
   return match ? { university: String(match[universityCol] || ''), team: String(match[teamCol] || '') } : null;
 }
 // (2) 회원 정보 갱신 폼 응답: 이름+휴대전화가 일치하는 응답을 Timestamp 최신순으로 보고,
-// 필수 항목(대학교, 소속 단, 통번역단→가능 언어, 소모임→관심 주제, 동의 3개)을 모두 갖춘 가장 최근 응답을 쓴다.
+// 필수 항목(대학교, 소속 단, 통번역단이면 가능 언어, 소모임이면 관심 주제, 동의 3개)을 모두 갖춘 가장 최근 응답을 쓴다.
 // Timestamp 가 날짜가 아닌 응답은 최신 판단에 쓰지 않는다. 같은 시각이면 시트 아래쪽(나중에 들어온) 행이 먼저다.
 function reportRenewalTime_(value) {
   if (value instanceof Date) return isNaN(value.getTime()) ? null : value.getTime();

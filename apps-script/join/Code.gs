@@ -331,3 +331,343 @@ function setupSheet() {
   sheet.setFrozenRows(1);
   console.log('applications 시트 준비 완료');
 }
+
+// ── 회원 명부 자동 반영 ──
+// 관리자가 신청 시트 status를 '입장 완료'로 바꾸면 홈페이지 가입 회원 명부(WYEA_회원명부_홈페이지가입) 맨 아래에 가입 순서대로 한 줄을 추가합니다.
+// 홈페이지 개설 이전 회원은 WYEA_회원명부_2026-09_v2에 있습니다. 그 파일은 같은 휴대전화를 확인할 때 읽기만 합니다.
+// 편집기에서 setupRoster를 한 번 실행해 명부 머리글·상태 목록·반영 기록 열·편집 트리거를 준비합니다. 절차는 README를 봅니다.
+var ROSTER_SPREADSHEET_ID = '1_MMgkFktfF7-zNpQoINdnKiyyOVAC1VjZ7guqK70LPg';
+var ROSTER_SHEET_NAME = '회원명부';
+var ROSTER_GUIDE_NAME = '안내';
+var LEGACY_ROSTER_ID = '1JXf9d5YnNGthBN58_kOoHY6DjDeGRoUHYu2vjrwIY2c';
+var LEGACY_ROSTER_NAME = 'WYEA_회원명부_2026-09_v2';
+// 명부 열은 이름으로 찾습니다. 순서를 바꾸거나 열을 더해도 되지만, 이 이름이 하나라도 없으면 쓰지 않고 멈춥니다.
+var ROSTER_COLUMNS = ['No', '성명', '생년월일', '휴대전화', '이메일', '대학교', '캠퍼스', '학과', '구분', '소속 단·희망 부서', '기수',
+  '신청일', '가입일(입장 완료)', '가입 동의', '주소', '직업', '단체 등록 명부 제출 동의', '신청 ID', '비고'];
+// 비영리민간단체 등록 준비 때 받을 항목입니다. 머리글과 빈 칸을 노란색으로 둡니다.
+var ROSTER_COLLECT = ['주소', '직업', '단체 등록 명부 제출 동의'];
+var ROSTER_DATE_COLUMNS = ['생년월일', '신청일', '가입일(입장 완료)'];
+var ROSTER_YELLOW = '#fff1c1';
+var ROSTER_HEADER_BG = '#003366';
+var ROSTER_WIDTHS = [50, 90, 95, 115, 190, 120, 100, 150, 70, 120, 65, 95, 115, 200, 220, 110, 150, 260, 260];
+var ROSTER_NOTES = {
+  '기수': '신청일 기준입니다. 9~12월은 그해 2기, 1월은 전년도 2기, 2~8월은 그해 1기입니다.',
+  '가입일(입장 완료)': '관리자가 신청 시트 상태를 입장 완료로 바꾼 날입니다.',
+  '가입 동의': '홈페이지 신청 때 받은 동의의 범위와 버전입니다. 2026-10-06 이후 버전은 회원 관리·활동 안내 목적의 수집·이용만 포함합니다.',
+  '주소': '비영리민간단체 등록 준비 때 받습니다. 값이 없으면 노란색으로 둡니다.',
+  '직업': '비영리민간단체 등록 준비 때 받습니다. 집행부 지원자가 고른 직업은 미리 들어갑니다.',
+  '단체 등록 명부 제출 동의': '비영리민간단체 등록 준비 때 받습니다(동의/미동의).',
+  '신청 ID': 'WYEA 회원 가입 신청(홈페이지) applications 탭의 application_id입니다.',
+};
+// '입장 완료'가 관리자 승인입니다. 이때 명부에 추가합니다.
+var STATUSES = ['검토 대기', '초대 완료', '입장 완료', '반려'];
+var JOINED_STATUS = '입장 완료';
+var ROSTER_MARK = 'roster_added_at';
+// 배포 확인용 시험 신청입니다. deleteDeployTestRows는 이름과 번호가 모두 같은 행만 지웁니다.
+var DEPLOY_TEST_NAME = '배포테스트(삭제예정)';
+// 1006·1007은 API 직접 호출, 1008·1009는 웹 화면(PC·모바일) 시험입니다.
+var DEPLOY_TEST_PHONES = ['010-0000-1006', '010-0000-1007', '010-0000-1008', '010-0000-1009'];
+
+function phoneKey_(value) {
+  var d = String(value || '').replace(/\D/g, '');
+  return d.length === 10 && d.charAt(0) === '1' ? '0' + d : d;
+}
+
+function isTrue_(value) {
+  return value === true || String(value).toUpperCase() === 'TRUE';
+}
+
+function kstDate_(value) {
+  var d = value instanceof Date ? value : new Date(String(value));
+  if (isNaN(d.getTime())) d = new Date();
+  return Utilities.formatDate(d, 'Asia/Seoul', 'yyyy-MM-dd');
+}
+
+function ymdDate_(ymd) {
+  var p = String(ymd).split('-').map(Number);
+  return new Date(p[0], p[1] - 1, p[2]);
+}
+
+// 신청일 기준 기수입니다. 9~12월은 그해 2기, 1월은 전년도 2기, 2~8월은 그해 1기로 봅니다(26-2기 = 2026 2학기 모집).
+function cohort_(ymd) {
+  var y = Number(ymd.slice(0, 4));
+  var m = Number(ymd.slice(5, 7));
+  if (m === 1) return String(y - 1).slice(-2) + '-2기';
+  return String(y).slice(-2) + (m >= 9 ? '-2기' : '-1기');
+}
+
+function consentLabel_(app) {
+  return (isTrue_(app.consent_third_party) ? '수집·이용·제3자 제공·초상권' : '수집·이용') + ' (' + app.consent_version + ')';
+}
+
+function columnLetter_(n) {
+  return String.fromCharCode(64 + n);
+}
+
+// 명부 파일을 엽니다. 회원명부 탭이 비어 있으면 머리글·서식·안내 탭을 만듭니다.
+function rosterBook_() {
+  var book = SpreadsheetApp.openById(ROSTER_SPREADSHEET_ID);
+  var sheet = book.getSheetByName(ROSTER_SHEET_NAME);
+  if (!sheet) {
+    var sheets = book.getSheets();
+    var blank = sheets.length === 1 && sheets[0].getLastRow() === 0 && sheets[0].getLastColumn() === 0;
+    sheet = blank ? sheets[0].setName(ROSTER_SHEET_NAME) : book.insertSheet(ROSTER_SHEET_NAME, 0);
+  }
+  if (sheet.getLastRow() === 0) rosterBuild_(book, sheet);
+  if (!book.getSheetByName(ROSTER_GUIDE_NAME)) rosterGuide_(book.insertSheet(ROSTER_GUIDE_NAME));
+  return book;
+}
+
+function rosterBuild_(book, sheet) {
+  var width = ROSTER_COLUMNS.length;
+  book.setSpreadsheetTimeZone('Asia/Seoul');
+  if (sheet.getMaxRows() < 1000) sheet.insertRowsAfter(sheet.getMaxRows(), 1000 - sheet.getMaxRows());
+  if (sheet.getMaxColumns() < width) sheet.insertColumnsAfter(sheet.getMaxColumns(), width - sheet.getMaxColumns());
+  var header = sheet.getRange(1, 1, 1, width);
+  header.setValues([ROSTER_COLUMNS]).setFontWeight('bold').setFontColor('#ffffff').setBackground(ROSTER_HEADER_BG)
+    .setVerticalAlignment('middle').setWrap(true);
+  header.setNotes([ROSTER_COLUMNS.map(function (h) { return ROSTER_NOTES[h] || ''; })]);
+  ROSTER_COLLECT.forEach(function (h) {
+    sheet.getRange(1, ROSTER_COLUMNS.indexOf(h) + 1).setBackground(ROSTER_YELLOW).setFontColor('#000000');
+  });
+  var rows = sheet.getMaxRows() - 1;
+  ROSTER_COLUMNS.forEach(function (h, c) {
+    var format = ROSTER_DATE_COLUMNS.indexOf(h) !== -1 ? 'yyyy-mm-dd' : h === 'No' ? '0' : '@';
+    sheet.getRange(2, c + 1, rows, 1).setNumberFormat(format);
+    sheet.setColumnWidth(c + 1, ROSTER_WIDTHS[c] || 120);
+  });
+  sheet.getRange(2, ROSTER_COLUMNS.indexOf('단체 등록 명부 제출 동의') + 1, rows, 1).setDataValidation(
+    SpreadsheetApp.newDataValidation().requireValueInList(['동의', '미동의'], true).setAllowInvalid(false).build());
+  sheet.setFrozenRows(1);
+  sheet.setFrozenColumns(2);
+  if (!sheet.getFilter()) sheet.getRange(1, 1, sheet.getMaxRows(), width).createFilter();
+}
+
+// 안내 탭의 A1:B14를 최신 문구로 씁니다. setupRoster를 실행할 때마다 다시 씁니다.
+function rosterGuide_(guide) {
+  var ref = function (h) {
+    var col = columnLetter_(ROSTER_COLUMNS.indexOf(h) + 1);
+    return "'" + ROSTER_SHEET_NAME + "'!" + col + '2:' + col;
+  };
+  var lines = [
+    ['WYEA 회원명부 (홈페이지 가입, 2026-09-26 /join 개설 이후)', ''],
+    ['홈페이지 개설 이전 회원은 ' + LEGACY_ROSTER_NAME + '에 있습니다. 같은 휴대전화가 있으면 비고에 적습니다.', ''],
+    ['', ''],
+    ['추가 방식', '가입 신청 시트에서 상태를 입장 완료로 바꾸면 회원명부 탭 맨 아래에 가입 순서대로 자동으로 추가됩니다.'],
+    ['노란색', '비영리민간단체 등록 준비 때 받을 항목(주소·직업·단체 등록 명부 제출 동의)입니다. 값이 없으면 노란색으로 둡니다.'],
+    ['가입 동의', '홈페이지 신청 당시 동의입니다. 2026-10-06 이후 버전은 회원 관리·활동 안내 목적의 수집·이용만 포함합니다.'],
+    ['기수', '신청일 기준입니다. 9~12월은 그해 2기, 1월은 전년도 2기, 2~8월은 그해 1기입니다.'],
+    ['', ''],
+    ['현황 (자동 계산)', ''],
+    ['총 회원', '=COUNTA(' + ref('성명') + ')'],
+    ['집행부', '=COUNTIF(' + ref('구분') + ',"집행부")'],
+    ['주소 확보', '=COUNTA(' + ref('주소') + ')'],
+    ['직업 확보', '=COUNTA(' + ref('직업') + ')'],
+    ['단체 등록 명부 제출 동의', '=COUNTIF(' + ref('단체 등록 명부 제출 동의') + ',"동의")'],
+  ];
+  guide.getRange(1, 1, lines.length, 2).setValues(lines).setFontWeight('normal').setBackground(null);
+  guide.getRange(1, 1).setFontWeight('bold').setFontSize(14);
+  guide.getRange(5, 1, 1, 2).setBackground(ROSTER_YELLOW);
+  guide.setColumnWidth(1, 190);
+  guide.setColumnWidth(2, 640);
+}
+
+function rosterOpen_() {
+  var sheet = rosterBook_().getSheetByName(ROSTER_SHEET_NAME);
+  var values = sheet.getRange(1, 1, Math.max(sheet.getLastRow(), 1), Math.max(sheet.getLastColumn(), 1)).getValues();
+  var headers = values[0].map(function (v) { return String(v).trim(); });
+  var cols = {};
+  ROSTER_COLUMNS.forEach(function (h) {
+    if (headers.indexOf(h) === -1) throw new Error('회원 명부 열이 없습니다: ' + h);
+    cols[h] = headers.indexOf(h);
+  });
+  // last는 마지막 회원 행의 0부터 센 위치입니다. No와 성명이 모두 빈 행은 회원 행으로 보지 않습니다.
+  var roster = { sheet: sheet, values: values, headers: headers, cols: cols, last: 0, phones: {}, maxNo: 0, count: 0 };
+  for (var i = 1; i < values.length; i++) {
+    var no = values[i][cols['No']];
+    if (no === '' && !String(values[i][cols['성명']]).trim()) continue;
+    roster.last = i;
+    roster.count++;
+    if (no !== '' && !isNaN(Number(no))) roster.maxNo = Math.max(roster.maxNo, Number(no));
+    var key = phoneKey_(values[i][cols['휴대전화']]);
+    if (key) roster.phones[key] = no === '' ? '?' : no;
+  }
+  return roster;
+}
+
+// 홈페이지 이전 명부의 휴대전화별 No입니다. 읽지 못하면 빈 목록으로 두고 반영은 계속합니다.
+function legacyPhones_() {
+  try {
+    var values = SpreadsheetApp.openById(LEGACY_ROSTER_ID).getSheetByName('회원명부').getDataRange().getValues();
+    for (var r = 0; r < Math.min(values.length, 5); r++) {
+      var cells = values[r].map(function (v) { return String(v).trim(); });
+      if (cells.indexOf('성명') === -1 || cells.indexOf('휴대전화') === -1) continue;
+      var map = {};
+      for (var i = r + 1; i < values.length; i++) {
+        var key = phoneKey_(values[i][cells.indexOf('휴대전화')]);
+        if (key) map[key] = cells.indexOf('No') === -1 ? '?' : values[i][cells.indexOf('No')];
+      }
+      return map;
+    }
+  } catch (err) {
+    console.error('legacy roster read failed: ' + err);
+  }
+  return {};
+}
+
+// 신청 행 하나를 명부 마지막 회원 아래에 추가하고 새 No를 돌려줍니다. 받은 값은 흰색, 비어 있는 수집 항목은 노란색입니다.
+function rosterAppend_(roster, app, stamp, legacyNo) {
+  var sheet = roster.sheet;
+  var target = roster.last + 2;
+  if (target > sheet.getMaxRows()) sheet.insertRowsAfter(sheet.getMaxRows(), 100);
+  var no = roster.maxNo + 1;
+  var applied = kstDate_(app.submitted_at);
+  var birth = app.birth instanceof Date ? Utilities.formatDate(app.birth, 'Asia/Seoul', 'yyyy-MM-dd') : String(app.birth);
+  var memo = [];
+  if (legacyNo) memo.push('홈페이지 이전 명부 No.' + legacyNo + '와 같은 휴대전화');
+  if (isTrue_(app.university_other)) memo.push('목록 밖 학교(신청자 직접 입력)');
+  var data = {
+    'No': no, '성명': app.name, '생년월일': /^\d{4}-\d{2}-\d{2}$/.test(birth) ? ymdDate_(birth) : birth, '휴대전화': app.phone,
+    '이메일': app.email, '대학교': app.university, '캠퍼스': app.campus, '학과': app.department, '구분': TRACKS[app.track] || app.track,
+    '소속 단·희망 부서': app.team, '기수': cohort_(applied), '신청일': ymdDate_(applied), '가입일(입장 완료)': ymdDate_(stamp.slice(0, 10)),
+    '가입 동의': consentLabel_(app), '주소': '', '직업': app.occupation, '단체 등록 명부 제출 동의': '', '신청 ID': app.application_id,
+    '비고': memo.join(' / '),
+  };
+  var row = [];
+  var formats = [];
+  var backgrounds = [];
+  roster.headers.forEach(function (h) {
+    var v = Object.prototype.hasOwnProperty.call(data, h) && data[h] !== null && data[h] !== undefined ? data[h] : '';
+    row.push(safeCell_(v));
+    formats.push(v instanceof Date ? 'yyyy-mm-dd' : typeof v === 'number' ? '0' : '@');
+    backgrounds.push(ROSTER_COLLECT.indexOf(h) !== -1 && v === '' ? ROSTER_YELLOW : null);
+  });
+  var range = sheet.getRange(target, 1, 1, roster.headers.length);
+  range.setNumberFormats([formats]);
+  range.setValues([row]);
+  range.setBackgrounds([backgrounds]);
+  roster.values[target - 1] = row;
+  roster.last = target - 1;
+  roster.maxNo = no;
+  roster.count++;
+  return no;
+}
+
+// '입장 완료'이고 roster_added_at이 빈 신청을 명부에 반영합니다. 같은 휴대전화가 이미 명부에 있으면 추가하지 않고 기록만 남깁니다.
+function syncRoster_() {
+  var lock = LockService.getScriptLock();
+  if (!lock.tryLock(30000)) throw new Error('잠금을 얻지 못했습니다. 잠시 뒤 편집기에서 syncRoster를 실행하세요.');
+  try {
+    var sheet = sheet_();
+    var values = sheet.getDataRange().getValues();
+    var markCol = values[0].map(String).indexOf(ROSTER_MARK);
+    if (markCol === -1) throw new Error(ROSTER_MARK + ' 열이 없습니다. 편집기에서 setupRoster를 먼저 실행하세요.');
+    var statusCol = HEADERS.indexOf('status');
+    var joined = JOINED_STATUS.replace(/\s/g, '');
+    var targets = [];
+    for (var i = 1; i < values.length; i++) {
+      if (String(values[i][statusCol]).replace(/\s/g, '') === joined && String(values[i][markCol]).trim() === '') targets.push(i);
+    }
+    if (!targets.length) return { added: 0, existing: 0 };
+    var roster = rosterOpen_();
+    var legacy = legacyPhones_();
+    var stamp = Utilities.formatDate(new Date(), 'Asia/Seoul', 'yyyy-MM-dd HH:mm');
+    var result = { added: 0, existing: 0 };
+    targets.forEach(function (i) {
+      var app = {};
+      HEADERS.forEach(function (h, c) { app[h] = values[i][c]; });
+      var key = phoneKey_(app.phone);
+      var mark;
+      if (key && Object.prototype.hasOwnProperty.call(roster.phones, key)) {
+        result.existing++;
+        mark = stamp + ' 기존 명부 No.' + roster.phones[key];
+      } else {
+        var no = rosterAppend_(roster, app, stamp, key ? legacy[key] : '');
+        if (key) roster.phones[key] = no;
+        result.added++;
+        mark = stamp + ' 명부 No.' + no;
+      }
+      var cell = sheet.getRange(i + 1, markCol + 1);
+      cell.setNumberFormat('@');
+      cell.setValue(mark);
+    });
+    SpreadsheetApp.flush();
+    return result;
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+// setupRoster가 설치하는 편집 트리거입니다. status 칸이 바뀐 편집만 반영하며, 실패하면 알림 메일로 알립니다.
+function onApplicationsEdit(e) {
+  var range = e && e.range;
+  if (!range || range.getSheet().getName() !== SHEET_NAME) return;
+  var statusCol = HEADERS.indexOf('status') + 1;
+  if (range.getColumn() > statusCol || range.getLastColumn() < statusCol || range.getLastRow() < 2) return;
+  try {
+    syncRoster_();
+  } catch (err) {
+    console.error('roster sync failed: ' + err);
+    try {
+      MailApp.sendEmail({
+        to: notifyRecipients_().join(','),
+        subject: '[WYEA] 회원 명부 자동 반영 실패',
+        body: '신청 시트의 입장 완료를 회원 명부에 반영하지 못했습니다.\n\n오류: ' + (err && err.message || err) +
+          '\n\nApps Script 편집기에서 syncRoster를 실행하면 남은 신청을 다시 반영합니다.',
+        name: 'WYEA 회원 명부',
+      });
+    } catch (mailErr) {
+      console.error('roster failure mail failed: ' + mailErr);
+    }
+  }
+}
+
+// 편집기에서 실행합니다. 놓친 '입장 완료' 신청을 다시 반영합니다.
+function syncRoster() {
+  console.log('회원 명부 반영: ' + JSON.stringify(syncRoster_()));
+}
+
+// 편집기에서 한 번 실행합니다. 반영 기록 열과 상태 목록을 만들고, 명부를 준비한 뒤 편집 트리거를 설치합니다. 다시 실행해도 됩니다.
+function setupRoster() {
+  var sheet = sheet_();
+  var lastCol = sheet.getLastColumn();
+  if (sheet.getRange(1, 1, 1, lastCol).getValues()[0].map(String).indexOf(ROSTER_MARK) === -1) {
+    sheet.getRange(1, lastCol + 1).setValue(ROSTER_MARK).setFontWeight('bold');
+  }
+  var rule = SpreadsheetApp.newDataValidation().requireValueInList(STATUSES, true).setAllowInvalid(false)
+    .setHelpText('입장 완료로 바꾸면 홈페이지 가입 회원 명부에 자동으로 추가됩니다.').build();
+  sheet.getRange(2, HEADERS.indexOf('status') + 1, sheet.getMaxRows() - 1, 1).setDataValidation(rule);
+  var roster = rosterOpen_();
+  rosterGuide_(roster.sheet.getParent().getSheetByName(ROSTER_GUIDE_NAME));
+  ScriptApp.getProjectTriggers().forEach(function (t) {
+    if (t.getHandlerFunction() === 'onApplicationsEdit') ScriptApp.deleteTrigger(t);
+  });
+  ScriptApp.newTrigger('onApplicationsEdit').forSpreadsheet(sheet.getParent().getId()).onEdit().create();
+  var result = syncRoster_();
+  console.log('회원 명부 연결: ' + roster.sheet.getParent().getName() + ' (회원 ' + roster.count + '명) · 트리거 설치 · 이번 반영 ' + JSON.stringify(result));
+}
+
+// 편집기에서 실행합니다. 배포 확인용 시험 신청(DEPLOY_TEST_NAME과 DEPLOY_TEST_PHONES가 모두 같은 행)만 신청 시트와 회원 명부에서 지웁니다.
+function deleteDeployTestRows() {
+  var phones = DEPLOY_TEST_PHONES.map(phoneKey_);
+  var isTest = function (name, phone) { return String(name).trim() === DEPLOY_TEST_NAME && phones.indexOf(phoneKey_(phone)) !== -1; };
+  var lock = LockService.getScriptLock();
+  if (!lock.tryLock(30000)) throw new Error('잠금을 얻지 못했습니다. 잠시 뒤 다시 실행하세요.');
+  try {
+    var sheet = sheet_();
+    var values = sheet.getDataRange().getValues();
+    var removed = 0;
+    for (var r = values.length - 1; r >= 1; r--) {
+      if (isTest(values[r][HEADERS.indexOf('name')], values[r][HEADERS.indexOf('phone')])) { sheet.deleteRow(r + 1); removed++; }
+    }
+    var roster = rosterOpen_();
+    var rosterRemoved = 0;
+    for (var i = roster.last; i >= 1; i--) {
+      if (isTest(roster.values[i][roster.cols['성명']], roster.values[i][roster.cols['휴대전화']])) { roster.sheet.deleteRow(i + 1); rosterRemoved++; }
+    }
+    SpreadsheetApp.flush();
+    console.log('시험 행 삭제: 신청 시트 ' + removed + '행, 회원 명부 ' + rosterRemoved + '행');
+  } finally {
+    lock.releaseLock();
+  }
+}

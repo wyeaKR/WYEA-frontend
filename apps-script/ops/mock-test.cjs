@@ -19,6 +19,8 @@ const joinValues = [
   ['반려', '반려 예시', '01022223333', '예시대학교', '기록단'],
   ['검토 대기', '가입 폴백', '01044445555', '가입대학교', '행사지원단'],
   ['검토 대기', '갱신 우선', '01066667777', '가입대학교', '기록단'],
+  ['초대 완료', '초대 예시', '01088880001', '초대대학교', '통번역단'],
+  ['입장 완료', '입장 예시', '01088880002', '입장대학교', '소모임'],
 ]
 const consentAll = '개인정보 수집·이용에 동의합니다, 개인정보 제3자 제공에 동의합니다, 초상권(사진·영상) 활용에 동의합니다'
 const renewalHeaders = ['Timestamp', '성명', '생년월일', '성별', '휴대전화', '주소', '직업', '대학교', '캠퍼스', '학과', '학번', '이메일',
@@ -28,23 +30,23 @@ const renewalRow = (time, name, phone, university, consent, unit, language, topi
   [time, name, '', '', phone, '', '', university, '', '', '', '', consent, unit, language, topic, note]
 const renewalValues = [
   renewalHeaders,
-  // 기존 응답(소속 단·동의 추가 전) → 재제출 대상
+  // 기존 응답(소속 단·동의 추가 전)은 재제출 대상
   renewalRow(at('2026-09-20T10:00:00+09:00'), '기존 응답', '01033334444', '갱신대학교', '', '', '', '', '재제출 대상'),
-  // 여러 유효 응답 → 가장 최근(시트 순서가 아니라 Timestamp 기준). 전화 앞자리 0이 빠진 숫자 값도 같은 번호
+  // 유효 응답이 여러 개면 가장 최근 것(시트 순서가 아니라 Timestamp 기준). 전화 앞자리 0이 빠진 숫자 값도 같은 번호
   renewalRow(at('2026-09-27T10:00:00+09:00'), '갱신 회원', 1055556666, '최신대학교', consentAll, '통번역단', '일본어', ''),
   renewalRow(at('2026-09-20T10:00:00+09:00'), '갱신 회원', '01055556666', '예전대학교', consentAll, '기록단', '', ''),
-  // 소모임인데 관심 주제가 빠짐 → 실패
+  // 소모임인데 관심 주제가 빠지면 실패
   renewalRow(at('2026-09-27T10:00:00+09:00'), '주제 누락', '01014141414', '갱신대학교', consentAll, '소모임', '', ''),
-  // 통번역단인데 가능 언어가 빠짐 → 실패
+  // 통번역단인데 가능 언어가 빠지면 실패
   renewalRow(at('2026-09-27T10:00:00+09:00'), '언어 누락', '01077778888', '갱신대학교', consentAll, '통번역단', '', ''),
-  // 동의 3개 중 2개만 → 실패
+  // 동의 3개 중 2개만 있으면 실패
   renewalRow(at('2026-09-27T10:00:00+09:00'), '동의 누락', '01099990000', '갱신대학교', '개인정보 수집·이용에 동의합니다, 개인정보 제3자 제공에 동의합니다', '기록단', '', ''),
   // 대학교가 비었으면 나머지가 모두 있어도 실패
   renewalRow(at('2026-09-27T10:00:00+09:00'), '대학 누락', '01012121212', '  ', consentAll, '기록단', '', ''),
   // 최신 응답이 불완전하면 그 이전의 유효한 응답을 쓴다
   renewalRow(at('2026-09-21T10:00:00+09:00'), '최신 불완전', '01011112222', '이전대학교', consentAll, '소모임', '', '보드게임'),
   renewalRow(at('2026-09-27T10:00:00+09:00'), '최신 불완전', '01011112222', '이전대학교', consentAll, '', '', ''),
-  // 갱신 응답이 전부 불완전 → 가입 기록으로
+  // 갱신 응답이 전부 불완전하면 가입 기록을 씀
   renewalRow(at('2026-09-27T10:00:00+09:00'), '가입 폴백', '01044445555', '갱신대학교', '', '기록단', '', ''),
   // 가입 기록과 유효한 갱신 응답이 모두 있으면 갱신 응답이 먼저
   renewalRow(at('2026-09-26T10:00:00+09:00'), '갱신 우선', '01066667777', '갱신대학교', consentAll, '정책제안단', '', ''),
@@ -130,24 +132,26 @@ const found = lookup('회원 예시', '01012345678')
 eq(found, { ok: true, university: '예시대학교', team: '기록단' }, '검토 대기 통과')
 eq(Object.keys(found).sort(), ['ok', 'team', 'university'], '응답은 대학·단만')
 eq(lookup('반려 예시', '01022223333').error, 'not_found', '반려 실패')
+eq(lookup('초대 예시', '01088880001'), { ok: true, university: '초대대학교', team: '통번역단' }, '초대 완료 통과')
+eq(lookup('입장 예시', '01088880002'), { ok: true, university: '입장대학교', team: '소모임' }, '입장 완료 통과')
 
 // 갱신 폼 조회: 가장 최근의 유효한 응답
-eq(lookup('갱신 회원', '010-5555-6666'), { ok: true, university: '최신대학교', team: '통번역단' }, '여러 유효 응답 → 최신, 앞자리 0 빠진 전화')
+eq(lookup('갱신 회원', '010-5555-6666'), { ok: true, university: '최신대학교', team: '통번역단' }, '여러 유효 응답 중 최신, 앞자리 0 빠진 전화')
 eq(lookup('갱신 회원', '01000000000').error, 'not_found', '갱신 이름만 일치')
-eq(lookup('최신 불완전', '01011112222'), { ok: true, university: '이전대학교', team: '소모임' }, '최신 불완전 → 이전 정상 응답')
+eq(lookup('최신 불완전', '01011112222'), { ok: true, university: '이전대학교', team: '소모임' }, '최신이 불완전하면 이전 정상 응답')
 eq(lookup('대학 누락', '01012121212').error, 'not_found', '대학 빈 값 거절')
 eq(lookup('언어 누락', '01077778888').error, 'not_found', '가능 언어 누락')
 eq(lookup('주제 누락', '01014141414').error, 'not_found', '관심 주제 누락')
 eq(lookup('동의 누락', '01099990000').error, 'not_found', '동의 누락')
 eq(lookup('기존 응답', '01033334444').error, 'not_found', '재제출 대상')
-eq(lookup('가입 폴백', '01044445555'), { ok: true, university: '가입대학교', team: '행사지원단' }, '갱신 전부 불완전 → 가입 기록')
+eq(lookup('가입 폴백', '01044445555'), { ok: true, university: '가입대학교', team: '행사지원단' }, '갱신이 전부 불완전하면 가입 기록')
 eq(lookup('갱신 우선', '01066667777'), { ok: true, university: '갱신대학교', team: '정책제안단' }, '갱신 응답 우선')
 eq(lookup('시각 오류', '01088889999'), { ok: true, university: '정상대학교', team: '기록단' }, '잘못된 Timestamp 무시')
 eq(lookup('시각 없음', '01013131313').error, 'not_found', 'Timestamp 없는 응답만 있으면 실패')
 
 // 조회 중 서버 오류는 not_found 가 아니다
 renewalAvailable = false
-eq(lookup('회원 예시', '01012345678').error, 'server_error', '갱신 시트 오류 → server_error')
+eq(lookup('회원 예시', '01012345678').error, 'server_error', '갱신 시트 오류는 server_error')
 renewalAvailable = true
 
 // 참가 기록서 제출
@@ -172,8 +176,8 @@ eq(grid[2][2], '회원 예시')
 eq(grid[2][20], payload.submission_id, 'submission_id 저장')
 eq(sent, 1)
 
-// 같은 submission_id 재시도(응답 유실 가정) → 행·메일 추가 없이 성공
-eq(report({}), { ok: true, duplicate: true }, '같은 submission_id 두 번째 → 성공 취급')
+// 같은 submission_id 재시도(응답 유실 가정)는 행·메일 추가 없이 성공
+eq(report({}), { ok: true, duplicate: true }, '같은 submission_id 두 번째는 성공 취급')
 eq(report({ p_comment: '재시도' }), { ok: true, duplicate: true }, '응답 유실 뒤 재시도')
 eq(report({ submission_id: payload.submission_id.toUpperCase() }), { ok: true, duplicate: true }, '대소문자만 다른 같은 ID')
 eq(dataRows().length, 2, '같은 submission_id 는 1건')
@@ -184,7 +188,7 @@ lockState.events.length = 0
 eq(report({ submission_id: '44444444-4444-4444-8444-444444444444' }), { ok: true })
 const ev = lockState.events
 ok(ev[0] === 'lock' && ev.indexOf('check') > 0 && ev.indexOf('append') > ev.indexOf('check') && ev.indexOf('flush') > ev.indexOf('append') &&
-  ev.indexOf('release') > ev.indexOf('flush'), '잠금 → 중복 확인 → 기록 → flush → 해제: ' + ev.join(','))
+  ev.indexOf('release') > ev.indexOf('flush'), '잠금, 중복 확인, 기록, flush, 해제 순서: ' + ev.join(','))
 eq(dataRows().length, 3)
 eq(sent, 2)
 
@@ -195,7 +199,7 @@ let racing = null
 onFlush = () => { racing = report({ submission_id: racingId }) }
 eq(report({ submission_id: racingId }), { ok: true }, '동시 요청 중 첫 요청 성공')
 eq(racing, { ok: false, error: 'server_error' }, '잠금을 못 잡은 두 번째 요청은 저장하지 않음')
-eq(report({ submission_id: racingId }), { ok: true, duplicate: true }, '두 번째 요청 재시도 → duplicate')
+eq(report({ submission_id: racingId }), { ok: true, duplicate: true }, '두 번째 요청 재시도는 duplicate')
 eq(dataRows().filter(row => row[20] === racingId).length, 1, '동시 요청도 1건')
 eq(sent, 3, '동시 요청도 메일 1회')
 

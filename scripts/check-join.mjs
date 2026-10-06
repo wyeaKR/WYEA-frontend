@@ -21,22 +21,27 @@ vm.runInContext(await readFile('apps-script/join/Code.gs', 'utf8'), server)
 function screen(track) {
   const route = reactive({ query: track ? { track } : {} })
   const requests = []
-  let response = { ok: true }
+  // 응답을 차례로 씁니다. 마지막 응답은 계속 반복합니다. 'html'은 Google 404 오류 페이지(JSON 아님)입니다.
+  let responses = [{ ok: true }]
   const ctx = vm.createContext({
     ...config, computed, reactive, ref, watch, nextTick,
     onMounted: (fn) => fn(),
     useRoute: () => route,
     useRouter: () => ({ push: async ({ query }) => { route.query = query } }),
     document: { querySelector: () => ({ focus() {} }) },
+    setTimeout: (fn) => { fn(); return 0 },
+    clearTimeout: () => {},
     fetch: async (_url, options) => {
       requests.push(JSON.parse(options.body).payload)
+      const response = responses.length > 1 ? responses.shift() : responses[0]
       if (response instanceof Error) throw response
+      if (response === 'html') return { json: async () => { throw new SyntaxError('Unexpected token <') } }
       return { json: async () => response }
     },
   })
   vm.runInContext(compiled + '\nglobalThis.state = { form, errors, step, formSteps, busy, agree, startedAt, submitError, payload, next, back, setTrack, submit, formatBirthDate };', ctx)
   ctx.state.startedAt.value -= 10000
-  return { ...ctx.state, requests, respond: (value) => { response = value } }
+  return { ...ctx.state, requests, respond: (...values) => { responses = values } }
 }
 
 const minimal = { name: '가입 시험', birth: '2000-01-01', phone: '010-1234-5678', email: '', campus: '본캠퍼스', department: '시험학과' }
@@ -98,14 +103,50 @@ member.respond({ ok: false, error: 'duplicate' })
 await member.submit()
 assert.equal(member.step.value, 'consent')
 assert.match(member.submitError.value, /이미 신청/)
+assert.equal(member.requests.length, 1, 'first-attempt duplicate is an earlier application, no retry')
+member.respond({ ok: false, error: 'validation_failed' })
+await member.submit()
+assert.match(member.submitError.value, /다시 확인/)
+assert.equal(member.requests.length, 2, 'validation_failed is final, no retry')
 member.respond(new Error('network'))
 await member.submit()
 assert.match(member.submitError.value, /이미 접수되었을 수/)
+assert.equal(member.requests.length, 12, 'network failure is retried up to 10 attempts')
+member.respond({ ok: false, error: 'server_error' })
+await member.submit()
+assert.match(member.submitError.value, /이미 접수되었을 수/)
+assert.equal(member.requests.length, 22, 'server_error is retried up to 10 attempts')
 assert.equal(member.form.name, minimal.name)
 member.respond({ ok: true })
 await Promise.all([member.submit(), member.submit()])
-assert.equal(member.requests.length, 3, 'double click must send only one final request')
+assert.equal(member.requests.length, 23, 'double click must send only one final request')
 assert.equal(member.step.value, 'done')
+
+// Google 응답 단계 404(JSON이 아닌 페이지) 뒤 재전송: 결과를 받을 때까지 같은 내용을 다시 보내고(최대 10번) 결과에 따라 완료/안내
+function readyMember() {
+  const s = screen()
+  Object.assign(s.form, minimal, { memberUnit: '기록단', university: '경상국립대학교' })
+  s.next()
+  s.agree.collect = true
+  return s
+}
+for (const [name, responses, step, requests, message] of [
+  ['404 then duplicate means the first request was saved', ['html', { ok: false, error: 'duplicate' }], 'done', 2, ''],
+  ['404 then ok', ['html', { ok: true }], 'done', 2, ''],
+  ['doGet-style ok is not a saved confirmation', [{ ok: true, service: 'wyea-join' }, { ok: false, error: 'duplicate' }], 'done', 2, ''],
+  ['404 three times then duplicate keeps retrying until resolved', ['html', 'html', 'html', { ok: false, error: 'duplicate' }], 'done', 4, ''],
+  ['404 every time stops after 10 attempts with the unconfirmed notice', ['html'], 'consent', 10, '이미 접수되었을 수'],
+  ['404 then validation_failed', ['html', { ok: false, error: 'validation_failed' }], 'consent', 2, '다시 확인'],
+]) {
+  const s = readyMember()
+  s.respond(...responses)
+  await s.submit()
+  assert.equal(s.step.value, step, name)
+  assert.equal(s.requests.length, requests, `${name}: request count`)
+  assert.ok(message ? s.submitError.value.includes(message) : s.submitError.value === '', `${name}: message`)
+  assert.equal(s.busy.value, false, `${name}: loading ends`)
+  assert.deepEqual(s.requests[1] && { ...s.requests[1], elapsed_ms: 0 }, { ...s.requests[0], elapsed_ms: 0 }, `${name}: retry resends the same content`)
+}
 
 const staff = screen('staff')
 assert.equal(staff.step.value, 'info')
@@ -159,4 +200,4 @@ assert.equal(staff.form.team, '기획부', 'staff draft survives switching track
 staff.setTrack('member')
 await nextTick()
 assert.equal(staff.form.memberUnit, '행사지원단', 'member unit survives switching tracks')
-console.log('PASS join flow: minimal/staff validation, server contract, back/track switching, consent, duplicate/network responses, double submission')
+console.log('PASS join flow: minimal/staff validation, server contract, back/track switching, consent, duplicate/network responses, retries until a readable result (max 10), double submission')

@@ -34,6 +34,15 @@ const step = ref<Step>('info')
 const busy = ref(false)
 const submitError = ref('')
 const unconfirmedSubmission = '접수 결과를 확인하지 못했습니다. 이미 접수되었을 수 있으니 반복 제출하지 말고 wyea@wyea.info로 문의해 주세요. 입력한 내용은 유지됩니다.'
+// Apps Script는 신청을 저장한 뒤 Google 임시 주소로 넘겨 결과를 주는데, 이 단계가 가끔 404 페이지를 돌려줍니다(2026-10-06 측정 약 7%).
+// 결과를 읽지 못하면 결과를 받을 때까지 같은 내용을 2초 간격으로 다시 보냅니다. 첫 요청이 저장됐다면 서버가 같은 번호로
+// duplicate를 돌려주므로 접수 완료로 봅니다. 연결이 끊긴 경우 끝없이 기다리지 않도록 최대 10번, 1분까지만 보냅니다.
+// 한 번 시도는 15초에서 끊습니다. 끊긴 요청이 저장됐어도 다음 시도가 duplicate로 알려 주므로 중복 저장은 없습니다.
+const SUBMIT_TIMEOUT_MS = 15000
+const RETRY_INTERVAL_MS = 2000
+const MAX_ATTEMPTS = 10
+const RETRY_DEADLINE_MS = 60000
+type JoinResponse = { ok?: boolean; error?: string; service?: string }
 const startedAt = ref(0)
 const openConsent = ref<ConsentKey | null>(null)
 
@@ -242,22 +251,53 @@ async function submit() {
   if (!apiReady.value) { submitError.value = '가입 신청 접수 준비 중입니다. 잠시 후 다시 시도해 주세요.'; return }
   busy.value = true
   try {
+    const started = Date.now()
+    let data = await send()
+    let attempts = 1
+    while (!confirmed(data) && attempts < MAX_ATTEMPTS && Date.now() - started < RETRY_DEADLINE_MS) {
+      await new Promise((resolve) => setTimeout(resolve, RETRY_INTERVAL_MS))
+      data = await send()
+      attempts += 1
+    }
+    const retried = attempts > 1
+    // 재전송의 duplicate는 첫 요청이 저장됐다는 뜻입니다. 첫 요청의 duplicate는 예전에 낸 신청입니다.
+    if (saved(data) || (retried && data?.error === 'duplicate')) { step.value = 'done'; scrollTop(); return }
+    submitError.value = data?.error === 'validation_failed'
+      ? '입력 내용을 다시 확인해 주세요. 계속 안 되면 wyea@wyea.info로 문의해 주세요.'
+      : data?.error === 'duplicate'
+        ? '같은 휴대전화 번호로 이미 신청이 접수되어 있습니다. 집행부 연락을 기다려 주세요.'
+        : unconfirmedSubmission
+  } finally {
+    busy.value = false
+  }
+}
+
+// 저장 완료 응답은 { ok: true }입니다. service가 붙은 응답은 doGet의 상태 응답이라 저장 확인으로 보지 않습니다.
+function saved(data: JoinResponse | null) {
+  return data?.ok === true && !('service' in data)
+}
+
+function confirmed(data: JoinResponse | null) {
+  return saved(data) || data?.error === 'validation_failed' || data?.error === 'duplicate'
+}
+
+// 결과를 읽지 못하면(연결 실패, 시간 초과, JSON이 아닌 오류 페이지) null을 돌려줍니다.
+async function send(): Promise<JoinResponse | null> {
+  const controller = typeof AbortController === 'undefined' ? null : new AbortController()
+  const timer = controller ? setTimeout(() => controller.abort(), SUBMIT_TIMEOUT_MS) : undefined
+  try {
     const res = await fetch(JOIN_API_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'text/plain;charset=utf-8' },
       body: JSON.stringify({ action: 'join', payload: payload() }),
+      signal: controller ? controller.signal : null,
     })
     const data = await res.json()
-    if (data && data.ok) { step.value = 'done'; scrollTop(); return }
-    submitError.value = data && data.error === 'validation_failed'
-      ? '입력 내용을 다시 확인해 주세요. 계속 안 되면 wyea@wyea.info로 문의해 주세요.'
-      : data && data.error === 'duplicate'
-        ? '같은 휴대전화 번호로 이미 신청이 접수되어 있습니다. 집행부 연락을 기다려 주세요.'
-        : unconfirmedSubmission
+    return data && typeof data === 'object' ? data : null
   } catch {
-    submitError.value = unconfirmedSubmission
+    return null
   } finally {
-    busy.value = false
+    if (timer !== undefined) clearTimeout(timer)
   }
 }
 </script>
