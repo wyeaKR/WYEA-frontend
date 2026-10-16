@@ -11,6 +11,8 @@ var HEADERS = ['application_id', 'submitted_at', 'status', 'track', 'team', 'nam
 var UNIVERSITIES = ['국립창원대학교', '경상국립대학교', '경남대학교', '인제대학교', '부산대학교', '계명대학교', '대구대학교',
   '마산대학교', '경희대학교', '서울대학교', '서울시립대학교', '연세대학교'];
 var OCCUPATIONS = ['대학생(재학)', '대학생(휴학)', '대학원생', '졸업생'];
+// 2026-10-16 동의부터 두 트랙 모두 성별과 재학 상태를 필수로 받고, 재학 상태는 occupation 열에 저장합니다.
+var STUDY_STATUSES = ['재학', '휴학', '졸업'];
 var INTERESTS = ['해외 청년 교류회 참가', '교류회·행사 기획과 현장 운영', '지역사회 봉사활동', '음악·문화 교류', '외국어 회화·언어 교환',
   'SNS·콘텐츠 제작 (사진·영상·글)', '디자인·홍보물 제작', '글쓰기·기사 작성 (단체 신문)', '청년 정책 제안·간담회', '창업·공모전 프로젝트',
   '해외 단체·지역 기관과의 대외협력', '행정·문서 (회의록·서류)', '재무·회계', '대학 지부 운영·회원 모집'];
@@ -29,7 +31,9 @@ var INTEREST_MAPPING = {
   '음악·문화 교류': '소모임', '창업·공모전 프로젝트': '소모임',
 };
 // 구버전 화면에서 진행 중인 신청도 허용합니다. 새 일반 가입은 최소 항목만 저장합니다.
-var CONSENT_VERSIONS = ['2026-09-25', '2026-10-06', '2026-10-06-v2', '2026-10-06-v3', '2026-10-06-v4'];
+var CONSENT_VERSIONS = ['2026-09-25', '2026-10-06', '2026-10-06-v2', '2026-10-06-v3', '2026-10-06-v4', '2026-10-16'];
+// 집행부 한 페이지 지원서(희망 부서, 선택 답변)를 쓰는 동의 버전입니다.
+var SIMPLE_STAFF_VERSIONS = ['2026-10-06-v3', '2026-10-06-v4', '2026-10-16'];
 var LIMITS = { name: 30, campus: 40, department: 60, student_id: 20, email: 120, other: 60, motivation: 1000, hopes: 1000,
   competencies: 1000, experience: 1000, capabilities: 1000, languages: 60, club_topic: 60 };
 var MIN_MOTIVATION = 20;
@@ -76,9 +80,10 @@ function validate_(p) {
   if (!Object.prototype.hasOwnProperty.call(TRACKS, p.track)) return null;
   r.track = p.track;
   var staff = r.track === 'staff';
-  var current = p.consent && ['2026-10-06', '2026-10-06-v2', '2026-10-06-v3', '2026-10-06-v4'].indexOf(p.consent.version) !== -1;
-  var simpleStaff = staff && p.consent && ['2026-10-06-v3', '2026-10-06-v4'].indexOf(p.consent.version) !== -1;
-  var optionalStaff = staff && p.consent && p.consent.version === '2026-10-06-v4';
+  var current = p.consent && ['2026-10-06', '2026-10-06-v2', '2026-10-06-v3', '2026-10-06-v4', '2026-10-16'].indexOf(p.consent.version) !== -1;
+  var simpleStaff = staff && p.consent && SIMPLE_STAFF_VERSIONS.indexOf(p.consent.version) !== -1;
+  var optionalStaff = staff && p.consent && ['2026-10-06-v4', '2026-10-16'].indexOf(p.consent.version) !== -1;
+  var withStatus = !!p.consent && p.consent.version === '2026-10-16';
   var minimal = !staff && current;
   if (minimal) {
     if (MEMBER_UNITS.indexOf(p.team) === -1) return null;
@@ -107,12 +112,15 @@ function validate_(p) {
     var age = ageKst_(r.birth);
     if (isNaN(age) || age < MIN_AGE || age > 100) return null;
   }
-  if (!minimal && ['남', '여'].indexOf(p.gender) === -1) return null;
-  r.gender = minimal ? '' : p.gender;
+  if ((!minimal || withStatus) && ['남', '여'].indexOf(p.gender) === -1) return null;
+  r.gender = minimal && !withStatus ? '' : p.gender;
   if ((r.phone = str_(p.phone, 13, true)) === null || !/^010-\d{4}-\d{4}$/.test(r.phone)) return null;
   // 기존 시트의 주소 열은 보존하되 신규 신청에서는 전달되어도 저장하지 않습니다.
   r.address = '';
-  if ((r.occupation = minimal ? '' : str_(p.occupation, LIMITS.other, true)) === null) return null;
+  if (withStatus) {
+    if (STUDY_STATUSES.indexOf(p.study_status) === -1) return null;
+    r.occupation = p.study_status;
+  } else if ((r.occupation = minimal ? '' : str_(p.occupation, LIMITS.other, true)) === null) return null;
   if (typeof p.university_other !== 'boolean') return null;
   if ((r.university = str_(p.university, LIMITS.other, true)) === null) return null;
   if (!p.university_other && UNIVERSITIES.indexOf(r.university) === -1) return null;
@@ -151,7 +159,7 @@ function validate_(p) {
   if ((r.referral = minimal || simpleStaff ? '' : str_(p.referral || '', LIMITS.other, false)) === null) return null;
   var c = p.consent;
   if (!c || c.collect !== true || CONSENT_VERSIONS.indexOf(c.version) === -1) return null;
-  var collectOnly = ['2026-10-06-v2', '2026-10-06-v3', '2026-10-06-v4'].indexOf(c.version) !== -1;
+  var collectOnly = ['2026-10-06-v2', '2026-10-06-v3', '2026-10-06-v4', '2026-10-16'].indexOf(c.version) !== -1;
   if (!collectOnly && (c.third_party !== true || c.portrait !== true)) return null;
   // 새 가입에서는 받지 않는 동의를 TRUE로 기록하지 않습니다. 기존 행은 변경하지 않습니다.
   r.consent_collect = true;
@@ -159,7 +167,7 @@ function validate_(p) {
   r.consent_portrait = collectOnly ? false : c.portrait;
   r.consent_version = c.version;
   // 직업 기타 입력은 허용하되, 목록 밖 값은 검토 때 확인합니다.
-  r.occupation_known = OCCUPATIONS.indexOf(r.occupation) !== -1;
+  r.occupation_known = OCCUPATIONS.indexOf(r.occupation) !== -1 || STUDY_STATUSES.indexOf(r.occupation) !== -1;
   r.referral_known = !r.referral || REFERRALS.indexOf(r.referral) !== -1;
   return r;
 }
@@ -218,12 +226,12 @@ function notify_(data, sheet) {
     if (data.interests.length) rows.push(['관심 활동', data.interests.join(', ')]);
     if (data.recommended_dept) rows.push(['추천 부서', data.recommended_dept]);
     if (data.motivation) rows.push(['지원 동기', data.motivation]);
-    if (staff && ['2026-10-06-v3', '2026-10-06-v4'].indexOf(data.consent_version) === -1) {
+    if (staff && SIMPLE_STAFF_VERSIONS.indexOf(data.consent_version) === -1) {
       rows.push(['나의 역량', data.competencies]);
       if (data.experience) rows.push(['해 온 것', data.experience]);
       rows.push(['할 수 있는 것', data.capabilities]);
     }
-    if (data.hopes) rows.push([staff && ['2026-10-06-v3', '2026-10-06-v4'].indexOf(data.consent_version) !== -1 ? '활동에서 얻어가고 싶은 것' : '해 보고 싶은 것', data.hopes]);
+    if (data.hopes) rows.push([staff && SIMPLE_STAFF_VERSIONS.indexOf(data.consent_version) !== -1 ? '활동에서 얻어가고 싶은 것' : '해 보고 싶은 것', data.hopes]);
     if (data.referral) rows.push(['알게 된 경로', data.referral]);
     var text = rows.map(function (r) { return r[0] + ': ' + r[1]; }).join('\n') + '\n\n신청 시트: ' + url;
     var intro = staff ? '홈페이지로 새 집행부 지원이 들어왔습니다.' : '홈페이지로 새 회원 가입 신청이 들어왔습니다.';

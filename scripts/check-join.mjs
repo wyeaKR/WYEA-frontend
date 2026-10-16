@@ -44,7 +44,7 @@ function screen(track) {
   return { ...ctx.state, requests, respond: (...values) => { responses = values } }
 }
 
-const minimal = { name: '가입 시험', birth: '2000-01-01', phone: '010-1234-5678', email: '', campus: '본캠퍼스', department: '시험학과' }
+const minimal = { name: '가입 시험', birth: '2000-01-01', gender: '여', studyStatus: '휴학', phone: '010-1234-5678', email: '', campus: '본캠퍼스', department: '시험학과' }
 const member = screen()
 for (const [value, expected] of [['20020209', '2002-02-09'], ['2002-02-09', '2002-02-09'], ['2000', '2000'], ['', '']]) {
   const input = { value }
@@ -55,7 +55,7 @@ for (const [value, expected] of [['20020209', '2002-02-09'], ['2002-02-09', '200
 assert.equal(member.step.value, 'info')
 member.next()
 assert.equal(member.step.value, 'info')
-assert.deepEqual(Object.keys(member.errors).sort(), ['birth', 'campus', 'department', 'memberUnit', 'name', 'phone', 'university'])
+assert.deepEqual(Object.keys(member.errors).sort(), ['birth', 'campus', 'department', 'gender', 'memberUnit', 'name', 'phone', 'studyStatus', 'university'])
 Object.assign(member.form, minimal, { memberUnit: '기록단', university: '경상국립대학교' })
 member.next()
 assert.equal(member.step.value, 'consent')
@@ -88,7 +88,14 @@ assert.equal(payload.team, '기록단')
 assert.equal(payload.email, '')
 assert.equal(payload.campus, minimal.campus)
 assert.equal(payload.department, minimal.department)
-for (const field of ['address', 'gender', 'occupation', 'student_id', 'motivation', 'interests']) {
+assert.equal(payload.gender, '여')
+assert.equal(payload.study_status, '휴학')
+assert.equal(server.validate_(payload).gender, '여', 'member gender is saved')
+assert.equal(server.validate_(payload).occupation, '휴학', 'study status is saved in the occupation column')
+for (const [key, value] of [['gender', ''], ['gender', '기타'], ['study_status', ''], ['study_status', '대학생(재학)']]) {
+  assert.equal(server.validate_({ ...payload, [key]: value }), null, `server rejects ${key}=${value}`)
+}
+for (const field of ['address', 'occupation', 'student_id', 'motivation', 'interests']) {
   assert.equal(field in payload, false, `member payload must omit ${field}`)
 }
 // 필수 단 누락 시 정보 입력 화면으로 돌아갑니다.
@@ -154,7 +161,7 @@ staff.next()
 assert.equal(staff.errors.hopes, undefined)
 assert.equal(staff.errors.interests, undefined)
 Object.assign(staff.form, minimal, {
-  gender: '남', occupation: '대학생(재학)', university: '경상국립대학교', campus: '본캠퍼스',
+  gender: '남', studyStatus: '재학', university: '경상국립대학교', campus: '본캠퍼스',
   department: '시험학과', interests: [], team: '기획부',
   hopes: '다양한 청년들과 협업하며 행사 기획과 운영 경험을 얻고 싶습니다.',
 })
@@ -172,16 +179,30 @@ staff.back()
 assert.equal(staff.step.value, 'info')
 assert.equal(staff.form.hopes.length, 100)
 staff.form.hopes = ''
-staff.form.occupation = '기타'
-staff.form.occupationOther = ''
-staff.next()
-assert.equal(staff.step.value, 'info')
-assert.ok(staff.errors.occupationOther)
-staff.form.occupationOther = '직장인'
+for (const key of ['gender', 'studyStatus']) {
+  const kept = staff.form[key]
+  staff.form[key] = ''
+  staff.next()
+  assert.equal(staff.step.value, 'info')
+  assert.ok(staff.errors[key], `staff ${key} is required`)
+  staff.form[key] = kept
+}
+staff.form.studyStatus = '졸업'
 staff.next()
 assert.equal(staff.step.value, 'consent')
 staff.agree.collect = true
 assert.ok(server.validate_(staff.payload()), 'staff frontend payload accepted without address')
+assert.equal(server.validate_(staff.payload()).occupation, '졸업')
+assert.equal('occupation' in staff.payload(), false)
+// 화면의 관심 활동 이름이 서버 목록과 달라 집행부 지원이 거절된 적이 있습니다(2026-10-16). 하나씩, 그리고 전부 골라도 받아야 합니다.
+for (const interest of config.interestOptions) {
+  staff.form.interests = [interest]
+  assert.ok(server.validate_(staff.payload()), `staff interest accepted by server: ${interest}`)
+}
+staff.form.interests = [...config.interestOptions]
+assert.ok(server.validate_(staff.payload()), 'staff payload with every interest accepted by server')
+assert.equal(server.validate_(staff.payload()).interests.length, config.interestOptions.length)
+staff.form.interests = []
 staff.setTrack('member')
 await nextTick()
 assert.equal(staff.step.value, 'info')

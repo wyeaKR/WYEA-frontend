@@ -5,8 +5,9 @@ import {
   JOIN_API_URL,
   CONSENT_VERSION,
   universities,
-  occupations,
+  studyStatuses,
   interestOptions,
+  interestServerNames,
   limits,
   MIN_AGE,
   memberUnits,
@@ -51,8 +52,7 @@ const form = reactive({
   birth: '',
   gender: '',
   phone: '',
-  occupation: '',
-  occupationOther: '',
+  studyStatus: '',
   university: '',
   universityOther: '',
   campus: '',
@@ -121,7 +121,7 @@ function validateInfo() {
     if (Number.isNaN(years) || years > 100) errors.birth = '생년월일을 확인해 주세요.'
     else if (years < MIN_AGE) errors.birth = `만 ${MIN_AGE}세 이상만 신청할 수 있습니다.`
   }
-  if (isStaff.value && !form.gender) errors.gender = '성별을 선택해 주세요.'
+  if (!form.gender) errors.gender = '성별을 선택해 주세요.'
   required('phone')
   if (form.phone && !/^010-\d{4}-\d{4}$/.test(form.phone)) errors.phone = '010-0000-0000 형식으로 입력해 주세요.'
   if (!form.university) errors.university = '대학교를 선택해 주세요.'
@@ -130,10 +130,7 @@ function validateInfo() {
   maxLen('campus', limits.campus)
   required('department')
   maxLen('department', limits.department)
-  if (isStaff.value) {
-    if (!form.occupation) errors.occupation = '직업을 선택해 주세요.'
-    if (form.occupation === '기타') { required('occupationOther'); maxLen('occupationOther', limits.other) }
-  }
+  if (!form.studyStatus) errors.studyStatus = '재학 상태를 선택해 주세요.'
   if (form.university === '기타') { required('universityOther', '학교 공식 명칭을 입력해 주세요.'); maxLen('universityOther', limits.other) }
   if (form.email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())) errors.email = '이메일 형식을 확인해 주세요.'
   maxLen('email', limits.email)
@@ -223,10 +220,10 @@ function payload() {
     campus: t(form.campus),
     department: t(form.department),
     email: t(form.email),
+    gender: form.gender,
+    study_status: form.studyStatus,
     ...(isStaff.value ? {
-      gender: form.gender,
-      occupation: form.occupation === '기타' ? t(form.occupationOther) : form.occupation,
-      interests: form.interests,
+      interests: form.interests.map((v) => interestServerNames[v as keyof typeof interestServerNames] ?? v),
       hopes: t(form.hopes),
     } : {}),
     consent: { collect: agree.collect, version: CONSENT_VERSION },
@@ -324,20 +321,20 @@ async function send(): Promise<JoinResponse | null> {
     <section v-if="step === 'info'" class="join-card form-card" aria-labelledby="info-heading">
       <h2 id="info-heading">정보 입력</h2>
       <button v-if="!isStaff" type="button" class="btn primary staff-apply" @click="setTrack('staff')">집행부 지원하기</button>
-      <p class="hint">{{ isStaff ? '집행부 지원에 필요한 정보입니다. 이메일, 관심 활동, 활동에서 얻어가고 싶은 것은 선택 사항입니다.' : '이름, 생년월일, 휴대전화, 학교, 캠퍼스, 학과와 지원할 단은 필수입니다. 이메일은 선택 사항입니다.' }}</p>
+      <p class="hint">{{ isStaff ? '집행부 지원에 필요한 정보입니다. 이메일, 관심 활동, 활동에서 얻어가고 싶은 것은 선택 사항입니다.' : '이름, 생년월일, 성별, 휴대전화, 학교, 캠퍼스, 학과, 재학 상태와 지원할 단은 필수입니다. 이메일은 선택 사항입니다.' }}</p>
 
       <div class="field">
         <label for="name">이름</label>
         <input id="name" v-model="form.name" type="text" autocomplete="name" :maxlength="limits.name" :aria-invalid="!!errors.name">
         <p v-if="errors.name" class="error">{{ errors.name }}</p>
       </div>
-      <div :class="{ 'field-row': isStaff }">
+      <div class="field-row">
         <div class="field">
           <label for="birth">생년월일</label>
           <input id="birth" v-model="form.birth" type="text" inputmode="numeric" maxlength="10" placeholder="YYYY-MM-DD" autocomplete="bday" :aria-invalid="!!errors.birth" @input="formatBirthDate">
           <p v-if="errors.birth" class="error">{{ errors.birth }}</p>
         </div>
-        <fieldset v-if="isStaff" class="field">
+        <fieldset class="field">
           <legend>성별</legend>
           <div class="choices inline" :aria-invalid="!!errors.gender" tabindex="-1">
             <label v-for="g in ['남', '여']" :key="g" class="choice"><input v-model="form.gender" type="radio" name="gender" :value="g">{{ g }}</label>
@@ -358,15 +355,6 @@ async function send(): Promise<JoinResponse | null> {
       </div>
 
       <h3 v-if="isStaff" class="sub">소속</h3>
-      <fieldset v-if="isStaff" class="field">
-        <legend>직업</legend>
-        <div class="choices" :aria-invalid="!!errors.occupation" tabindex="-1">
-          <label v-for="o in occupations" :key="o" class="choice"><input v-model="form.occupation" type="radio" name="occupation" :value="o">{{ o }}</label>
-          <label class="choice"><input v-model="form.occupation" type="radio" name="occupation" value="기타">기타</label>
-        </div>
-        <input v-if="form.occupation === '기타'" v-model="form.occupationOther" class="other" type="text" placeholder="직업을 적어 주세요" :maxlength="limits.other" :aria-invalid="!!errors.occupationOther" aria-label="기타 직업">
-        <p v-if="errors.occupation || errors.occupationOther" class="error">{{ errors.occupation || errors.occupationOther }}</p>
-      </fieldset>
       <fieldset v-if="!isStaff" class="field">
         <legend>지원할 단 <span class="note">(1개 선택, 나중에 변경 가능)</span></legend>
         <div class="team-grid" :aria-invalid="!!errors.memberUnit" tabindex="-1">
@@ -399,6 +387,13 @@ async function send(): Promise<JoinResponse | null> {
           <p v-if="errors.department" class="error">{{ errors.department }}</p>
         </div>
       </div>
+      <fieldset class="field">
+        <legend>재학 상태</legend>
+        <div class="choices inline" :aria-invalid="!!errors.studyStatus" tabindex="-1">
+          <label v-for="s in studyStatuses" :key="s" class="choice"><input v-model="form.studyStatus" type="radio" name="study-status" :value="s">{{ s }}</label>
+        </div>
+        <p v-if="errors.studyStatus" class="error">{{ errors.studyStatus }}</p>
+      </fieldset>
       <div class="hp" aria-hidden="true">
         <label for="website">웹사이트</label>
         <input id="website" v-model="form.website" type="text" tabindex="-1" autocomplete="off">

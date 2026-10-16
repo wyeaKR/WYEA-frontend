@@ -5,7 +5,7 @@
 export const JOIN_API_URL = 'https://script.google.com/macros/s/AKfycbw8Td0GHKezuBM2Xdrafk0tqf8dPTfpv7UxeEA72wLnn1UzGhfGRldDqdALvBicV0n7aw/exec'
 
 // 동의문을 고치면 날짜를 바꿉니다. 신청 시트에 이 버전이 함께 저장됩니다.
-export const CONSENT_VERSION = '2026-10-06-v4'
+export const CONSENT_VERSION = '2026-10-16'
 
 export const universities = [
   '국립창원대학교',
@@ -22,7 +22,8 @@ export const universities = [
   '연세대학교',
 ] as const
 
-export const occupations = ['대학생(재학)', '대학생(휴학)'] as const
+// 두 트랙 모두 필수입니다. 서버는 occupation 열에 저장합니다.
+export const studyStatuses = ['재학', '휴학', '졸업'] as const
 
 // 관심 활동은 조직도(부서, 단)와 지금까지 해 온 활동을 기준으로 정리했습니다. interestMapping과 짝입니다.
 export const interestOptions = [
@@ -41,6 +42,25 @@ export const interestOptions = [
   '재무와 회계',
   '대학 지부 운영과 회원 모집',
 ] as const
+
+// 서버(apps-script/join/Code.gs의 INTERESTS)는 2026-10-06 전 이름으로 받습니다. 화면 이름만 바꿨으므로 보낼 때 바꿉니다.
+// 이 표가 빠지면 관심 활동을 고른 집행부 지원이 validation_failed로 거절됩니다.
+export const interestServerNames: Record<(typeof interestOptions)[number], string> = {
+  '해외 청년 교류회 참가': '해외 청년 교류회 참가',
+  '교류회와 행사 기획 및 현장 운영': '교류회·행사 기획과 현장 운영',
+  '지역사회 봉사활동': '지역사회 봉사활동',
+  '음악과 문화 교류': '음악·문화 교류',
+  '외국어 회화와 언어 교환': '외국어 회화·언어 교환',
+  'SNS와 콘텐츠 제작 (사진, 영상, 글)': 'SNS·콘텐츠 제작 (사진·영상·글)',
+  '디자인과 홍보물 제작': '디자인·홍보물 제작',
+  '글쓰기와 기사 작성 (단체 신문)': '글쓰기·기사 작성 (단체 신문)',
+  '청년 정책 제안과 간담회': '청년 정책 제안·간담회',
+  '창업과 공모전 프로젝트': '창업·공모전 프로젝트',
+  '해외 단체와 지역 기관과의 대외협력': '해외 단체·지역 기관과의 대외협력',
+  '행정과 문서 (회의록, 서류)': '행정·문서 (회의록·서류)',
+  '재무와 회계': '재무·회계',
+  '대학 지부 운영과 회원 모집': '대학 지부 운영·회원 모집',
+}
 
 export const referralOptions = ['에브리타임', '인스타그램', '지인 소개', '홈페이지'] as const
 
@@ -126,8 +146,8 @@ export const consents: { key: ConsentKey; title: string; summary: string; detail
     summary: '회원 가입과 관리, 활동 안내와 연락에 쓰며, 탈퇴 시까지 보관합니다.',
     details: [
       '목적: 회원 가입 및 관리, 활동 안내와 연락',
-      '일반 가입 필수 항목: 성명, 생년월일, 휴대전화, 소속 대학, 캠퍼스, 학과, 소속 단. 선택 항목: 이메일',
-      '집행부 지원 필수 항목: 성명, 생년월일, 휴대전화, 성별, 직업, 소속 대학, 캠퍼스, 학과, 희망 부서. 선택 항목: 이메일, 관심 활동, 활동에서 얻어가고 싶은 것',
+      '일반 가입 필수 항목: 성명, 생년월일, 성별, 휴대전화, 소속 대학, 캠퍼스, 학과, 재학 상태, 소속 단. 선택 항목: 이메일',
+      '집행부 지원 필수 항목: 성명, 생년월일, 성별, 휴대전화, 소속 대학, 캠퍼스, 학과, 재학 상태, 희망 부서. 선택 항목: 이메일, 관심 활동, 활동에서 얻어가고 싶은 것',
       '보유 기간: 회원 탈퇴 시까지 (관계 법령에 보존 의무가 있는 경우 그 기간)',
     ],
   },

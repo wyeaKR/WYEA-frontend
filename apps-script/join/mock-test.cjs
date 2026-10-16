@@ -70,7 +70,21 @@ const simpleStaffBase = {
 const ss = (over) => ({ ...simpleStaffBase, phone: nextPhone(), ...over })
 
 const ss4 = (over) => ({ ...ss({}), consent: { collect: true, version: '2026-10-06-v4' }, ...over })
+// 2026-10-16: 두 트랙 모두 성별(남, 여)과 재학 상태(재학, 휴학, 졸업)가 필수이고, 집행부 직업 칸은 재학 상태로 바뀌었습니다.
+const v16 = { collect: true, version: '2026-10-16' }
+const mem16 = (over) => ({ ...simple({}), consent: v16, gender: '여', study_status: '재학', ...over })
+const st16 = (over) => ({ ...ss4({}), consent: v16, occupation: undefined, student_id: undefined, hopes: '', study_status: '휴학', ...over })
 const cases = [
+  ['v16-member', mem16({}), true],
+  ['v16-member-graduated', mem16({ study_status: '졸업' }), true],
+  ['v16-member-no-gender', mem16({ gender: undefined }), 'validation_failed'],
+  ['v16-member-bad-gender', mem16({ gender: '기타' }), 'validation_failed'],
+  ['v16-member-no-status', mem16({ study_status: undefined }), 'validation_failed'],
+  ['v16-member-bad-status', mem16({ study_status: '대학생(재학)' }), 'validation_failed'],
+  ['v16-staff', st16({}), true],
+  ['v16-staff-no-gender', st16({ gender: '' }), 'validation_failed'],
+  ['v16-staff-no-status', st16({ study_status: '' }), 'validation_failed'],
+  ['v16-staff-occupation-ignored', st16({ occupation: '직장인' }), true],
   ['optional-staff-empty-answer-no-student-id', ss4({ hopes: '', student_id: undefined }), true],
   ['optional-staff-answer-omitted', ss4({ hopes: undefined }), true],
   ['optional-staff-one-character', ss4({ hopes: '가' }), true],
@@ -173,10 +187,10 @@ const check = (name, cond) => { console.log(cond ? 'PASS' : 'FAIL', name); if (!
 const rowOf = (teamName, extra) => written.find((r) => r[col('consent_version')] === '2026-09-25' && r[col('team')] === teamName && (!extra || extra(r)))
 check('address-never-saved', written.every((r) => r[col('address')] === ''))
 const minimalRows = written.filter((r) => r[col('track')] === 'member' && r[col('consent_version')] === '2026-10-06-v2')
-const currentRows = written.filter((r) => ['2026-10-06-v2', '2026-10-06-v3', '2026-10-06-v4'].includes(r[col('consent_version')]))
+const currentRows = written.filter((r) => ['2026-10-06-v2', '2026-10-06-v3', '2026-10-06-v4', '2026-10-16'].includes(r[col('consent_version')]))
 check('new-only-collect-consent-saved', currentRows.length > 0 && currentRows.every((r) =>
   r[col('consent_collect')] === true && r[col('consent_third_party')] === false && r[col('consent_portrait')] === false))
-check('legacy-consents-still-saved', written.filter((r) => !['2026-10-06-v2', '2026-10-06-v3', '2026-10-06-v4'].includes(r[col('consent_version')])).every((r) =>
+check('legacy-consents-still-saved', written.filter((r) => !['2026-10-06-v2', '2026-10-06-v3', '2026-10-06-v4', '2026-10-16'].includes(r[col('consent_version')])).every((r) =>
   r[col('consent_collect')] === true && r[col('consent_third_party')] === true && r[col('consent_portrait')] === true))
 check('minimal-only-collects-new-fields', minimalRows.length > 0 && minimalRows.every((r) =>
   ['team_second', 'languages', 'club_topic', 'gender', 'occupation', 'student_id', 'interests', 'motivation', 'hopes', 'referral', 'competencies', 'experience', 'capabilities', 'recommended_dept'].every((key) => r[col(key)] === '') && ['name', 'birth', 'phone', 'team', 'university', 'campus', 'department'].every((key) => r[col(key)])))
@@ -190,6 +204,9 @@ const optionalStaffRows = written.filter((r) => r[col('track')] === 'staff' && r
 check('optional-staff-student-id-never-saved', optionalStaffRows.length > 0 && optionalStaffRows.every((r) => r[col('student_id')] === '' && r[col('hopes')].length <= 100))
 check('optional-staff-blank-answer-saved', optionalStaffRows.some((r) => r[col('hopes')] === ''))
 check('simple-staff-mail-answer-label', mails.some((m) => /활동에서 얻어가고 싶은 것/.test(m.body) && !/지원 동기|나의 역량|할 수 있는 것/.test(m.body)))
+const v16Rows = written.filter((r) => r[col('consent_version')] === '2026-10-16')
+check('v16-gender-and-status-saved', v16Rows.length === 4 && v16Rows.every((r) => ['남', '여'].includes(r[col('gender')]) && ['재학', '휴학', '졸업'].includes(r[col('occupation')])))
+check('v16-staff-occupation-is-status', v16Rows.filter((r) => r[col('track')] === 'staff').every((r) => r[col('occupation')] === '휴학' && r[col('student_id')] === ''))
 check('row-length-matches-headers', written.every((r) => r.length === HEADERS_.length))
 check('translator-languages-saved', rowOf('통번역단')[col('languages')] === '일본어(회화), 영어')
 check('club-topic-saved', rowOf('소모임')[col('club_topic')] === '음악')
