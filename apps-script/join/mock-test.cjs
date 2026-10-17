@@ -10,9 +10,12 @@ const written = []
 const mails = []
 let mailThrow = false
 let HEADERS_
+// 시트 머리글입니다. 처음에는 이름을 바꾸기 전 머리글(occupation)로 두고 서버가 고치는지 봅니다.
+let sheetHeader
 const sheet = {
   getRange: (r, c, nr) => ({
-    getValues: () => (r === 1 ? [HEADERS_] : written.slice(r - 2, r - 2 + nr).map((x) => [x[c - 1]])),
+    getValues: () => (r === 1 ? [sheetHeader.slice()] : written.slice(r - 2, r - 2 + nr).map((x) => [x[c - 1]])),
+    setValue: (v) => { if (r === 1) sheetHeader[c - 1] = v },
     setNumberFormat() {},
     setValues: (v) => { written.push(v[0]) },
     setFontWeight() { return this },
@@ -34,6 +37,7 @@ const ctx = {
 vm.createContext(ctx)
 vm.runInContext(fs.readFileSync(path.join(__dirname, 'Code.gs'), 'utf8'), ctx)
 HEADERS_ = vm.runInContext('HEADERS', ctx)
+sheetHeader = HEADERS_.map((h) => (h === 'study_status' ? 'occupation' : h))
 
 const col = (name) => HEADERS_.indexOf(name)
 let phoneSeq = 0
@@ -193,7 +197,7 @@ check('new-only-collect-consent-saved', currentRows.length > 0 && currentRows.ev
 check('legacy-consents-still-saved', written.filter((r) => !['2026-10-06-v2', '2026-10-06-v3', '2026-10-06-v4', '2026-10-16'].includes(r[col('consent_version')])).every((r) =>
   r[col('consent_collect')] === true && r[col('consent_third_party')] === true && r[col('consent_portrait')] === true))
 check('minimal-only-collects-new-fields', minimalRows.length > 0 && minimalRows.every((r) =>
-  ['team_second', 'languages', 'club_topic', 'gender', 'occupation', 'student_id', 'interests', 'motivation', 'hopes', 'referral', 'competencies', 'experience', 'capabilities', 'recommended_dept'].every((key) => r[col(key)] === '') && ['name', 'birth', 'phone', 'team', 'university', 'campus', 'department'].every((key) => r[col(key)])))
+  ['team_second', 'languages', 'club_topic', 'gender', 'study_status', 'student_id', 'interests', 'motivation', 'hopes', 'referral', 'competencies', 'experience', 'capabilities', 'recommended_dept'].every((key) => r[col(key)] === '') && ['name', 'birth', 'phone', 'team', 'university', 'campus', 'department'].every((key) => r[col(key)])))
 check('minimal-team-saved', minimalRows.some((r) => r[col('team')] === '통번역단'))
 check('minimal-email-optional-saved-blank', minimalRows.some((r) => r[col('email')] === ''))
 check('minimal-mail-no-empty-application', mails.some((x) => x.subject === '[WYEA] 새 회원 가입 신청: 간편가입 (일반 · 기록단)' && !/지원 동기|undefined/.test(x.body)))
@@ -205,8 +209,9 @@ check('optional-staff-student-id-never-saved', optionalStaffRows.length > 0 && o
 check('optional-staff-blank-answer-saved', optionalStaffRows.some((r) => r[col('hopes')] === ''))
 check('simple-staff-mail-answer-label', mails.some((m) => /활동에서 얻어가고 싶은 것/.test(m.body) && !/지원 동기|나의 역량|할 수 있는 것/.test(m.body)))
 const v16Rows = written.filter((r) => r[col('consent_version')] === '2026-10-16')
-check('v16-gender-and-status-saved', v16Rows.length === 4 && v16Rows.every((r) => ['남', '여'].includes(r[col('gender')]) && ['재학', '휴학', '졸업'].includes(r[col('occupation')])))
-check('v16-staff-occupation-is-status', v16Rows.filter((r) => r[col('track')] === 'staff').every((r) => r[col('occupation')] === '휴학' && r[col('student_id')] === ''))
+check('v16-gender-and-status-saved', v16Rows.length === 4 && v16Rows.every((r) => ['남', '여'].includes(r[col('gender')]) && ['재학', '휴학', '졸업'].includes(r[col('study_status')])))
+check('v16-staff-occupation-is-status', v16Rows.filter((r) => r[col('track')] === 'staff').every((r) => r[col('study_status')] === '휴학' && r[col('student_id')] === ''))
+check('old-occupation-header-renamed', sheetHeader[col('study_status')] === 'study_status' && sheetHeader.every((h, i) => h === HEADERS_[i]))
 check('row-length-matches-headers', written.every((r) => r.length === HEADERS_.length))
 check('translator-languages-saved', rowOf('통번역단')[col('languages')] === '일본어(회화), 영어')
 check('club-topic-saved', rowOf('소모임')[col('club_topic')] === '음악')

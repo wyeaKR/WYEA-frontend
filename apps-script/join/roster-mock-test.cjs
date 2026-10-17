@@ -129,7 +129,7 @@ const check = (name, cond) => { console.log(cond ? 'PASS' : 'FAIL', name); if (!
 // 신청 시트
 const baseApp = {
   submitted_at: '2026-10-06T03:00:00.000Z', status: '입장 완료', track: 'member', team: '기록단', birth: '2001-05-06', gender: '',
-  address: '', occupation: '', university: '국립창원대학교', university_other: 'FALSE', campus: '창원캠퍼스', department: '국제무역학과',
+  address: '', study_status: '', university: '국립창원대학교', university_other: 'FALSE', campus: '창원캠퍼스', department: '국제무역학과',
   student_id: '', email: '', consent_collect: 'TRUE', consent_third_party: 'FALSE', consent_portrait: 'FALSE',
   consent_version: '2026-10-06-v4', source: 'homepage',
 }
@@ -137,7 +137,7 @@ const appRow = (o) => HEADERS.map((h) => ({ ...baseApp, ...o })[h] ?? '')
 const join = makeBook('join-id', 'WYEA 회원 가입 신청(홈페이지)', { applications: [HEADERS.slice(),
   appRow({ application_id: 'app-a', name: '신규회원', phone: '010-1111-2222' }),
   appRow({ application_id: 'app-b', name: '=집행부', status: '입장완료', track: 'staff', team: '회원부', gender: '여', phone: '010-3333-4444',
-    occupation: '대학생(휴학)', university: '다른대학교', university_other: 'TRUE', email: 'staff@example.com', submitted_at: '2026-09-30T16:30:00.000Z',
+    study_status: '휴학', university: '다른대학교', university_other: 'TRUE', email: 'staff@example.com', submitted_at: '2026-09-30T16:30:00.000Z',
     consent_third_party: 'TRUE', consent_portrait: 'TRUE', consent_version: '2026-09-25' }),
   appRow({ application_id: 'app-c', name: '이전회원', phone: '010-9999-8888' }),
   appRow({ application_id: 'app-d', name: '초대만', status: '초대 완료', phone: '010-7777-6666' }),

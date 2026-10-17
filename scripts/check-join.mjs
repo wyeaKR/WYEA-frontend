@@ -91,7 +91,7 @@ assert.equal(payload.department, minimal.department)
 assert.equal(payload.gender, '여')
 assert.equal(payload.study_status, '휴학')
 assert.equal(server.validate_(payload).gender, '여', 'member gender is saved')
-assert.equal(server.validate_(payload).occupation, '휴학', 'study status is saved in the occupation column')
+assert.equal(server.validate_(payload).study_status, '휴학', 'study status is saved in the study_status column')
 for (const [key, value] of [['gender', ''], ['gender', '기타'], ['study_status', ''], ['study_status', '대학생(재학)']]) {
   assert.equal(server.validate_({ ...payload, [key]: value }), null, `server rejects ${key}=${value}`)
 }
@@ -192,7 +192,7 @@ staff.next()
 assert.equal(staff.step.value, 'consent')
 staff.agree.collect = true
 assert.ok(server.validate_(staff.payload()), 'staff frontend payload accepted without address')
-assert.equal(server.validate_(staff.payload()).occupation, '졸업')
+assert.equal(server.validate_(staff.payload()).study_status, '졸업')
 assert.equal('occupation' in staff.payload(), false)
 // 화면의 관심 활동 이름이 서버 목록과 달라 집행부 지원이 거절된 적이 있습니다(2026-10-16). 하나씩, 그리고 전부 골라도 받아야 합니다.
 for (const interest of config.interestOptions) {

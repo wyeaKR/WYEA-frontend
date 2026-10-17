@@ -2,7 +2,7 @@
 // 스크립트 속성 JOIN_SPREADSHEET_ID에 신청 시트가 있는 스프레드시트 ID를 설정합니다.
 // 검증 규칙은 src/content/join.ts와 같아야 합니다. 한쪽을 바꾸면 다른 쪽도 바꿉니다.
 var SHEET_NAME = 'applications';
-var HEADERS = ['application_id', 'submitted_at', 'status', 'track', 'team', 'name', 'birth', 'gender', 'phone', 'address', 'occupation',
+var HEADERS = ['application_id', 'submitted_at', 'status', 'track', 'team', 'name', 'birth', 'gender', 'phone', 'address', 'study_status',
   'university', 'university_other', 'campus', 'department', 'student_id', 'email', 'interests', 'motivation', 'hopes',
   'referral', 'competencies', 'experience', 'capabilities', 'consent_collect', 'consent_third_party', 'consent_portrait', 'consent_version', 'source',
   'team_second', 'languages', 'club_topic', 'recommended_dept'];
@@ -11,8 +11,12 @@ var HEADERS = ['application_id', 'submitted_at', 'status', 'track', 'team', 'nam
 var UNIVERSITIES = ['국립창원대학교', '경상국립대학교', '경남대학교', '인제대학교', '부산대학교', '계명대학교', '대구대학교',
   '마산대학교', '경희대학교', '서울대학교', '서울시립대학교', '연세대학교'];
 var OCCUPATIONS = ['대학생(재학)', '대학생(휴학)', '대학원생', '졸업생'];
-// 2026-10-16 동의부터 두 트랙 모두 성별과 재학 상태를 필수로 받고, 재학 상태는 occupation 열에 저장합니다.
+// 2026-10-16 동의부터 두 트랙 모두 성별과 재학 상태를 필수로 받습니다. 11번째 열은 2026-10-17에 occupation에서 study_status로 이름을 바꿨습니다.
+// 이전 신청 행의 직업 값(예: 대학생(재학), 직장인)은 같은 열에 그대로 남아 있습니다.
 var STUDY_STATUSES = ['재학', '휴학', '졸업'];
+// 회원 명부의 직업 칸에는 재학 상태를 단체 등록용 직업 이름으로 바꿔 넣습니다. 목록 밖 값(이전 직업 입력)은 그대로 넣습니다.
+var ROSTER_JOBS = { '재학': '대학생(재학)', '휴학': '대학생(휴학)', '졸업': '졸업생' };
+var OLD_STUDY_STATUS_HEADER = 'occupation';
 var INTERESTS = ['해외 청년 교류회 참가', '교류회·행사 기획과 현장 운영', '지역사회 봉사활동', '음악·문화 교류', '외국어 회화·언어 교환',
   'SNS·콘텐츠 제작 (사진·영상·글)', '디자인·홍보물 제작', '글쓰기·기사 작성 (단체 신문)', '청년 정책 제안·간담회', '창업·공모전 프로젝트',
   '해외 단체·지역 기관과의 대외협력', '행정·문서 (회의록·서류)', '재무·회계', '대학 지부 운영·회원 모집'];
@@ -51,6 +55,12 @@ function sheet_() {
   var sheet = SpreadsheetApp.openById(id).getSheetByName(SHEET_NAME);
   if (!sheet) throw new Error('Missing sheet');
   var actual = sheet.getRange(1, 1, 1, HEADERS.length).getValues()[0];
+  // 이름을 바꾸기 전 머리글이면 그 칸 하나만 새 이름으로 고칩니다. 다른 머리글이 다르면 아래에서 그대로 멈춥니다.
+  var statusCol = HEADERS.indexOf('study_status');
+  if (actual[statusCol] === OLD_STUDY_STATUS_HEADER && HEADERS.every(function (h, i) { return i === statusCol || actual[i] === h; })) {
+    sheet.getRange(1, statusCol + 1).setValue('study_status');
+    actual[statusCol] = 'study_status';
+  }
   if (HEADERS.some(function (h, i) { return actual[i] !== h; })) throw new Error('Invalid sheet headers');
   return sheet;
 }
@@ -119,8 +129,8 @@ function validate_(p) {
   r.address = '';
   if (withStatus) {
     if (STUDY_STATUSES.indexOf(p.study_status) === -1) return null;
-    r.occupation = p.study_status;
-  } else if ((r.occupation = minimal ? '' : str_(p.occupation, LIMITS.other, true)) === null) return null;
+    r.study_status = p.study_status;
+  } else if ((r.study_status = minimal ? '' : str_(p.occupation, LIMITS.other, true)) === null) return null;
   if (typeof p.university_other !== 'boolean') return null;
   if ((r.university = str_(p.university, LIMITS.other, true)) === null) return null;
   if (!p.university_other && UNIVERSITIES.indexOf(r.university) === -1) return null;
@@ -167,7 +177,7 @@ function validate_(p) {
   r.consent_portrait = collectOnly ? false : c.portrait;
   r.consent_version = c.version;
   // 직업 기타 입력은 허용하되, 목록 밖 값은 검토 때 확인합니다.
-  r.occupation_known = OCCUPATIONS.indexOf(r.occupation) !== -1 || STUDY_STATUSES.indexOf(r.occupation) !== -1;
+  r.occupation_known = OCCUPATIONS.indexOf(r.study_status) !== -1 || STUDY_STATUSES.indexOf(r.study_status) !== -1;
   r.referral_known = !r.referral || REFERRALS.indexOf(r.referral) !== -1;
   return r;
 }
@@ -219,7 +229,7 @@ function notify_(data, sheet) {
       ['구분', TRACKS[data.track]],
       ['이름', data.name || '이름 미입력'],
     ];
-    if (data.university) rows.push(['소속', [data.university, data.department, data.occupation].filter(Boolean).join(' ')]);
+    if (data.university) rows.push(['소속', [data.university, data.department, data.study_status].filter(Boolean).join(' ')]);
     if (data.team) rows.push([staff ? '희망 부서' : '소속 단', staff && data.team_second ? data.team + ' (2지망: ' + data.team_second + ')' : data.team]);
     if (data.languages) rows.push(['가능 언어', data.languages]);
     if (data.club_topic) rows.push(['관심 주제', data.club_topic]);
@@ -259,7 +269,7 @@ function testNotify() {
   notify_({
     track: 'member', team: MEMBER_UNITS[0], team_second: '', languages: '', club_topic: '', recommended_dept: '',
     competencies: '', experience: '', capabilities: '',
-    name: '테스트', university: '국립창원대학교', department: '테스트학과', occupation: '대학생(재학)',
+    name: '테스트', university: '국립창원대학교', department: '테스트학과', study_status: '재학',
     interests: [INTERESTS[0]], motivation: '알림 메일 확인용 테스트입니다.', hopes: '', referral: '',
   }, sheet_());
   console.log('보낸 곳: ' + notifyRecipients_().join(', '));
@@ -310,7 +320,7 @@ function doPost(e) {
     var id = Utilities.getUuid();
     var time = new Date().toISOString();
     var row = [id, time, '검토 대기', data.track, data.team, data.name, data.birth, data.gender, data.phone, data.address,
-      data.occupation, data.university, data.university_other, data.campus, data.department, data.student_id, data.email,
+      data.study_status, data.university, data.university_other, data.campus, data.department, data.student_id, data.email,
       data.interests.join(', '), data.motivation, data.hopes, data.referral, data.competencies, data.experience,
       data.capabilities, data.consent_collect, data.consent_third_party, data.consent_portrait, data.consent_version, 'homepage',
       data.team_second, data.languages, data.club_topic, data.recommended_dept];
@@ -363,7 +373,7 @@ var ROSTER_NOTES = {
   '가입일(입장 완료)': '관리자가 신청 시트 상태를 입장 완료로 바꾼 날입니다.',
   '가입 동의': '홈페이지 신청 때 받은 동의의 범위와 버전입니다. 2026-10-06 이후 버전은 회원 관리·활동 안내 목적의 수집·이용만 포함합니다.',
   '주소': '비영리민간단체 등록 준비 때 받습니다. 값이 없으면 노란색으로 둡니다.',
-  '직업': '비영리민간단체 등록 준비 때 받습니다. 집행부 지원자가 고른 직업은 미리 들어갑니다.',
+  '직업': '비영리민간단체 등록 준비 때 받습니다. 신청 때 고른 재학 상태(재학, 휴학, 졸업)는 대학생(재학), 대학생(휴학), 졸업생으로 미리 들어갑니다.',
   '단체 등록 명부 제출 동의': '비영리민간단체 등록 준비 때 받습니다(동의/미동의).',
   '신청 ID': 'WYEA 회원 가입 신청(홈페이지) applications 탭의 application_id입니다.',
 };
@@ -538,7 +548,7 @@ function rosterAppend_(roster, app, stamp, legacyNo) {
     'No': no, '성명': app.name, '생년월일': /^\d{4}-\d{2}-\d{2}$/.test(birth) ? ymdDate_(birth) : birth, '휴대전화': app.phone,
     '이메일': app.email, '대학교': app.university, '캠퍼스': app.campus, '학과': app.department, '구분': TRACKS[app.track] || app.track,
     '소속 단·희망 부서': app.team, '기수': cohort_(applied), '신청일': ymdDate_(applied), '가입일(입장 완료)': ymdDate_(stamp.slice(0, 10)),
-    '가입 동의': consentLabel_(app), '주소': '', '직업': app.occupation, '단체 등록 명부 제출 동의': '', '신청 ID': app.application_id,
+    '가입 동의': consentLabel_(app), '주소': '', '직업': ROSTER_JOBS[app.study_status] || app.study_status, '단체 등록 명부 제출 동의': '', '신청 ID': app.application_id,
     '비고': memo.join(' / '),
   };
   var row = [];
