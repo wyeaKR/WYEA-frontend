@@ -9,7 +9,7 @@
         </div>
         <nav class="nav">
           <RouterLink to="/about">단체소개</RouterLink>
-          <RouterLink to="/activities">활동소식</RouterLink>
+          <RouterLink to="/notices" :class="{ 'news-active': isNewsSection }">알림공간</RouterLink>
           <RouterLink class="report-menu" to="/financialreport">재정보고</RouterLink>
 <!--          <RouterLink to="/blog">Blog</RouterLink>-->
 <!--          <RouterLink to="/guides">Guides</RouterLink>-->
@@ -29,7 +29,7 @@
 
       <RouterView v-slot="{ Component, route: pageRoute }">
         <div
-          v-if="pageRoute.name === 'about' || pageRoute.name === 'financialreport' || pageRoute.name === 'activities' || pageRoute.meta.activityDetail"
+          v-if="pageRoute.name === 'about' || pageRoute.name === 'financialreport' || pageRoute.name === 'activities' || pageRoute.name === 'notices' || pageRoute.meta.activityDetail || pageRoute.meta.noticeDetail"
           :key="pageRoute.path"
           class="page-entrance"
         >
@@ -49,6 +49,7 @@ import { useRoute } from 'vue-router'
 import { ref, onMounted, onBeforeUnmount, computed  } from 'vue'
 
 const route = useRoute()
+const isNewsSection = computed(() => /^\/(?:notices|activities)(?:\/|$)/.test(route.path))
 // 라우트 이름 -> 기존처럼 class에 써서 페이지별 CSS도 가능
 const routeName = computed(() => String(route.name ?? ''))
 
@@ -175,7 +176,8 @@ onBeforeUnmount(() => {
   letter-spacing: .01em;
 }
 
-.nav a.router-link-active {
+.nav a.router-link-active,
+.nav a.news-active {
   color: #0d47a1;
   background: rgba(13,71,161,.08);
   box-shadow: inset 0 0 0 1px rgba(13,71,161,.12);

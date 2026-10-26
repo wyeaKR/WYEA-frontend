@@ -60,6 +60,11 @@ const logos = [
 const section1Ref = ref<HTMLElement | null>(null)
 const section2Ref = ref<HTMLElement | null>(null)
 const decorHidden = ref(false)
+const footerVisible = ref(false)
+const updateFooterVisibility = () => {
+  const scrollable = document.documentElement.scrollHeight - window.innerHeight
+  footerVisible.value = scrollable > 0 && window.scrollY >= scrollable * 0.95
+}
 const decorItems = ref<DecorItem[]>(BASE_DECOR)
 
 
@@ -69,6 +74,9 @@ let prevHidden = decorHidden.value
 let initialized = false // 초기 1회 콜백 무시
 
 onMounted(async () => {
+  window.addEventListener('scroll', updateFooterVisibility, { passive: true })
+  window.addEventListener('resize', updateFooterVisibility)
+  updateFooterVisibility()
   /* ===== 배경데코 토글 IO ===== */
   const rootStyles = getComputedStyle(document.documentElement)
   const headerH = parseFloat(rootStyles.getPropertyValue('--header-h')) || 64
@@ -128,6 +136,8 @@ onMounted(async () => {
 })
 
 onBeforeUnmount(() => {
+  window.removeEventListener('scroll', updateFooterVisibility)
+  window.removeEventListener('resize', updateFooterVisibility)
   section1IO?.disconnect()
   section2IO?.disconnect()
   section1IO = null
@@ -210,7 +220,7 @@ onBeforeUnmount(() => {
   <div class="home-ending">
     <section class="section4">
     </section>
-    <SiteFooter home />
+    <SiteFooter home floating :visible="footerVisible" />
   </div>
 
 </template>

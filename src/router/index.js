@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 import { activities, seoulExchange } from '@/content/activities'
+import { notices, noticePath } from '@/content/notices'
 import { isTokenExpired } from '@/utils/token-utils'
 
 if ('scrollRestoration' in window.history) {
@@ -10,6 +11,18 @@ if ('scrollRestoration' in window.history) {
 const routerInstance = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
+    {
+      path: '/notices',
+      name: 'notices',
+      component: () => import('../views/NoticesView.vue'),
+      meta: { bg: '#f9fcff', title: '공지사항 | 세계청년교류연합(WYEA)', description: '세계청년교류연합의 공식 공지사항을 안내합니다.', robots: notices.length ? 'index,follow' : 'noindex,follow' },
+    },
+    ...notices.map(notice => ({
+      path: noticePath(notice),
+      name: `notice-${notice.slug}`,
+      component: () => import('../views/NoticesView.vue'),
+      meta: { bg: '#f9fcff', noticeDetail: true, title: `${notice.title} | WYEA 공지사항`, description: notice.paragraphs[0] },
+    })),
     {
       path: '/activities',
       name: 'activities',
@@ -138,8 +151,10 @@ routerInstance.afterEach((to) => {
   document.querySelector('meta[name="description"]')?.setAttribute(
     'content', typeof to.meta.description === 'string' ? to.meta.description : defaultDescription,
   )
+  const robots = document.querySelector('meta[name="robots"]') ?? document.head.appendChild(Object.assign(document.createElement('meta'), { name: 'robots' }))
+  robots.setAttribute('content', typeof to.meta.robots === 'string' ? to.meta.robots : 'index,follow')
   const canonical = document.querySelector('link[rel="canonical"]')
-  if (canonical) canonical.setAttribute('href', `https://wyea.info${to.path.toLowerCase() === '/financialreport' ? '/financialreport/' : ['/about', '/join', '/personalinformationprocessingpolicy'].includes(to.path) ? `${to.path}/` : to.path}`)
+  if (canonical) canonical.setAttribute('href', `https://wyea.info${to.path.toLowerCase() === '/financialreport' ? '/financialreport/' : ['/about', '/join', '/notices', '/personalinformationprocessingpolicy'].includes(to.path) || to.meta.noticeDetail ? `${to.path.replace(/\/$/, '')}/` : to.path}`)
 })
 
 export default routerInstance

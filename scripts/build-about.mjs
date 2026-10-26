@@ -17,17 +17,21 @@ try {
   const { default: AboutView } = await server.ssrLoadModule('/src/views/AboutView.vue')
   const { default: HomeView } = await server.ssrLoadModule('/src/views/HomeView.vue')
   const { default: ActivitiesView } = await server.ssrLoadModule('/src/views/ActivitiesView.vue')
+  const { default: NoticesView } = await server.ssrLoadModule('/src/views/NoticesView.vue')
   const { default: FinancialReport } = await server.ssrLoadModule('/src/views/FinancialReport.vue')
   const { default: JoinView } = await server.ssrLoadModule('/src/views/JoinView.vue')
   const { default: ReportView } = await server.ssrLoadModule('/src/views/ReportView.vue')
   const { default: PersonalInformationProcessingPolicy } = await server.ssrLoadModule('/src/views/PersonalInformationProcessingPolicy.vue')
   const { activities } = await server.ssrLoadModule('/src/content/activities.ts')
+  const { notices, noticePath } = await server.ssrLoadModule('/src/content/notices.ts')
   const pages = [
     { path: '/', component: HomeView, title: '세계청년교류연합(WYEA) | 청년 국제 교류와 협력', description: '세계청년교류연합은 청년들의 국제 교류와 협력을 위한 비영리단체입니다. 활동소식과 참여 방법을 안내합니다.' },
     { path: '/about', component: AboutView, title: '단체소개 | 세계청년교류연합(WYEA)', description: '세계청년교류연합(WYEA)의 설립 배경, 목적, 단체 기본정보와 문의 방법을 안내합니다.' },
     { path: '/financialreport', component: FinancialReport, title: '재정보고 | 세계청년교류연합(WYEA)', description: '세계청년교류연합의 연도별 수입과 지출 내역을 공개합니다.' },
     { path: '/FinancialReport', component: FinancialReport, title: '재정보고 | 세계청년교류연합(WYEA)', description: '세계청년교류연합의 연도별 수입과 지출 내역을 공개합니다.', canonical: '/financialreport/' },
     { path: '/activities', component: ActivitiesView, title: '활동소식 | 세계청년교류연합(WYEA)', description: '세계청년교류연합(WYEA)의 만남과 교류 활동을 기록합니다.' },
+    { path: '/notices', component: NoticesView, title: '공지사항 | 세계청년교류연합(WYEA)', description: '세계청년교류연합의 공식 공지사항을 안내합니다.', robots: notices.length ? 'index,follow' : 'noindex,follow' },
+    ...notices.map(notice => ({ path: noticePath(notice), component: NoticesView, title: `${notice.title} | WYEA 공지사항`, description: notice.paragraphs[0], meta: { noticeDetail: true } })),
     { path: '/join', component: JoinView, title: '회원 가입 신청 | 세계청년교류연합(WYEA)', description: '세계청년교류연합(WYEA) 회원 가입 신청 페이지입니다. 단체 소개와 활동을 확인하고 가입을 신청할 수 있습니다.' },
     { path: '/report', component: ReportView, title: '참가 기록서 | 세계청년교류연합(WYEA)', description: '세계청년교류연합 회원의 활동 참가 기록을 제출합니다.' },
     { path: '/personalinformationprocessingpolicy', component: PersonalInformationProcessingPolicy, title: '개인정보 처리방침 | 세계청년교류연합(WYEA)', description: '세계청년교류연합(WYEA)의 개인정보 처리방침을 안내합니다.' },
@@ -36,7 +40,7 @@ try {
   const shell = await readFile('dist/index.html', 'utf8')
   const manifest = JSON.parse(await readFile('dist/.vite/manifest.json', 'utf8'))
   const styles = (await readdir('dist/assets'))
-    .filter(name => /^(HomeView|HomeViewPhoto|FloatingDecor|LogoMarquee|SwipeCarousel|SiteFooter|FinancialReport|AboutView|ActivitiesView|JoinView|ReportView|PersonalInformationProcessingPolicy)-.*\.css$/.test(name))
+    .filter(name => /^(HomeView|HomeViewPhoto|FloatingDecor|LogoMarquee|SwipeCarousel|SiteFooter|FinancialReport|AboutView|ActivitiesView|NoticesView|NewsSectionNav|NewsList|JoinView|ReportView|PersonalInformationProcessingPolicy)-.*\.css$/.test(name))
     .map(name => `<link rel="stylesheet" href="/assets/${name}">`).join('\n')
   for (const page of pages) {
   const router = createRouter({
@@ -54,6 +58,7 @@ try {
     .replace('<html lang="">', '<html lang="ko">')
     .replace(/<title>[^<]*<\/title>/, `<title>${page.title}</title>`)
     .replace(/<meta name="description"[^>]*>/, `<meta name="description" content="${page.description}">`)
+    .replace('</head>', `<meta name="robots" content="${page.robots ?? 'index,follow'}">\n</head>`)
     .replace('</head>', `${styles}\n<link rel="canonical" href="https://wyea.info${page.canonical ?? (page.path === '/' ? '/' : `${page.path}/`)}">\n</head>`)
     .replace('<div id="app"></div>', `<div id="app">${body}</div>`)
     .replace(/\b(src|href)="([^"]+)"/g, (match, attribute, url) => {
