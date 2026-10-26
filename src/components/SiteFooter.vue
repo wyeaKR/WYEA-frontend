@@ -1,4 +1,4 @@
-﻿<script setup lang="ts">
+<script setup lang="ts">
 import { SHOW_REPORT_LINKS } from '@/content/report'
 
 defineProps<{ home?: boolean; floating?: boolean; visible?: boolean }>()
@@ -17,7 +17,7 @@ const year = new Date().getFullYear()
         </div>
       </div>
       <div class="site-footer-details">
-        <p>(51436) 경남 창원시 성산구 용호동 73-19</p>
+        <p>경남 창원시 성산구 용지로169번길 11-31</p>
         <p>고유번호 410-82-93357</p>
       </div>
       <div class="site-footer-contact">
@@ -25,10 +25,6 @@ const year = new Date().getFullYear()
           <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="2.5" y="5" width="19" height="14" rx="2"/><path d="m3.5 7 8.5 6 8.5-6"/></svg>
           <span class="contact-text">E. wyea@wyea.info</span>
         </a>
-        <p role="img" aria-label="카카오톡 채널 준비 중" title="카카오톡 채널 준비 중">
-          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3.5c-5.2 0-9.5 3.3-9.5 7.4 0 2.6 1.8 4.9 4.5 6.2l-1 3.4 4.3-2.4c.6.1 1.1.1 1.7.1 5.2 0 9.5-3.3 9.5-7.3S17.2 3.5 12 3.5Z"/></svg>
-          <span class="contact-text">카카오톡 채널 준비 중</span>
-        </p>
         <a class="site-footer-instagram" href="https://www.instagram.com/wyea_official/" target="_blank" rel="noopener noreferrer" aria-label="WYEA 인스타그램">
           <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle class="instagram-dot" cx="17.5" cy="6.5" r="1"/></svg>
           <span class="contact-text">IG @wyea_official</span>
@@ -122,7 +118,7 @@ const year = new Date().getFullYear()
 @media (max-width: 1023px) {
   .site-footer-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .site-footer-identity { grid-column: 1 / -1; }
-  .site-footer-contact { grid-column: 1 / -1; grid-template-columns: repeat(3, max-content); gap: 18px; }
+  .site-footer-contact { grid-column: 1 / -1; grid-template-columns: repeat(2, max-content); gap: 18px; }
 }
 @media (max-width: 767px) {
   .site-footer { padding: 14px 18px; text-align: left; font-size: 13px; }

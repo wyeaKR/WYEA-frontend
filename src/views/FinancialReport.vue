@@ -23,7 +23,7 @@ const arcPath = (cx: number, cy: number, r: number, start: number, end: number) 
 }
 
 /**********************************수입**************************************/
-const activeYear = ref<'2025' | '2026'>('2026')
+const activeYear = ref<'2025' | '2026'>('2025')
 
 /* 선택된 연도의 수입 아이템 */
 const incomeItems = computed<Item[]>(() =>

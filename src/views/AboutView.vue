@@ -117,6 +117,7 @@ const history: { date: string; label: string; event: string; path?: string }[] =
     <section class="about-contact" aria-labelledby="contact-heading">
       <h2 id="contact-heading">세계청년교류연합과 이야기 나누세요</h2>
       <p>단체 활동이나 참여, 교류와 협력에 관한 문의는 공식 이메일로 보내주세요.</p>
+      <RouterLink class="join-cta" to="/join">함께 활동하기 (회원 가입 신청) →</RouterLink>
     </section>
   </article>
 </template>
@@ -157,6 +158,8 @@ dd { margin: 0; overflow-wrap: anywhere; }
 a { color: #0d47a1; text-underline-offset: 4px; }
 a:focus-visible { outline: 2px solid #0d47a1; outline-offset: 5px; }
 .about-contact { text-align: center; padding: 40px 12px 0; }
+.join-cta { display: inline-block; margin-top: 24px; padding: 12px 22px; border-radius: 999px; background: #0d47a1; color: #fff; font-weight: 700; text-decoration: none; }
+.join-cta:hover { background: #083776; }
 @media (max-width: 600px) {
   .about-page { padding: 112px 18px 32px; }
   .about-heading { margin-bottom: 32px; }

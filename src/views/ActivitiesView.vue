@@ -48,6 +48,10 @@ const activityPhotos = computed(() => activity.value?.photos ?? [])
       <div class="story-links">
         <RouterLink to="/activities">← 활동소식 목록</RouterLink>
       </div>
+      <div class="join-prompt">
+        <h2>함께 활동해요</h2>
+        <RouterLink class="join-cta" to="/join">함께 활동하기 (회원 가입 신청) →</RouterLink>
+      </div>
     </template>
     <p class="contact-note">교류와 협력 문의 <a href="mailto:wyea@wyea.info">wyea@wyea.info</a></p>
   </article>
@@ -91,6 +95,10 @@ a:focus-visible { outline: 2px solid #0d47a1; outline-offset: 5px; }
 dt { font-weight: 600; color: #526b8a; }
 dd { margin: 0; overflow-wrap: anywhere; }
 .story-links { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 20px; margin-top: 32px; }
+.join-prompt { margin-top: 36px; text-align: center; }
+.join-prompt h2 { margin-bottom: 16px; }
+.join-cta { display: inline-block; padding: 12px 22px; border-radius: 999px; background: #0d47a1; color: #fff; font-weight: 700; text-decoration: none; }
+.join-cta:hover { background: #083776; }
 .contact-note { text-align: center; margin: 48px 0 0; font-size: 14px; color: #697586; }
 .contact-note a { display: inline-block; margin-left: 10px; }
 @media (max-width: 600px) {

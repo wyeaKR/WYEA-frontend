@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { ref, onMounted, onBeforeUnmount, nextTick } from 'vue'
-import { useRouter } from 'vue-router'
 import { SHOW_REPORT_LINKS } from '@/content/report'
 import FloatingDecor, { type DecorItem } from '@/components/FloatingDecor.vue'
 
@@ -23,17 +22,10 @@ const decorativeImage = (name: string) => `${import.meta.env.BASE_URL}images/dec
 const backpack = decorativeImage('backpack.png')
 const camera = decorativeImage('camera.png')
 const carrier = decorativeImage('carrier.png')
-const charger = decorativeImage('charger.png')
 const coin = decorativeImage('coin.png')
-const compass = decorativeImage('compass.png')
 const headphones = decorativeImage('headphones.png')
-const mobile = decorativeImage('mobile.png')
 const passport = decorativeImage('passport.png')
-const pens = decorativeImage('pens.png')
-const sunglasses = decorativeImage('sunglasses.png')
-const wallet = decorativeImage('wallet.png')
 const sticker = decorativeImage('sticker.png')
-const bill = decorativeImage('bill.png')
 const map = decorativeImage('map.png')
 const clip = decorativeImage('clip.png')
 
@@ -44,19 +36,11 @@ const BASE_DECOR: DecorItem[] = [
   { src: coin, from: 'right', right: '0%', top: '30%', width: 140, rotZ:70, delay: .25 },
   { src: carrier, from: 'top-right', right: '-12%', top: '-30%', width: 710, rotZ:70, delay: .25 },
   { src: passport, from: 'right',  right: '7%', top: '40%',  width: 200, rotZ:20, delay: .25 },
-  { src: charger, from: 'right',  right: '-3%', top: '34%', width: 300, rotZ:30, delay: .30 },
-  { src: compass, from: 'down',  right: '20%', top: '0%',  width: 150, rotZ:30, delay: .25 },
-  { src: bill, from: 'up',  right: '6%', top: '80%',  width: 200, rotZ:30, delay: .25 },
   { src: map, from: 'bottom-right',  right: '-17%', top: '40%',  width: 700, rotZ:100, delay: .25 },
 
-  { src: coin, from: 'left', left: '0%', top: '50%', width: 100, rotZ:170, delay: .30 },
   { src: backpack, from: 'top-left',  left: '-6%', top: '-5%',  width: 400, rotZ:30, delay: .25 },
   { src: camera, from: 'down',  left: '8%', top: '0%',  width: 220, rotZ:110, delay: .25 },
-  { src: pens, from: 'left',  left: '6%', top: '55%',  width: 150, rotZ:0, delay: .23 },
   { src: headphones, from: 'left',  left: '0%', top: '30%',  width: 250, rotZ:-50, delay: .27 },
-  { src: mobile, from: 'left',  left: '-4%', top: '55%',  width: 200, rotZ:45, delay: .25 },
-  { src: wallet, from: 'bottom-left',  left: '0%', top: '80%',  width: 150, rotZ:-10, delay: .27 },
-  { src: sunglasses, from: 'left',  left: '1%', top: '65%',  width: 200, rotZ:-10, delay: .23 },
   { src: sticker, from: 'up',  left: '5%', top: '80%',  width: 300, rotZ:30, delay: .25 },
 ]
 /**
@@ -76,17 +60,8 @@ const logos = [
 const section1Ref = ref<HTMLElement | null>(null)
 const section2Ref = ref<HTMLElement | null>(null)
 const decorHidden = ref(false)
-const footerVisible = ref(false)
-const updateFooterVisibility = () => {
-  const scrollable = document.documentElement.scrollHeight - window.innerHeight
-  footerVisible.value = scrollable > 0 && window.scrollY >= scrollable * 0.95
-}
 const decorItems = ref<DecorItem[]>(BASE_DECOR)
 
-const router = useRouter()
-const handleJoinClick = () => {
-  router.push('/join')
-}
 
 let section1IO: IntersectionObserver | null = null
 let section2IO: IntersectionObserver | null = null
@@ -94,9 +69,6 @@ let prevHidden = decorHidden.value
 let initialized = false // 초기 1회 콜백 무시
 
 onMounted(async () => {
-  window.addEventListener('scroll', updateFooterVisibility, { passive: true })
-  window.addEventListener('resize', updateFooterVisibility)
-  updateFooterVisibility()
   /* ===== 배경데코 토글 IO ===== */
   const rootStyles = getComputedStyle(document.documentElement)
   const headerH = parseFloat(rootStyles.getPropertyValue('--header-h')) || 64
@@ -156,8 +128,6 @@ onMounted(async () => {
 })
 
 onBeforeUnmount(() => {
-  window.removeEventListener('scroll', updateFooterVisibility)
-  window.removeEventListener('resize', updateFooterVisibility)
   section1IO?.disconnect()
   section2IO?.disconnect()
   section1IO = null
@@ -173,12 +143,7 @@ onBeforeUnmount(() => {
       <h3>World Youth<br>Exchange Association</h3>
       <p class="organization-name">세계청년교류연합</p>
       <p class="organization-intro">청년들의 국제 교류와 협력을 위한 <strong>비영리단체</strong></p>
-      <!-- 가입 시즌 재개 시 아래 Google Forms 링크를 다시 사용할 수 있습니다.
-      <a href="https://docs.google.com/forms/d/1hiR6G3eOuM7Ytx6ksI5VIW_4rrTz9FG2ee5IPoU6OgQ/edit" target="_blank" rel="noopener noreferrer">
-        <button>가입하러 가기</button>
-      </a>
-      -->
-      <button type="button" @click="handleJoinClick">가입하러 가기</button>
+      <RouterLink class="join-link" to="/join">가입하러 가기</RouterLink>
       <RouterLink v-if="SHOW_REPORT_LINKS" class="report-link" to="/report">참가 기록 제출 →</RouterLink>
     </div>
     <div class="section1-div2">
@@ -245,7 +210,7 @@ onBeforeUnmount(() => {
   <div class="home-ending">
     <section class="section4">
     </section>
-    <SiteFooter home floating :visible="footerVisible" />
+    <SiteFooter home />
   </div>
 
 </template>
@@ -338,7 +303,8 @@ onBeforeUnmount(() => {
 }
 
 /* 섹션1 가입하러 가기 버튼 */
-.section1-div1 button {
+.section1-div1 .join-link {
+  display: inline-block;
   animation-delay: .36s;
   pointer-events: auto;
   background:#000;
@@ -350,6 +316,7 @@ onBeforeUnmount(() => {
   cursor:pointer;
   box-shadow:0 6px 18px rgba(0,0,0,.12);
   font-size: clamp(14px, 1vw, 24px);
+  text-decoration: none;
 }
 
 /* 섹션1 연합 지부 영역 전체 */

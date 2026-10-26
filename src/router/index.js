@@ -56,7 +56,7 @@ const routerInstance = createRouter({
       path: '/',
       name: 'home',
       component: HomeView,
-      meta: {footer: false, bg: '#2d6a4f'}
+      meta: {footer: false, bg: '#2d6a4f', title: '세계청년교류연합(WYEA) | 청년 국제 교류와 협력', description: '세계청년교류연합은 청년들의 국제 교류와 협력을 위한 비영리단체입니다. 활동소식과 참여 방법을 안내합니다.'}
     },
     {
       path: '/SG9tZVZpZXdQaG90bw==',
@@ -68,7 +68,7 @@ const routerInstance = createRouter({
       path: '/financialreport',
       name: 'financialreport',
       component: () => import('../views/FinancialReport.vue'),
-      meta: {bg: '#ffffff'}
+      meta: {bg: '#ffffff', title: '재정보고 | 세계청년교류연합(WYEA)', description: '세계청년교류연합의 연도별 수입과 지출 내역을 공개합니다.'}
     },
     {
       path: '/personalinformationprocessingpolicy',
@@ -139,7 +139,7 @@ routerInstance.afterEach((to) => {
     'content', typeof to.meta.description === 'string' ? to.meta.description : defaultDescription,
   )
   const canonical = document.querySelector('link[rel="canonical"]')
-  if (canonical) canonical.setAttribute('href', `https://wyea.info${['/about', '/join', '/personalinformationprocessingpolicy'].includes(to.path) ? `${to.path}/` : to.path}`)
+  if (canonical) canonical.setAttribute('href', `https://wyea.info${to.path.toLowerCase() === '/financialreport' ? '/financialreport/' : ['/about', '/join', '/personalinformationprocessingpolicy'].includes(to.path) ? `${to.path}/` : to.path}`)
 })
 
 export default routerInstance

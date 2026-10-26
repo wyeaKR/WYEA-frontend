@@ -119,19 +119,21 @@ onBeforeUnmount(() => {
     <section class="hvpsection2">
       <div class="photo-swiper" role="region" aria-label="활동 사진">
         <div class="photo-item">
-          <img
-            v-for="(photo, idx) in photos"
-            :key="photo.src"
-            :src="photo.src"
-            :alt="idx === activeIndex ? photo.alt : ''"
-            :aria-hidden="idx !== activeIndex"
-            :style="{ '--photo-tilt': photo.tilt }"
-            :class="{
-              'is-current': idx === activeIndex,
-              'is-leaving': idx === leavingIndex,
-              'is-next': idx === nextIndex && idx !== leavingIndex,
-            }"
-          />
+          <template v-for="(photo, idx) in photos" :key="photo.src">
+            <img
+              v-if="idx === activeIndex || idx === nextIndex || idx === leavingIndex"
+              :src="photo.src"
+              :alt="idx === activeIndex ? photo.alt : ''"
+              decoding="async"
+              :aria-hidden="idx !== activeIndex"
+              :style="{ '--photo-tilt': photo.tilt }"
+              :class="{
+                'is-current': idx === activeIndex,
+                'is-leaving': idx === leavingIndex,
+                'is-next': idx === nextIndex && idx !== leavingIndex,
+              }"
+            />
+          </template>
         </div>
         <div v-if="photos.length > 1" class="photo-pagination">
           <button
@@ -146,9 +148,6 @@ onBeforeUnmount(() => {
         </div>
       </div>
 
-      <p v-if="photos.length === 0" class="empty-text">
-        아직 등록된 사진이 없습니다. 활동이 시작되면 사진이 추가될 예정입니다.
-      </p>
     </section>
   </section>
 </template>

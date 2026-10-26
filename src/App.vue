@@ -10,11 +10,12 @@
         <nav class="nav">
           <RouterLink to="/about">단체소개</RouterLink>
           <RouterLink to="/activities">활동소식</RouterLink>
-          <RouterLink class="report-menu" to="/FinancialReport">재정보고</RouterLink>
+          <RouterLink class="report-menu" to="/financialreport">재정보고</RouterLink>
 <!--          <RouterLink to="/blog">Blog</RouterLink>-->
 <!--          <RouterLink to="/guides">Guides</RouterLink>-->
         </nav>
         <div class="actions">
+          <RouterLink class="join-action" to="/join">회원 가입 신청</RouterLink>
 <!--          <RouterLink class="btn ghost" to="/login">Log in</RouterLink>-->
 <!--          <RouterLink class="btn solid" to="/register">Sign up</RouterLink>-->
         </div>
@@ -200,6 +201,29 @@ onBeforeUnmount(() => {
 .actions {
   display: flex;
   gap: 10px;
+}
+.join-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  padding: 0 16px;
+  border-radius: 999px;
+  background: #0d47a1;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 700;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.join-action:hover { background: #083776; }
+.join-action:focus-visible { outline: 2px solid #0d47a1; outline-offset: 3px; }
+@media (max-width: 600px) {
+  .inner { height: auto; min-height: 88px; grid-template-columns: 1fr auto; grid-template-rows: 42px 40px; gap: 0 6px; }
+  .brand { grid-column: 1; grid-row: 1; }
+  .actions { grid-column: 2; grid-row: 1; }
+  .join-action { min-height: 34px; padding: 0 12px; font-size: 12px; }
+  .nav { grid-column: 1 / -1; grid-row: 2; justify-content: center; }
 }
 
 /* 페이지 컨텐츠 영역 */
