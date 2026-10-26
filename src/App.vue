@@ -1,13 +1,13 @@
 <template>
   <div class="app">
-    <header id="site-header" class="glass-header" :class="{ scrolled: isScrolled }">
+    <header id="site-header" ref="headerRef" class="glass-header" :class="{ scrolled: isScrolled }" @keydown.esc="mobileMenuOpen = false">
       <div class="inner">
         <div class="brand">
           <RouterLink to="/">
             <img src="@/assets/image/wyea-logo-home.png" alt="WYEA" height="24" />
           </RouterLink>
         </div>
-        <nav class="nav">
+        <nav id="site-navigation" class="nav" :class="{ 'is-open': mobileMenuOpen }" aria-label="주요 메뉴" @click="mobileMenuOpen = false">
           <RouterLink to="/about">단체소개</RouterLink>
           <RouterLink to="/notices" :class="{ 'news-active': isNewsSection }">알림공간</RouterLink>
           <RouterLink class="report-menu" to="/financialreport">재정보고</RouterLink>
@@ -19,6 +19,9 @@
 <!--          <RouterLink class="btn ghost" to="/login">Log in</RouterLink>-->
 <!--          <RouterLink class="btn solid" to="/register">Sign up</RouterLink>-->
         </div>
+        <button class="menu-toggle" type="button" aria-controls="site-navigation" :aria-expanded="mobileMenuOpen" :aria-label="mobileMenuOpen ? '메뉴 닫기' : '메뉴 열기'" @click="mobileMenuOpen = !mobileMenuOpen">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16" /></svg>
+        </button>
       </div>
     </header>
     <main
@@ -46,9 +49,15 @@
 <script setup lang="ts">
 import SiteFooter from '@/components/SiteFooter.vue'
 import { useRoute } from 'vue-router'
-import { ref, onMounted, onBeforeUnmount, computed  } from 'vue'
+import { ref, onMounted, onBeforeUnmount, computed, watch } from 'vue'
 
 const route = useRoute()
+const headerRef = ref<HTMLElement | null>(null)
+const mobileMenuOpen = ref(false)
+const onOutsidePointerDown = (event: PointerEvent) => {
+  if (!headerRef.value?.contains(event.target as Node)) mobileMenuOpen.value = false
+}
+watch(() => route.fullPath, () => { mobileMenuOpen.value = false })
 const isNewsSection = computed(() => /^\/(?:notices|activities)(?:\/|$)/.test(route.path))
 // 라우트 이름 -> 기존처럼 class에 써서 페이지별 CSS도 가능
 const routeName = computed(() => String(route.name ?? ''))
@@ -67,9 +76,11 @@ const onScroll = () => (isScrolled.value = window.scrollY > 6)
 
 onMounted(() => {
   window.addEventListener('scroll', onScroll, { passive: true })
+  document.addEventListener('pointerdown', onOutsidePointerDown)
 })
 onBeforeUnmount(() => {
   window.removeEventListener('scroll', onScroll)
+  document.removeEventListener('pointerdown', onOutsidePointerDown)
 })
 </script>
 
@@ -189,17 +200,6 @@ onBeforeUnmount(() => {
   background: rgba(13,71,161,.06);
 }
 
-@media (max-width: 600px) {
-  .inner { padding: 0 10px; gap: 4px; }
-  .nav { gap: 2px; }
-  .nav a { padding: 0 8px; font-size: 14px; white-space: nowrap; }
-}
-
-@media (max-width: 380px) {
-  .nav a { padding: 0 5px; font-size: 12px; }
-  .brand img { width: 72px; }
-}
-
 .actions {
   display: flex;
   gap: 10px;
@@ -220,12 +220,25 @@ onBeforeUnmount(() => {
 }
 .join-action:hover { background: #083776; }
 .join-action:focus-visible { outline: 2px solid #0d47a1; outline-offset: 3px; }
+.menu-toggle { display: none; }
 @media (max-width: 600px) {
-  .inner { height: auto; min-height: 88px; grid-template-columns: 1fr auto; grid-template-rows: 42px 40px; gap: 0 6px; }
-  .brand { grid-column: 1; grid-row: 1; }
-  .actions { grid-column: 2; grid-row: 1; }
-  .join-action { min-height: 34px; padding: 0 12px; font-size: 12px; }
-  .nav { grid-column: 1 / -1; grid-row: 2; justify-content: center; }
+  .glass-header { top: 10px; width: calc(100% - 24px); border-radius: 999px; }
+  .inner { height: 56px; padding: 0 12px; grid-template-columns: auto 1fr auto; gap: 8px; }
+  .brand { grid-column: 1; }
+  .brand img { width: 88px; margin-top: 0; }
+  .actions { grid-column: 2; justify-self: end; }
+  .join-action { min-height: 32px; padding: 0 12px; font-size: 12px; }
+  .menu-toggle { display: grid; grid-column: 3; place-items: center; width: 40px; height: 40px; padding: 0; border: 0; border-radius: 12px; background: transparent; color: #1f2937; cursor: pointer; }
+  .menu-toggle svg { width: 24px; height: 24px; stroke: currentColor; stroke-width: 2; stroke-linecap: round; }
+  .menu-toggle:hover, .menu-toggle[aria-expanded="true"] { background: rgba(13,71,161,.08); color: #0d47a1; }
+  .menu-toggle:focus-visible { outline: 2px solid #0d47a1; outline-offset: 2px; }
+  .nav { display: none; position: absolute; top: calc(100% + 8px); left: 0; right: 0; flex-direction: column; gap: 2px; padding: 8px; border: 1px solid rgba(0,0,0,.06); border-radius: 18px; background: rgba(255,255,255,.97); box-shadow: 0 12px 30px rgba(0,0,0,.14); }
+  .nav.is-open { display: flex; }
+  .nav a { width: 100%; min-height: 44px; height: auto; justify-content: flex-start; padding: 0 14px; font-size: 15px; white-space: nowrap; }
+}
+@media (max-width: 380px) {
+  .brand img { width: 72px; }
+  .join-action { padding: 0 9px; font-size: 11px; }
 }
 
 /* 페이지 컨텐츠 영역 */
