@@ -15,13 +15,17 @@
 <!--          <RouterLink to="/guides">Guides</RouterLink>-->
         </nav>
         <div class="actions">
-          <RouterLink class="join-action" to="/join">회원 가입 신청</RouterLink>
+          <RouterLink class="join-action" to="/join"><span class="join-label-full">회원 가입 신청</span><span class="join-label-mobile">가입 신청</span></RouterLink>
 <!--          <RouterLink class="btn ghost" to="/login">Log in</RouterLink>-->
 <!--          <RouterLink class="btn solid" to="/register">Sign up</RouterLink>-->
         </div>
         <button class="menu-toggle" type="button" aria-controls="site-navigation" :aria-expanded="mobileMenuOpen" :aria-label="mobileMenuOpen ? '메뉴 닫기' : '메뉴 열기'" @click="mobileMenuOpen = !mobileMenuOpen">
           <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16" /></svg>
         </button>
+        <div class="language-switch" :class="{ 'is-korean': language === 'ko' }" role="group" :aria-label="language === 'ko' ? '언어 선택' : 'Language selection'">
+          <button type="button" aria-label="English" :aria-pressed="language === 'en'" @click="setLanguage('en')">EN</button>
+          <button type="button" aria-label="Korean" :aria-pressed="language === 'ko'" @click="setLanguage('ko')">KO</button>
+        </div>
       </div>
     </header>
     <main
@@ -50,8 +54,11 @@
 import SiteFooter from '@/components/SiteFooter.vue'
 import { useRoute } from 'vue-router'
 import { ref, onMounted, onBeforeUnmount, computed, watch } from 'vue'
+import { language, setLanguage, restoreLanguage, installPageTranslation } from '@/i18n/language'
 
 const route = useRoute()
+let pageTranslation: ReturnType<typeof installPageTranslation> | null = null
+watch(language, () => pageTranslation?.render())
 const headerRef = ref<HTMLElement | null>(null)
 const mobileMenuOpen = ref(false)
 const onOutsidePointerDown = (event: PointerEvent) => {
@@ -75,10 +82,13 @@ const isScrolled = ref(false)
 const onScroll = () => (isScrolled.value = window.scrollY > 6)
 
 onMounted(() => {
+  pageTranslation = installPageTranslation()
+  void restoreLanguage()
   window.addEventListener('scroll', onScroll, { passive: true })
   document.addEventListener('pointerdown', onOutsidePointerDown)
 })
 onBeforeUnmount(() => {
+  pageTranslation?.disconnect()
   window.removeEventListener('scroll', onScroll)
   document.removeEventListener('pointerdown', onOutsidePointerDown)
 })
@@ -146,7 +156,7 @@ onBeforeUnmount(() => {
   height: clamp(56px, 3.52vw, 90px);
   padding: 0 16px;
   display: grid;
-  grid-template-columns: auto 1fr auto;
+  grid-template-columns: auto 1fr auto auto;
   align-items: center;
   gap: 12px;
 }
@@ -203,12 +213,56 @@ onBeforeUnmount(() => {
 .actions {
   display: flex;
   gap: 10px;
+  align-items: center;
 }
+.language-switch {
+  position: relative;
+  flex: none;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  width: 84px;
+  height: 40px;
+  padding: 3px;
+  border: 1px solid rgba(13,71,161,.22);
+  border-radius: 999px;
+  background: rgba(255,255,255,.72);
+}
+.language-switch::before {
+  content: '';
+  position: absolute;
+  top: 3px;
+  bottom: 3px;
+  left: 3px;
+  width: calc((100% - 6px) / 2);
+  border-radius: 999px;
+  background: #0d47a1;
+  box-shadow: 0 2px 6px rgba(13,71,161,.2);
+  transition: transform .2s ease;
+}
+.language-switch.is-korean::before { transform: translateX(100%); }
+.language-switch button {
+  position: relative;
+  z-index: 1;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: #0d47a1;
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+}
+.language-switch button[aria-pressed="true"] { color: #fff; }
+.language-switch button:focus-visible { outline: 2px solid #0d47a1; outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) {
+  .language-switch::before { transition: none; }
+}
+.join-label-mobile { display: none; }
 .join-action {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   min-height: 40px;
+  width: 200px;
   padding: 0 16px;
   border-radius: 999px;
   background: #0d47a1;
@@ -223,11 +277,15 @@ onBeforeUnmount(() => {
 .menu-toggle { display: none; }
 @media (max-width: 600px) {
   .glass-header { top: 10px; width: calc(100% - 24px); border-radius: 999px; }
-  .inner { height: 56px; padding: 0 12px; grid-template-columns: auto 1fr auto; gap: 8px; }
+  .inner { height: 56px; padding: 0 12px; grid-template-columns: auto 1fr auto auto; gap: 8px; }
   .brand { grid-column: 1; }
   .brand img { width: 88px; margin-top: 0; }
   .actions { grid-column: 2; justify-self: end; }
-  .join-action { min-height: 32px; padding: 0 12px; font-size: 12px; }
+  .language-switch { grid-column: 4; width: 70px; height: 32px; }
+  .language-switch button { font-size: 10px; }
+  .join-label-full { display: none; }
+  .join-label-mobile { display: inline; }
+  .join-action { width: 76px; min-height: 32px; padding: 0 6px; font-size: 12px; }
   .menu-toggle { display: grid; grid-column: 3; place-items: center; width: 40px; height: 40px; padding: 0; border: 0; border-radius: 12px; background: transparent; color: #1f2937; cursor: pointer; }
   .menu-toggle svg { width: 24px; height: 24px; stroke: currentColor; stroke-width: 2; stroke-linecap: round; }
   .menu-toggle:hover, .menu-toggle[aria-expanded="true"] { background: rgba(13,71,161,.08); color: #0d47a1; }
@@ -238,7 +296,8 @@ onBeforeUnmount(() => {
 }
 @media (max-width: 380px) {
   .brand img { width: 72px; }
-  .join-action { padding: 0 9px; font-size: 11px; }
+  .join-action { width: 64px; font-size: 11px; }
+  .actions { gap: 5px; }
 }
 
 /* 페이지 컨텐츠 영역 */

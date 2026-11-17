@@ -151,7 +151,7 @@ onBeforeUnmount(() => {
     <div class="section1-div1">
       <img src="@/assets/image/wyea-logo.png" width="300" alt="wyea-logo">
       <h3>World Youth<br>Exchange Association</h3>
-      <p class="organization-name">세계청년교류연합</p>
+      <p class="organization-name" data-no-translate>세계청년교류연합</p>
       <p class="organization-intro">청년들의 국제 교류와 협력을 위한 <strong>비영리단체</strong></p>
       <RouterLink class="join-link" to="/join">가입하러 가기</RouterLink>
       <RouterLink v-if="SHOW_REPORT_LINKS" class="report-link" to="/report">참가 기록 제출 →</RouterLink>

@@ -87,7 +87,7 @@ const routerInstance = createRouter({
       path: '/personalinformationprocessingpolicy',
       name: 'personalinformationprocessingpolicy',
       component: () => import('../views/PersonalInformationProcessingPolicy.vue'),
-      meta: {bg: '#ffffff'}
+      meta: {bg: '#ffffff', title: '개인정보 처리방침 | 세계청년교류연합(WYEA)', description: '세계청년교류연합(WYEA)의 개인정보 처리방침을 안내합니다.'}
     },
     {
       path: '/login',

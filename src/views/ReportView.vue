@@ -120,7 +120,7 @@ async function submit() {
             <p>모두 입력해 주세요.</p>
             <label>행사명<select v-model="values.g_event" required><option value="">행사를 선택해 주세요</option><option v-for="event in events" :key="event" :value="event">{{ event }}</option></select></label>
             <label>일시<input v-model="values.g_when" type="datetime-local" required /></label>
-            <label>역할<select v-model="values.g_role" required><option value="">역할을 선택해 주세요</option><option v-for="role in reportRoles" :key="role">{{ role }}</option></select></label>
+            <label>역할<select v-model="values.g_role" required><option value="">역할을 선택해 주세요</option><option v-for="role in reportRoles" :key="role" :value="role">{{ role }}</option></select></label>
             <label class="check"><input v-model="confirmed" type="checkbox" required /> 위 행사에 참가한 사실을 확인합니다.</label>
           </section>
           <section v-for="key in sectionKeys" :key="key">
@@ -129,7 +129,7 @@ async function submit() {
             <template v-for="field in reportSections[key].fields" :key="field.key">
               <label>{{ field.label }}
                 <textarea v-if="field.type === 'textarea'" v-model="values[field.key]" maxlength="2000" rows="3" />
-                <select v-else-if="field.type === 'select'" v-model="values[field.key]"><option value="">선택해 주세요</option><option>예</option><option>아니오</option><option>미정</option></select>
+                <select v-else-if="field.type === 'select'" v-model="values[field.key]"><option value="">선택해 주세요</option><option value="예">예</option><option value="아니오">아니오</option><option value="미정">미정</option></select>
                 <input v-else v-model="values[field.key]" :type="field.type" maxlength="2000" />
               </label>
             </template>

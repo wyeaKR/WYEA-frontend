@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
+import { translate } from '@/i18n/language'
 
 export type NewsListItem = {
   path: string
@@ -20,7 +21,10 @@ const query = ref('')
 const page = ref(1)
 const pageSize = 10
 const ordered = computed(() => [...props.items].sort((a, b) => Number(!!b.pinned) - Number(!!a.pinned) || b.datetime.localeCompare(a.datetime)))
-const filtered = computed(() => ordered.value.filter(item => item.title.toLocaleLowerCase('ko').includes(query.value.trim().toLocaleLowerCase('ko'))))
+const filtered = computed(() => ordered.value.filter(item => {
+  const needle = query.value.trim().toLocaleLowerCase()
+  return item.title.toLocaleLowerCase().includes(needle) || translate(item.title).toLocaleLowerCase().includes(needle)
+}))
 const totalPages = computed(() => Math.max(1, Math.ceil(filtered.value.length / pageSize)))
 const visible = computed(() => filtered.value.slice((page.value - 1) * pageSize, page.value * pageSize))
 const itemNumber = (item: NewsListItem) => {
